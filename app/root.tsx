@@ -10,6 +10,7 @@ import {
   json,
   Form,
   redirect,
+  useCatch,
 } from 'remix'
 import type { MetaFunction, ErrorBoundaryComponent, LoaderFunction, ActionFunction } from 'remix'
 import { destroySession, commitSession, getUserSession } from './sessions.server'
@@ -75,7 +76,7 @@ export default function App() {
                 >
                   <svg
                     xmlns='http://www.w3.org/2000/svg'
-                    className='h-4 w-4 mr-1 sm:h-3 sm:w-3'
+                    className='h-5 w-5 mr-1 sm:h-3 sm:w-3'
                     fill='none'
                     viewBox='0 0 24 24'
                     stroke='currentColor'
@@ -96,7 +97,7 @@ export default function App() {
                 >
                   <svg
                     xmlns='http://www.w3.org/2000/svg'
-                    className='h-4 w-4 mr-1 sm:h-3 sm:w-3'
+                    className='h-5 w-5 mr-1 sm:h-3 sm:w-3'
                     fill='none'
                     viewBox='0 0 24 24'
                     stroke='currentColor'
@@ -170,10 +171,31 @@ export const ErrorBoundary: ErrorBoundaryComponent = ({ error }) => {
         <Meta />
         <Links />
       </head>
-      <body>
+      <body className='p-4'>
         <h1>Oh no! An error occured.</h1>
-        <pre>
+        <pre className='bg-gray-200 inline-block mt-3'>
           {error.name}: {error.message}
+        </pre>
+        <Scripts />
+      </body>
+    </html>
+  )
+}
+
+export const CatchBoundary = () => {
+  const caught = useCatch()
+
+  return (
+    <html>
+      <head>
+        <title>Oops!</title>
+        <Meta />
+        <Links />
+      </head>
+      <body className='p-4'>
+        <h1>Oops! An error was thrown!</h1>
+        <pre className='bg-gray-200 inline-block mt-3'>
+          {caught.status} {caught.statusText}
         </pre>
         <Scripts />
       </body>
