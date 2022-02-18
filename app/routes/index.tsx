@@ -1,174 +1,159 @@
-import { Link } from 'remix'
-import animationStyles from '../styles/animations.css'
+import { auth } from '~/utils/firebase'
+import { signInWithEmailAndPassword } from '@firebase/auth'
+import {
+  redirect,
+  Form,
+  Link,
+  json,
+  useActionData,
+  useTransition,
+  type LoaderFunction,
+  type ActionFunction,
+} from 'remix'
+import React, { useState } from 'react'
+import { commitSession, getUserSession } from '~/sessions.server'
+import invariant from 'tiny-invariant'
+import { Icon, LoadingSpinner } from '~/components/Icons'
+import { renderLoginError } from '~/utils/errors'
 
-export const links = () => {
-  return [{ rel: 'stylesheet', href: animationStyles }]
+// Check for an existing session
+// If found, send the user to the dashboard
+export const loader: LoaderFunction = async ({ request }) => {
+  const session = await getUserSession(request)
+
+  if (session.has('access_token') && auth.currentUser) {
+    return redirect('/dashboard')
+  }
+
+  const data = { error: session.get('error') }
+
+  return json(data, {
+    headers: {
+      'Set-Cookie': await commitSession(session),
+    },
+  })
 }
 
-export default function Index() {
+// Sign user in, create the session and redirect to dashboard
+export const action: ActionFunction = async ({ request }) => {
+  const formData = await request.formData()
+  const email = formData.get('email')?.toString()
+  const password = formData.get('password')?.toString()
+
+  invariant(email, 'Email is required')
+  invariant(password, 'Password is required')
+
+  try {
+    const { user } = await signInWithEmailAndPassword(auth, email, password)
+    if (user) {
+      const session = await getUserSession(request)
+      session.set('access_token', await user.getIdToken())
+      return redirect('/dashboard', {
+        headers: {
+          'Set-Cookie': await commitSession(session),
+        },
+      })
+    }
+  } catch (error) {
+    return { error }
+  }
+}
+
+export default function Login() {
+  const actionData = useActionData()
+  const transition = useTransition()
+  const [showPassword, setShowPassword] = useState(false)
+
+  const handlePasswordToggle = (event: React.MouseEvent) => {
+    event.preventDefault()
+    setShowPassword(!showPassword)
+  }
+
   return (
-    <main>
-      <aside className='p-12 bg-gradient-to-tr from-gray-900 to-gray-800 sm:p-16 lg:p-24 lg:py-36'>
-        <div className='max-w-3xl mx-auto text-center'>
-          <span className='wave'>
-            <img
-              src='/images/waving-hand.png'
-              alt='Waving hand emoji'
-              className='h-10 w-10 mx-auto'
-              width={40}
-              height={40}
+    <div className='max-w-lg mx-auto mt-2 p-6'>
+      <Form
+        method='post'
+        className='p-8 mt-6 mb-0 space-y-4 rounded-md bg-white shadow-md border border-gray-100'
+      >
+        <p className='text-lg font-semibold mb-6'>Login</p>
+
+        {actionData?.error ? (
+          <div className='bg-red-50 text-red-500 p-3 rounded-lg text-sm flex items-center'>
+            <Icon icon='warning' /> {renderLoginError(actionData.error.code as string)}
+          </div>
+        ) : null}
+
+        <div>
+          <label htmlFor='email' className='text-sm font-medium'>
+            E-Mail
+          </label>
+
+          <div className='relative mt-1'>
+            <input
+              type='email'
+              id='email'
+              name='email'
+              className='w-full p-4 pr-12 text-sm border-gray-200 rounded-md shadow-sm'
+              placeholder='E-Mail Adresse'
+              required
             />
-          </span>
 
-          <h1 className='my-4 text-5xl font-semibold text-transparent bg-clip-text bg-gradient-to-br from-pink-400 to-purple-600 leading-none tracking-tight sm:text-7xl lg:text-8xl'>
-            Deine neue App
-            <br />
-            für Diensttermine.
-          </h1>
-
-          <h2 className='md:text-lg lg:text-2xl text-gray-200 my-6'>
-            Freie Termine eintragen, Link verschicken, fertig.
-          </h2>
-
-          <form className='mt-8 max-w-xl mx-auto sm:flex'>
-            <div className='sm:flex-1'>
-              <label htmlFor='email' className='sr-only'>
-                E-Mail
-              </label>
-
-              <input
-                type='email'
-                placeholder='Deine E-Mail Adresse'
-                className='w-full p-3 text-white bg-gray-800 border-2 border-gray-700 rounded-lg focus:border-indigo-500'
-              />
-            </div>
-
-            <button
-              type='submit'
-              className='flex items-center justify-between w-full px-5 py-3 mt-4 font-medium text-white bg-indigo-500 rounded-lg transition-colors sm:w-auto sm:mt-0 sm:ml-4 hover:bg-indigo-400'
-            >
-              Registrieren
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                fill='none'
-                viewBox='0 0 24 24'
-                stroke='currentColor'
-                className='flex-shrink-0 w-4 h-4 ml-3'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth='2'
-                  d='M14 5l7 7m0 0l-7 7m7-7H3'
-                />
-              </svg>
-            </button>
-          </form>
-
-          <p className='text-gray-300 text-sm mt-8'>
-            <strong className='text-purple-400'>42</strong> Personen nutzen miny schon
-          </p>
-        </div>
-      </aside>
-
-      <section className='bg-white'>
-        <div className='max-w-screen-xl mx-auto px-4 py-24 sm:px-6 lg:px-8'>
-          <div className='grid grid-cols-1 lg:grid-cols-2 gap-y-8 gap-x-16 lg:items-center'>
-            <div className='max-w-lg px-4 mx-auto text-center lg:text-left lg:mx-0 lg:px-0'>
-              <h3 className='text-2xl font-bold text-gray-900 sm:text-3xl'>
-                Diensttermine ganz einfach per Link vereinbaren
-              </h3>
-
-              <p className='mt-4 text-lg text-gray-500'>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Cumque doloremque qui
-                fugiat illum? Nam possimus vero id quibusdam repudiandae debitis exercitationem
-                dolorem dolorum! Error corporis iure eum, repellat molestiae cum?
-              </p>
-
-              <a
-                className='inline-block px-5 py-3 mt-8 font-medium text-white bg-blue-600 rounded-lg'
-                href=''
-              >
-                Jetzt registrieren
-              </a>
-            </div>
-
-            <div className='grid grid-cols-2 gap-4 sm:grid-cols-3 lg:order-first'>
-              <a className='block p-4 bg-white border border-gray-100 shadow-sm rounded-xl' href=''>
-                <span className='inline-block p-3 text-purple-900 rounded-lg bg-purple-50'>
-                  <svg
-                    xmlns='http://www.w3.org/2000/svg'
-                    className='h-6 w-6'
-                    fill='none'
-                    viewBox='0 0 24 24'
-                    stroke='currentColor'
-                  >
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M12 19l9 2-9-18-9 18 9-2zm0 0v-8'
-                    />
-                  </svg>
-                </span>
-
-                <h6 className='mt-2 font-medium text-gray-900'>Praktisch</h6>
-                <p className='hidden mt-1 text-sm text-gray-500 sm:block'>
-                  Freie Termine einfach per Link teilen
-                </p>
-              </a>
-
-              <a className='block p-4 bg-white border border-gray-100 shadow-sm rounded-xl' href=''>
-                <span className='inline-block p-3 text-blue-900 rounded-lg bg-blue-50'>
-                  <svg
-                    xmlns='http://www.w3.org/2000/svg'
-                    className='h-6 w-6'
-                    fill='none'
-                    viewBox='0 0 24 24'
-                    stroke='currentColor'
-                  >
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
-                    />
-                  </svg>
-                </span>
-
-                <h6 className='mt-2 font-medium text-gray-900'>Einfach</h6>
-                <p className='hidden mt-1 text-sm text-gray-500 sm:block'>
-                  miny ist ganz einfach zu benutzen
-                </p>
-              </a>
-
-              <a className='block p-4 bg-white border border-gray-100 shadow-sm rounded-xl' href=''>
-                <span className='inline-block p-3 text-orange-900 rounded-lg bg-orange-50'>
-                  <svg
-                    xmlns='http://www.w3.org/2000/svg'
-                    className='h-6 w-6'
-                    fill='none'
-                    viewBox='0 0 24 24'
-                    stroke='currentColor'
-                  >
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'
-                    />
-                  </svg>
-                </span>
-
-                <h6 className='mt-2 font-medium text-gray-900'>Schnell</h6>
-                <p className='hidden mt-1 text-sm text-gray-500 sm:block'>
-                  miny spart dir wertvolle Zeit
-                </p>
-              </a>
-            </div>
+            <span className='absolute inset-y-0 inline-flex items-center right-4'>
+              <Icon icon='at' />
+            </span>
           </div>
         </div>
-      </section>
-    </main>
+
+        <div>
+          <label htmlFor='password' className='text-sm font-medium'>
+            Passwort
+          </label>
+
+          <div className='relative mt-1'>
+            <input
+              type={showPassword ? 'text' : 'password'}
+              id='password'
+              name='password'
+              className='w-full p-4 pr-12 text-sm border-gray-200 rounded-md shadow-sm'
+              placeholder='Passwort'
+              required
+            />
+
+            <button
+              className='absolute inset-y-0 inline-flex items-center right-4'
+              onClick={handlePasswordToggle}
+            >
+              {showPassword ? <Icon icon='eyeOff' /> : <Icon icon='eye' />}
+            </button>
+          </div>
+        </div>
+
+        <button
+          type='submit'
+          disabled={transition.state === 'submitting'}
+          className='inline-flex justify-center w-full px-5 py-3 text-sm font-semibold text-white bg-indigo-500 rounded-md hover:bg-indigo-400'
+        >
+          {transition.state === 'submitting' ? <LoadingSpinner /> : 'Anmelden'}
+        </button>
+
+        <p className='text-sm text-center text-gray-500'>
+          Noch kein Konto?{' '}
+          <Link to='/register' className='underline hover:text-gray-600'>
+            Registrieren
+          </Link>
+          <br />
+          <Link to='/forgot' className='underline hover:text-gray-600'>
+            Passwort vergessen?
+          </Link>
+        </p>
+      </Form>
+
+      <img
+        src='/images/login-illustration.svg'
+        alt='Zwei Personen unterhalten sich per Videochat'
+        className='h-52 mx-auto mt-6'
+        height={208}
+      />
+    </div>
   )
 }

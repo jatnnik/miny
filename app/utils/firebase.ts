@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
 
-// Your web app's Firebase configuration
+// Firebase configuration
 const firebaseConfig = {
   apiKey: process.env.FIREBASE_API_KEY,
   authDomain: 'miny-de735.firebaseapp.com',
@@ -15,5 +15,10 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig)
 
 const auth = getAuth(app)
+
+auth.onAuthStateChanged(user => {
+  console.log(user?.email)
+  console.log(user?.emailVerified)
+})
 
 export { auth }

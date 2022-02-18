@@ -1,14 +1,10 @@
 import { auth } from '~/utils/firebase'
-import { createUserWithEmailAndPassword } from '@firebase/auth'
 import {
-  redirect,
-  Form,
-  Link,
-  json,
-  useActionData,
-  type LoaderFunction,
-  type ActionFunction,
-} from 'remix'
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+  updateProfile,
+} from '@firebase/auth'
+import { redirect, Form, Link, useActionData, type ActionFunction } from 'remix'
 import { commitSession, getUserSession } from '~/sessions.server'
 import invariant from 'tiny-invariant'
 
@@ -16,9 +12,11 @@ export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData()
   const email = formData.get('email')?.toString()
   const password = formData.get('password')?.toString()
+  const displayName = formData.get('firstName')?.toString()
 
   invariant(email, 'Email is required')
   invariant(password, 'Password is required')
+  invariant(displayName, 'Name is required')
 
   // Perform a sign out to clear any active sessions
   await auth.signOut()
@@ -26,6 +24,13 @@ export const action: ActionFunction = async ({ request }) => {
   try {
     await createUserWithEmailAndPassword(auth, email, password)
     const session = await getUserSession(request)
+
+    // Send a verification email if the registration was successful and update the display name
+    if (auth.currentUser) {
+      await sendEmailVerification(auth.currentUser)
+      await updateProfile(auth.currentUser, { displayName })
+    }
+
     session.set('access_token', auth.currentUser?.getIdToken())
     return redirect('/dashboard', {
       headers: {
@@ -45,8 +50,12 @@ export default function Register() {
       <h1>Registrieren</h1>
       <Form method='post'>
         <p>
+          <label htmlFor='firstName'>Vorname</label>
+          <input type='text' name='firstName' placeholder='Dein Vorname' required />
+        </p>
+        <p>
           <label htmlFor='email'>E-Mail</label>
-          <input type='email' name='email' placeholder='deine@mail.de' required />
+          <input type='email' name='email' placeholder='E-Mail Adresse' required />
         </p>
         <p>
           <label htmlFor='password'>Passwort</label>
