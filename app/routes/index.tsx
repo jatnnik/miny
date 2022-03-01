@@ -9,12 +9,16 @@ import {
   useTransition,
   type LoaderFunction,
   type ActionFunction,
+  type MetaFunction,
 } from 'remix'
-import React, { useState } from 'react'
 import { commitSession, getUserSession } from '~/sessions.server'
 import invariant from 'tiny-invariant'
 import { Icon, LoadingSpinner } from '~/components/Icons'
 import { renderLoginError } from '~/utils/errors'
+
+export const meta: MetaFunction = () => {
+  return { title: 'Login – miny', description: 'Ganz einfach Diensttermine vereinbaren.' }
+}
 
 // Check for an existing session
 // If found, send the user to the dashboard
@@ -62,98 +66,79 @@ export const action: ActionFunction = async ({ request }) => {
 export default function Login() {
   const actionData = useActionData()
   const transition = useTransition()
-  const [showPassword, setShowPassword] = useState(false)
-
-  const handlePasswordToggle = (event: React.MouseEvent) => {
-    event.preventDefault()
-    setShowPassword(!showPassword)
-  }
 
   return (
-    <div className='max-w-lg mx-auto mt-2 p-6'>
-      <Form
-        method='post'
-        className='p-8 mt-6 mb-0 space-y-4 rounded-md bg-white shadow-md border border-gray-100'
-      >
-        <p className='text-lg font-semibold mb-6'>Login</p>
+    <div className='min-h-screen flex flex-col justify-center items-center'>
+      <div>
+        <Link to='/' className='bg-red-400 bg-opacity-20 p-2 block rounded-lg'>
+          <img src='https://emojicdn.elk.sh/🎒' className='h-8' />
+        </Link>
+      </div>
+      <div className='w-full max-w-md mt-6 px-6 py-4 bg-white shadow-md rounded-lg'>
+        <Form method='post'>
+          {actionData?.error ? (
+            <div className='bg-red-50 text-red-500 p-3 rounded-lg mb-6 text-sm flex items-center'>
+              <Icon icon='warning' spaceRight /> {renderLoginError(actionData.error.code as string)}
+            </div>
+          ) : null}
 
-        {actionData?.error ? (
-          <div className='bg-red-50 text-red-500 p-3 rounded-lg text-sm flex items-center'>
-            <Icon icon='warning' /> {renderLoginError(actionData.error.code as string)}
-          </div>
-        ) : null}
+          <div>
+            <label htmlFor='email' className='text-sm font-medium block mb-0.5'>
+              E-Mail
+            </label>
 
-        <div>
-          <label htmlFor='email' className='text-sm font-medium'>
-            E-Mail
-          </label>
-
-          <div className='relative mt-1'>
             <input
               type='email'
               id='email'
               name='email'
-              className='w-full p-4 pr-12 text-sm border-gray-200 rounded-md shadow-sm'
-              placeholder='E-Mail Adresse'
+              className='rounded-lg shadow-sm border-slate-300 focus:border-slate-400 focus:ring focus:ring-slate-200 focus:ring-opacity-50 block mt-1 w-full'
               required
+              autoFocus
             />
-
-            <span className='absolute inset-y-0 inline-flex items-center right-4'>
-              <Icon icon='at' />
-            </span>
           </div>
-        </div>
 
-        <div>
-          <label htmlFor='password' className='text-sm font-medium'>
-            Passwort
-          </label>
+          <div className='mt-4'>
+            <label htmlFor='password' className='text-sm font-medium block mb-0.5'>
+              Passwort
+            </label>
 
-          <div className='relative mt-1'>
             <input
-              type={showPassword ? 'text' : 'password'}
+              type='password'
               id='password'
               name='password'
-              className='w-full p-4 pr-12 text-sm border-gray-200 rounded-md shadow-sm'
-              placeholder='Passwort'
+              className='rounded-lg shadow-sm border-slate-300 focus:border-slate-400 focus:ring focus:ring-slate-200 focus:ring-opacity-50 block mt-1 w-full'
               required
+              autoComplete='current-password'
             />
+          </div>
+
+          <div className='flex items-center justify-between mt-4'>
+            <div className='space-y-1'>
+              <a
+                className='block underline text-sm text-slate-600 hover:text-slate-900'
+                href='/register'
+              >
+                Noch nicht registriert?
+              </a>
+
+              <a
+                className='block underline text-sm text-slate-600 hover:text-slate-900'
+                href='/forgot-password'
+              >
+                Passwort vergessen?
+              </a>
+            </div>
 
             <button
-              className='absolute inset-y-0 inline-flex items-center right-4'
-              onClick={handlePasswordToggle}
+              type='submit'
+              disabled={transition.state === 'submitting'}
+              className='inline-flex items-center text-center px-4 py-2 bg-slate-700 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-slate-600 active:bg-slate-800 focus:outline-none focus:border-slate-800 focus:ring ring-slate-300 disabled:opacity-25 transition ease-in-out duration-150 ml-3'
             >
-              {showPassword ? <Icon icon='eyeOff' /> : <Icon icon='eye' />}
+              Anmelden
             </button>
           </div>
-        </div>
-
-        <button
-          type='submit'
-          disabled={transition.state === 'submitting'}
-          className='inline-flex justify-center w-full px-5 py-3 text-sm font-semibold text-white bg-indigo-500 rounded-md hover:bg-indigo-400'
-        >
-          {transition.state === 'submitting' ? <LoadingSpinner /> : 'Anmelden'}
-        </button>
-
-        <p className='text-sm text-center text-gray-500'>
-          Noch kein Konto?{' '}
-          <Link to='/register' className='underline hover:text-gray-600'>
-            Registrieren
-          </Link>
-          <br />
-          <Link to='/forgot' className='underline hover:text-gray-600'>
-            Passwort vergessen?
-          </Link>
-        </p>
-      </Form>
-
-      <img
-        src='/images/login-illustration.svg'
-        alt='Zwei Personen unterhalten sich per Videochat'
-        className='h-52 mx-auto mt-6'
-        height={208}
-      />
+        </Form>
+      </div>
     </div>
   )
 }

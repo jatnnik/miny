@@ -1,5 +1,5 @@
 const Card: React.FC = ({ children }) => (
-  <div className='p-6 rounded-md bg-white shadow-md border border-gray-100'>{children}</div>
+  <div className='p-8 rounded-lg bg-white shadow-sm border border-slate-200'>{children}</div>
 )
 
 export default Card

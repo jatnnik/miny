@@ -21,7 +21,7 @@ import { Icon } from './components/Icons'
 import styles from './styles/app.css'
 
 export const meta: MetaFunction = () => {
-  return { title: 'miny', description: 'Ganz einfach Dienst-Termine vereinbaren.' }
+  return { title: 'miny', description: 'Ganz einfach Diensttermine vereinbaren.' }
 }
 
 export const links = () => {
@@ -57,12 +57,12 @@ export const action: ActionFunction = async ({ request }) => {
 }
 
 export default function App() {
-  const data = useLoaderData()
-  const isLoggedIn = data?.user
+  // const data = useLoaderData()
+  // const isLoggedIn = data?.user
 
   return (
     <Layout>
-      <header className='sticky inset-x-0 top-0 z-50 bg-white border-b-2 border-slate-200'>
+      {/* <header className='sticky inset-x-0 top-0 z-50 bg-white shadow-sm border-b border-slate-200'>
         <div className='max-w-screen-lg px-6 mx-auto h-16 flex justify-between items-center'>
           <nav role='navigation' className='flex items-center space-x-4'>
             <Link to='/'>
@@ -101,7 +101,7 @@ export default function App() {
             </Form>
           )}
         </div>
-      </header>
+      </header> */}
     </Layout>
   )
 }
@@ -114,10 +114,10 @@ const Layout: FC = ({ children }) => (
       <Meta />
       <Links />
     </head>
-    <body className='antialiased bg-slate-50'>
+    <body className='antialiased font-sans bg-slate-100 text-slate-700'>
       {children}
       <Outlet />
-      <Footer />
+      {/* <Footer /> */}
       <ScrollRestoration />
       <Scripts />
       {process.env.NODE_ENV === 'development' && <LiveReload />}

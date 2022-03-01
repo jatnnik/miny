@@ -48,17 +48,29 @@ export default function Dashboard() {
 
   console.log(user)
 
-  if (user.isVerified) {
+  if (!user.isVerified) {
     return <NotVerified email={user.email} />
   }
 
   return (
     <div className='py-10'>
       <Container>
-        <div className='flex items-center'>
-          <h1 className='mr-2 font-bold text-xl'>Hi {user.displayName}</h1>
-          <img src='/images/waving-hand.png' alt='Winkende Hand Emoji' className='wave h-7' />
-        </div>
+        <Card>
+          <div className='flex items-center'>
+            <h1 className='mr-2 font-bold text-xl'>Hey {user.displayName}</h1>
+            <img
+              src='/images/waving-hand.png'
+              alt='Winkende Hand Emoji'
+              className='wave h-7'
+              height='28'
+            />
+          </div>
+          <p className='pt-2 text-slate-600'>
+            Lorem ipsum, dolor sit amet consectetur adipisicing elit. Voluptas dolores id quo illum
+            facere vel quia culpa? Atque necessitatibus similique nemo voluptatibus iusto,
+            assumenda, minus, nisi ullam iste impedit voluptates?
+          </p>
+        </Card>
       </Container>
     </div>
   )
