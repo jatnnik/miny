@@ -18,14 +18,14 @@ import { auth } from './utils/firebase'
 import type { FC } from 'react'
 import { Icon } from './components/Icons'
 
-import styles from './styles/app.css'
+import tailwind from './styles/tailwind-build.css'
 
 export const meta: MetaFunction = () => {
   return { title: 'miny', description: 'Ganz einfach Diensttermine vereinbaren.' }
 }
 
 export const links = () => {
-  return [{ rel: 'stylesheet', href: styles }]
+  return [{ rel: 'stylesheet', href: tailwind }]
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -48,60 +48,31 @@ export const action: ActionFunction = async ({ request }) => {
   const session = await getUserSession(request)
 
   if (session.has('access_token')) {
-    return redirect('/', {
+    return redirect('/login', {
       headers: { 'Set-Cookie': await destroySession(session) },
     })
   }
   auth.signOut()
-  return redirect('/')
+  return redirect('/login')
 }
 
 export default function App() {
-  // const data = useLoaderData()
-  // const isLoggedIn = data?.user
+  const data = useLoaderData()
+  const isLoggedIn = data?.user
 
   return (
     <Layout>
-      {/* <header className='sticky inset-x-0 top-0 z-50 bg-white shadow-sm border-b border-slate-200'>
-        <div className='max-w-screen-lg px-6 mx-auto h-16 flex justify-between items-center'>
-          <nav role='navigation' className='flex items-center space-x-4'>
-            <Link to='/'>
-              <img src='/images/miny.svg' alt='miny Logo' className='h-5' />
-            </Link>
-            {isLoggedIn && (
-              <>
-                <span className='block w-px h-6 bg-gray-200'></span>
-                <Link
-                  className='text-xs font-medium hover:opacity-75 flex items-center'
-                  to='/dashboard'
-                >
-                  <Icon icon='calendar' spaceRight />
-                  <span className='sr-only sm:not-sr-only'>Termine</span>
-                </Link>
-                <span className='block w-px h-6 bg-gray-200'></span>
-                <Link
-                  className='flex items-center text-xs font-medium hover:opacity-75'
-                  to='/settings'
-                >
-                  <Icon icon='settings' spaceRight />
-                  <span className='sr-only sm:not-sr-only'>Einstellungen</span>
-                </Link>
-              </>
-            )}
-          </nav>
-          {isLoggedIn && (
-            <Form method='post'>
-              <button
-                type='submit'
-                className='flex items-center text-xs font-medium hover:opacity-75'
-              >
-                <Icon icon='logout' spaceRight />
-                <span className='sr-only sm:not-sr-only'>Abmelden</span>
-              </button>
-            </Form>
-          )}
-        </div>
-      </header> */}
+      {isLoggedIn && (
+        <Form method='post'>
+          <button
+            type='submit'
+            className='flex items-center text-xs font-medium hover:opacity-75 absolute right-5 top-5 text-rose-600'
+          >
+            <Icon icon='logout' spaceRight />
+            <span className='sr-only sm:not-sr-only'>Abmelden</span>
+          </button>
+        </Form>
+      )}
     </Layout>
   )
 }
@@ -123,16 +94,6 @@ const Layout: FC = ({ children }) => (
       {process.env.NODE_ENV === 'development' && <LiveReload />}
     </body>
   </html>
-)
-
-const Footer = () => (
-  <p className='text-xs text-slate-500 text-center py-6'>
-    &copy;{new Date().getFullYear()} &middot;{' '}
-    <a href='https://github.com/wh1zk1d' target='_blank' rel='noopener noreferrer'>
-      wh1zk1d
-    </a>{' '}
-    &middot; Danke für die Idee Linda.
-  </p>
 )
 
 export const ErrorBoundary: ErrorBoundaryComponent = ({ error }) => {

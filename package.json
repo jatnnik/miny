@@ -5,9 +5,9 @@
   "license": "",
   "scripts": {
     "build": "npm run build:css && remix build",
-    "build:css": "tailwindcss -m -i ./styles/app.css -o app/styles/app.css",
+    "build:css": "tailwindcss -m -i app/styles/tailwind.css -o app/styles/tailwind-build.css",
     "dev": "concurrently \"npm run dev:css\" \"node -r dotenv/config node_modules/.bin/remix dev\"",
-    "dev:css": "tailwindcss -w -i ./styles/app.css -o app/styles/app.css",
+    "dev:css": "tailwindcss -w -i app/styles/tailwind.css -o app/styles/tailwind-build.css",
     "postinstall": "remix setup node",
     "start": "remix-serve build"
   },
@@ -15,6 +15,7 @@
     "@remix-run/react": "^1.1.3",
     "@remix-run/serve": "^1.1.3",
     "@tailwindcss/forms": "^0.4.0",
+    "boring-avatars": "^1.6.3",
     "classnames": "^2.3.1",
     "dotenv": "^16.0.0",
     "firebase": "^9.6.5",

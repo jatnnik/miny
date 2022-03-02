@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* public-sans-regular - latin */
+  @font-face {
+    font-family: 'Public Sans';
+    font-style: normal;
+    font-weight: 400;
+    src: local(''), url('/fonts/public-sans/public-sans-v11-latin-regular.woff2') format('woff2'),
+      /* Chrome 26+, Opera 23+, Firefox 39+ */
+        url('/fonts/public-sans/public-sans-v11-latin-regular.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+  }
+  /* public-sans-500 - latin */
+  @font-face {
+    font-family: 'Public Sans';
+    font-style: normal;
+    font-weight: 500;
+    src: local(''), url('/fonts/public-sans/public-sans-v11-latin-500.woff2') format('woff2'),
+      /* Chrome 26+, Opera 23+, Firefox 39+ */
+        url('/fonts/public-sans/public-sans-v11-latin-500.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+  }
+
+  /* fraunces-900 - latin */
+  @font-face {
+    font-family: 'Fraunces';
+    font-style: normal;
+    font-weight: 900;
+    src: local(''), url('/fonts/fraunces/fraunces-v10-latin-900.woff2') format('woff2'),
+      /* Chrome 26+, Opera 23+, Firefox 39+ */ url('/fonts/fraunces/fraunces-v10-latin-900.woff')
+        format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+  }
+}
+
+@layer utilities {
+  .wave {
+    animation-name: wave-animation;
+    animation-duration: 2.5s;
+    transform-origin: 70% 70%;
+    display: inline-block;
+  }
+
+  @keyframes wave-animation {
+    0% {
+      transform: rotate(0deg);
+    }
+    10% {
+      transform: rotate(14deg);
+    }
+    20% {
+      transform: rotate(-8deg);
+    }
+    30% {
+      transform: rotate(14deg);
+    }
+    40% {
+      transform: rotate(-4deg);
+    }
+    50% {
+      transform: rotate(10deg);
+    }
+    60% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(0deg);
+    }
+  }
+}

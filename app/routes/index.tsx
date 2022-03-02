@@ -1,36 +1,38 @@
-import { auth } from '~/utils/firebase'
-import { signInWithEmailAndPassword } from '@firebase/auth'
 import {
+  type LoaderFunction,
+  useLoaderData,
+  json,
   redirect,
   Form,
-  Link,
-  json,
-  useActionData,
-  useTransition,
-  type LoaderFunction,
   type ActionFunction,
   type MetaFunction,
 } from 'remix'
+import Avatar from 'boring-avatars'
+import { auth } from '~/utils/firebase'
 import { commitSession, getUserSession } from '~/sessions.server'
-import invariant from 'tiny-invariant'
-import { Icon, LoadingSpinner } from '~/components/Icons'
-import { renderLoginError } from '~/utils/errors'
 
-export const meta: MetaFunction = () => {
-  return { title: 'Login – miny', description: 'Ganz einfach Diensttermine vereinbaren.' }
+import Container from '../components/Container'
+import Card from '~/components/Card'
+
+interface NotVerifiedProps {
+  email: string
 }
 
-// Check for an existing session
-// If found, send the user to the dashboard
+export const meta: MetaFunction = () => {
+  return {
+    title: 'Dashboard – miny',
+    description: 'Verschaffe dir einen Überblick über kommende Termine oder lege neue an.',
+  }
+}
+
 export const loader: LoaderFunction = async ({ request }) => {
   const session = await getUserSession(request)
 
-  if (session.has('access_token') && auth.currentUser) {
-    return redirect('/dashboard')
+  if (!session.has('access_token') || !auth.currentUser) {
+    return redirect('/login')
   }
 
-  const data = { error: session.get('error') }
-
+  const data = { user: auth.currentUser, error: session.get('error') }
   return json(data, {
     headers: {
       'Set-Cookie': await commitSession(session),
@@ -38,107 +40,122 @@ export const loader: LoaderFunction = async ({ request }) => {
   })
 }
 
-// Sign user in, create the session and redirect to dashboard
 export const action: ActionFunction = async ({ request }) => {
-  const formData = await request.formData()
-  const email = formData.get('email')?.toString()
-  const password = formData.get('password')?.toString()
+  const session = await getUserSession(request)
 
-  invariant(email, 'Email is required')
-  invariant(password, 'Password is required')
+  // Refresh the current user to re-check if the email is verified
+  await auth.currentUser?.reload()
 
-  try {
-    const { user } = await signInWithEmailAndPassword(auth, email, password)
-    if (user) {
-      const session = await getUserSession(request)
-      session.set('access_token', await user.getIdToken())
-      return redirect('/dashboard', {
-        headers: {
-          'Set-Cookie': await commitSession(session),
-        },
-      })
-    }
-  } catch (error) {
-    return { error }
+  const data = { user: auth.currentUser, error: session.get('error') }
+  if (session.has('access_token')) {
+    return json(data, {
+      headers: { 'Set-Cookie': await commitSession(session) },
+    })
   }
 }
 
-export default function Login() {
-  const actionData = useActionData()
-  const transition = useTransition()
+export default function Dashboard() {
+  const data = useLoaderData()
+  const user = {
+    isVerified: data.user.emailVerified,
+    email: data.user.email,
+    displayName: data.user.providerData[0].displayName,
+  }
+
+  console.log(user)
+
+  if (!user.isVerified) {
+    return <NotVerified email={user.email} />
+  }
 
   return (
-    <div className='min-h-screen flex flex-col justify-center items-center'>
-      <div>
-        <Link to='/' className='bg-red-400 bg-opacity-20 p-2 block rounded-lg'>
-          <img src='https://emojicdn.elk.sh/🎒' className='h-8' />
-        </Link>
-      </div>
-      <div className='w-full max-w-md mt-6 px-6 py-4 bg-white shadow-md rounded-lg'>
-        <Form method='post'>
-          {actionData?.error ? (
-            <div className='bg-red-50 text-red-500 p-3 rounded-lg mb-6 text-sm flex items-center'>
-              <Icon icon='warning' spaceRight /> {renderLoginError(actionData.error.code as string)}
-            </div>
-          ) : null}
-
-          <div>
-            <label htmlFor='email' className='text-sm font-medium block mb-0.5'>
-              E-Mail
-            </label>
-
-            <input
-              type='email'
-              id='email'
-              name='email'
-              className='rounded-lg shadow-sm border-slate-300 focus:border-slate-400 focus:ring focus:ring-slate-200 focus:ring-opacity-50 block mt-1 w-full'
-              required
-              autoFocus
+    <div className='py-10'>
+      <Container>
+        <Card>
+          <Avatar
+            size={40}
+            name={user.displayName}
+            variant='beam'
+            colors={['#92A1C6', '#146A7C', '#F0AB3D', '#C271B4', '#C20D90']}
+          />
+          <div className='flex items-center mt-4'>
+            <h1 className='mr-2 font-black font-serif text-2xl text-slate-800'>
+              Hey {user.displayName}
+            </h1>
+            <img
+              src='https://emojicdn.elk.sh/👋'
+              alt='Winkende Hand Emoji'
+              className='wave h-7'
+              height='28'
             />
           </div>
+          <p className='mt-4'>
+            Lorem ipsum, dolor sit amet consectetur adipisicing elit. Voluptas dolores id quo illum
+            facere vel quia culpa? Atque necessitatibus similique nemo voluptatibus iusto,
+            assumenda, minus, nisi ullam iste impedit voluptates?
+          </p>
+        </Card>
+      </Container>
+    </div>
+  )
+}
 
-          <div className='mt-4'>
-            <label htmlFor='password' className='text-sm font-medium block mb-0.5'>
-              Passwort
-            </label>
+const NotVerified = ({ email }: NotVerifiedProps) => {
+  return (
+    <div className='mt-10 text-slate-800'>
+      <Container>
+        <Card>
+          <div className='max-w-prose'>
+            <h3 className='font-black font-serif text-2xl text-slate-800'>
+              E-Mail Adresse bestätigen
+            </h3>
 
-            <input
-              type='password'
-              id='password'
-              name='password'
-              className='rounded-lg shadow-sm border-slate-300 focus:border-slate-400 focus:ring focus:ring-slate-200 focus:ring-opacity-50 block mt-1 w-full'
-              required
-              autoComplete='current-password'
-            />
-          </div>
+            <p className='mt-4'>
+              Du müsstest gleich eine Bestätigungsmail an deine E-Mail Adresse{' '}
+              <span className='font-medium text-rose-600'>{email}</span> bekommen. Bitte folge den
+              Anweisungen darin, um deine E-Mail Adresse zu bestätigen. Danach kannst du direkt
+              loslegen.
+            </p>
 
-          <div className='flex items-center justify-between mt-4'>
-            <div className='space-y-1'>
-              <a
-                className='block underline text-sm text-slate-600 hover:text-slate-900'
-                href='/register'
+            <details className='mt-4 text-sm text-slate-500 cursor-pointer'>
+              <summary>Warum muss ich meine E-Mail Adresse bestätigen?</summary>
+              <p className='mt-1'>
+                Sobald sich jemand für einen deiner Termine einträgt, schickt miny dir eine E-Mail,
+                um dir Bescheid zu sagen. Damit diese E-Mail auch wirklich ankommt, musst du
+                bestätigen, dass deine E-Mail Adresse korrekt ist.
+              </p>
+            </details>
+
+            <div className='mt-6'>
+              <button className='px-4 py-3 mr-2 inline-flex items-center bg-slate-700 border border-transparent rounded-md font-medium text-sm text-white hover:bg-slate-600 active:bg-slate-800 focus:outline-none focus:border-slate-800 focus:ring ring-slate-300 disabled:opacity-25 transition ease-in-out duration-150'>
+                Ich habe keine E-Mail bekommen{' '}
+                <img
+                  src='https://emojicdn.elk.sh/🤔'
+                  alt='Nachdenkliches Gesicht'
+                  className='h-5 ml-1.5'
+                />
+              </button>
+
+              <Form method='post' className='inline'>
+                {/* <button
+                type='submit'
+                className='ml-2 px-4 py-2 mt-6 font-medium text-xs leading-6 shadow rounded-md text-white bg-emerald-500 transition-colors ease-in-out duration-150 hover:bg-emerald-400'
               >
-                Noch nicht registriert?
-              </a>
-
-              <a
-                className='block underline text-sm text-slate-600 hover:text-slate-900'
-                href='/forgot-password'
-              >
-                Passwort vergessen?
-              </a>
+                Ich habe meine E-Mail bestätigt
+              </button> */}
+                <button className='px-4 py-3 inline-flex items-center bg-green-700 border border-transparent rounded-md font-medium text-sm text-white hover:bg-green-600 active:bg-green-800 focus:outline-none focus:border-green-800 focus:ring ring-slate-300 disabled:opacity-25 transition ease-in-out duration-150'>
+                  Erledigt{' '}
+                  <img
+                    src='https://emojicdn.elk.sh/👍'
+                    alt='Daumen nach oben'
+                    className='h-5 ml-1.5'
+                  />
+                </button>
+              </Form>
             </div>
-
-            <button
-              type='submit'
-              disabled={transition.state === 'submitting'}
-              className='inline-flex items-center text-center px-4 py-2 bg-slate-700 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-slate-600 active:bg-slate-800 focus:outline-none focus:border-slate-800 focus:ring ring-slate-300 disabled:opacity-25 transition ease-in-out duration-150 ml-3'
-            >
-              Anmelden
-            </button>
           </div>
-        </Form>
-      </div>
+        </Card>
+      </Container>
     </div>
   )
 }
