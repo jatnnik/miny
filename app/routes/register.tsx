@@ -1,45 +1,63 @@
-import { auth } from '~/utils/firebase'
 import {
-  createUserWithEmailAndPassword,
-  sendEmailVerification,
-  updateProfile,
-} from '@firebase/auth'
-import { redirect, Form, Link, useActionData, type ActionFunction } from 'remix'
-import { commitSession, getUserSession } from '~/sessions.server'
+  Form,
+  Link,
+  type LoaderFunction,
+  redirect,
+  useActionData,
+  type ActionFunction,
+} from 'remix'
 import invariant from 'tiny-invariant'
+import { signUp } from '~/utils/db.server'
+import { createUserSession, getUserSession } from '~/utils/session.server'
+
+// Redirect to dashboard if the user already has a valid session
+export const loader: LoaderFunction = async ({ request }) => {
+  const sessionUser = await getUserSession(request)
+  if (sessionUser) {
+    return redirect('/')
+  }
+
+  return null
+}
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData()
+
   const email = formData.get('email')?.toString()
   const password = formData.get('password')?.toString()
-  const displayName = formData.get('firstName')?.toString()
+  // const displayName = formData.get('firstName')?.toString()
 
   invariant(email, 'Email is required')
   invariant(password, 'Password is required')
-  invariant(displayName, 'Name is required')
+  // invariant(displayName, 'Name is required')
+
+  const { user } = await signUp(email, password)
+  const token = await user.getIdToken()
+
+  return createUserSession(token)
 
   // Perform a sign out to clear any active sessions
-  await auth.signOut()
+  // await auth.signOut()
 
-  try {
-    await createUserWithEmailAndPassword(auth, email, password)
-    const session = await getUserSession(request)
+  // try {
+  //   await createUserWithEmailAndPassword(auth, email, password)
+  //   const session = await getUserSession(request)
 
-    // Send a verification email if the registration was successful and update the display name
-    if (auth.currentUser) {
-      await sendEmailVerification(auth.currentUser)
-      await updateProfile(auth.currentUser, { displayName })
-    }
+  //   // Send a verification email if the registration was successful and update the display name
+  //   if (auth.currentUser) {
+  //     await sendEmailVerification(auth.currentUser)
+  //     await updateProfile(auth.currentUser, { displayName })
+  //   }
 
-    session.set('access_token', auth.currentUser?.getIdToken())
-    return redirect('/dashboard', {
-      headers: {
-        'Set-Cookie': await commitSession(session),
-      },
-    })
-  } catch (error) {
-    return { error }
-  }
+  //   session.set('access_token', auth.currentUser?.getIdToken())
+  //   return redirect('/dashboard', {
+  //     headers: {
+  //       'Set-Cookie': await commitSession(session),
+  //     },
+  //   })
+  // } catch (error) {
+  //   return { error }
+  // }
 }
 
 export default function Register() {

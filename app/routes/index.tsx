@@ -7,62 +7,61 @@ import {
   type ActionFunction,
   type MetaFunction,
 } from 'remix'
-import Avatar from 'boring-avatars'
-import { auth } from '~/utils/firebase'
-import { commitSession, getUserSession } from '~/sessions.server'
+import { signOut, getUserSession } from '~/utils/session.server'
 
-import Container from '../components/Container'
+import Container from '~/components/Container'
 import Card from '~/components/Card'
 
-interface NotVerifiedProps {
+import { LogoutIcon } from '@heroicons/react/outline'
+import invariant from 'tiny-invariant'
+
+type NotVerifiedProps = {
   email: string
+}
+
+type User = {
+  email?: string
+  isVerified?: boolean
+  name?: string
 }
 
 export const meta: MetaFunction = () => {
   return {
     title: 'Dashboard – miny',
-    description: 'Verschaffe dir einen Überblick über kommende Termine oder lege neue an.',
   }
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const session = await getUserSession(request)
-
-  if (!session.has('access_token') || !auth.currentUser) {
+  // Redirect to login if user is not authenticated
+  const sessionUser = await getUserSession(request)
+  if (!sessionUser) {
     return redirect('/login')
   }
 
-  const data = { user: auth.currentUser, error: session.get('error') }
-  return json(data, {
-    headers: {
-      'Set-Cookie': await commitSession(session),
-    },
-  })
+  // Create the user object
+  const user: User = {
+    email: sessionUser.email,
+    isVerified: sessionUser.email_verified,
+    name: sessionUser.name,
+  }
+
+  return json({ user })
 }
 
 export const action: ActionFunction = async ({ request }) => {
-  const session = await getUserSession(request)
+  const formData = await request.formData()
+  const method = formData.get('method')?.toString()
 
-  // Refresh the current user to re-check if the email is verified
-  await auth.currentUser?.reload()
-
-  const data = { user: auth.currentUser, error: session.get('error') }
-  if (session.has('access_token')) {
-    return json(data, {
-      headers: { 'Set-Cookie': await commitSession(session) },
-    })
+  if (method === 'signout') {
+    return signOut(request)
   }
 }
 
 export default function Dashboard() {
   const data = useLoaderData()
-  const user = {
-    isVerified: data.user.emailVerified,
-    email: data.user.email,
-    displayName: data.user.providerData[0].displayName,
-  }
+  const user: User = data.user
 
-  console.log(user)
+  invariant(user.email, 'User has no email')
 
   if (!user.isVerified) {
     return <NotVerified email={user.email} />
@@ -71,17 +70,24 @@ export default function Dashboard() {
   return (
     <div className='py-10'>
       <Container>
+        <Form method='post'>
+          <input type='hidden' name='method' value='signout' />
+          <button
+            type='submit'
+            className='inline-flex items-center text-sm text-red-700 hover:text-red-600'
+          >
+            <LogoutIcon className='h-4 block mr-1' /> Abmelden
+          </button>
+        </Form>
         <Card>
-          <Avatar
+          {/* <Avatar
             size={40}
-            name={user.displayName}
+            name={user.name}
             variant='beam'
             colors={['#92A1C6', '#146A7C', '#F0AB3D', '#C271B4', '#C20D90']}
-          />
-          <div className='flex items-center mt-4'>
-            <h1 className='mr-2 font-black font-serif text-2xl text-slate-800'>
-              Hey {user.displayName}
-            </h1>
+          /> */}
+          <div className='flex items-center'>
+            <h1 className='mr-2 font-black font-serif text-2xl text-slate-800'>Hey {user.name}</h1>
             <img
               src='https://emojicdn.elk.sh/👋'
               alt='Winkende Hand Emoji'

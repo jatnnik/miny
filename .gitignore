@@ -6,3 +6,5 @@ node_modules
 /public/build
 .env
 /app/styles/tailwind-build.css
+
+serviceAccountKey.json
