@@ -8,15 +8,20 @@ import {
   type MetaFunction,
 } from 'remix'
 import { signOut, getUserSession } from '~/utils/session.server'
+import invariant from 'tiny-invariant'
+import Avatar from 'boring-avatars'
 
 import Container from '~/components/Container'
 import Card from '~/components/Card'
 
 import { LogoutIcon } from '@heroicons/react/outline'
-import invariant from 'tiny-invariant'
 
 type NotVerifiedProps = {
   email: string
+}
+
+type HeaderProps = {
+  username: string
 }
 
 type User = {
@@ -57,11 +62,35 @@ export const action: ActionFunction = async ({ request }) => {
   }
 }
 
+const Header = ({ username }: HeaderProps) => (
+  <div className='flex justify-between items-center mb-8'>
+    <div className='flex items-center'>
+      <Avatar
+        size={32}
+        name={username}
+        variant='beam'
+        colors={['#92A1C6', '#146A7C', '#F0AB3D', '#C271B4', '#C20D90']}
+      />
+      <span className='block ml-2.5 font-medium'>{username}</span>
+    </div>
+    <Form method='post'>
+      <input type='hidden' name='method' value='signout' />
+      <button
+        type='submit'
+        className='inline-flex items-center text-sm text-red-700 hover:text-red-600'
+      >
+        <LogoutIcon className='h-4 block mr-1' /> Abmelden
+      </button>
+    </Form>
+  </div>
+)
+
 export default function Dashboard() {
   const data = useLoaderData()
   const user: User = data.user
 
-  invariant(user.email, 'User has no email')
+  invariant(user.email, 'user has no email')
+  invariant(user.name, 'user has no name')
 
   if (!user.isVerified) {
     return <NotVerified email={user.email} />
@@ -70,22 +99,8 @@ export default function Dashboard() {
   return (
     <div className='py-10'>
       <Container>
-        <Form method='post'>
-          <input type='hidden' name='method' value='signout' />
-          <button
-            type='submit'
-            className='inline-flex items-center text-sm text-red-700 hover:text-red-600'
-          >
-            <LogoutIcon className='h-4 block mr-1' /> Abmelden
-          </button>
-        </Form>
+        <Header username={user.name} />
         <Card>
-          {/* <Avatar
-            size={40}
-            name={user.name}
-            variant='beam'
-            colors={['#92A1C6', '#146A7C', '#F0AB3D', '#C271B4', '#C20D90']}
-          /> */}
           <div className='flex items-center'>
             <h1 className='mr-2 font-black font-serif text-2xl text-slate-800'>Hey {user.name}</h1>
             <img
