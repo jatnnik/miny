@@ -56,4 +56,9 @@ async function signOutFirebase() {
   await signOut(getAuth())
 }
 
-export { db, signIn, signUp, getSessionToken, signOutFirebase, adminAuth }
+async function getDisplayName(id: string) {
+  const { displayName } = await adminAuth.getUser(id)
+  return displayName
+}
+
+export { db, signIn, signUp, getSessionToken, signOutFirebase, adminAuth, getDisplayName }

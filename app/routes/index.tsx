@@ -15,6 +15,7 @@ import Container from '~/components/Container'
 import Card from '~/components/Card'
 
 import { LogoutIcon } from '@heroicons/react/outline'
+import { getDisplayName } from '~/utils/db.server'
 
 type NotVerifiedProps = {
   email: string
@@ -26,8 +27,7 @@ type HeaderProps = {
 
 type User = {
   email?: string
-  isVerified?: boolean
-  name?: string
+  username?: string
 }
 
 export const meta: MetaFunction = () => {
@@ -39,15 +39,18 @@ export const meta: MetaFunction = () => {
 export const loader: LoaderFunction = async ({ request }) => {
   // Redirect to login if user is not authenticated
   const sessionUser = await getUserSession(request)
+
   if (!sessionUser) {
     return redirect('/login')
   }
 
+  // Get username
+  const username = await getDisplayName(sessionUser.uid)
+
   // Create the user object
   const user: User = {
     email: sessionUser.email,
-    isVerified: sessionUser.email_verified,
-    name: sessionUser.name,
+    username,
   }
 
   return json({ user })
@@ -69,9 +72,9 @@ const Header = ({ username }: HeaderProps) => (
         size={32}
         name={username}
         variant='beam'
-        colors={['#92A1C6', '#146A7C', '#F0AB3D', '#C271B4', '#C20D90']}
+        colors={['#FFAD08', '#EDD75A', '#73B06F', '#0C8F8F', '#405059']}
       />
-      <span className='block ml-2.5 font-medium'>{username}</span>
+      <span className='block ml-2.5 text-sm font-medium'>{username}</span>
     </div>
     <Form method='post'>
       <input type='hidden' name='method' value='signout' />
@@ -89,20 +92,17 @@ export default function Dashboard() {
   const data = useLoaderData()
   const user: User = data.user
 
-  invariant(user.email, 'user has no email')
-  invariant(user.name, 'user has no name')
-
-  if (!user.isVerified) {
-    return <NotVerified email={user.email} />
-  }
+  invariant(user.username, 'user has no name')
 
   return (
     <div className='py-10'>
       <Container>
-        <Header username={user.name} />
+        <Header username={user.username} />
         <Card>
           <div className='flex items-center'>
-            <h1 className='mr-2 font-black font-serif text-2xl text-slate-800'>Hey {user.name}</h1>
+            <h1 className='mr-2 font-black font-serif text-2xl text-slate-700'>
+              Hey {user.username}
+            </h1>
             <img
               src='https://emojicdn.elk.sh/👋'
               alt='Winkende Hand Emoji'

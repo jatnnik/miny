@@ -24,7 +24,7 @@ const Layout: FC = ({ children }) => (
       <Meta />
       <Links />
     </head>
-    <body className='antialiased font-sans bg-slate-100 text-slate-700 min-h-screen'>
+    <body className='antialiased font-sans bg-slate-100 text-slate-600 min-h-screen'>
       {children}
       <Outlet />
       <ScrollRestoration />

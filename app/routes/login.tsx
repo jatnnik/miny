@@ -9,7 +9,6 @@ import {
   type MetaFunction,
 } from 'remix'
 import invariant from 'tiny-invariant'
-import { renderLoginError } from '~/utils/errors'
 import { signIn } from '~/utils/db.server'
 import { createUserSession, getUserSession } from '~/utils/session.server'
 
@@ -98,15 +97,15 @@ export default function Login() {
                   className='block underline text-sm text-slate-600 hover:text-slate-900'
                   to='/register'
                 >
-                  Noch nicht registriert?
+                  Registrieren
                 </Link>
 
-                <Link
+                {/* <Link
                   className='block underline text-sm text-slate-600 hover:text-slate-900'
                   to='/forgot-password'
                 >
                   Passwort vergessen?
-                </Link>
+                </Link> */}
               </div>
 
               <button
