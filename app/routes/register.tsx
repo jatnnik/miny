@@ -21,7 +21,7 @@ import React from 'react'
 import { updateProfile } from 'firebase/auth'
 
 // Types
-type ActionData = {
+interface ActionData {
   formError?: string
   fieldErrors?: {
     firstName: string | undefined

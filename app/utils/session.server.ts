@@ -1,10 +1,9 @@
 import { createCookieSessionStorage, redirect } from 'remix'
 import { adminAuth, getSessionToken, signOutFirebase } from './db.server'
+import invariant from 'tiny-invariant'
 
 const sessionSecret = process.env.SESSION_SECRET
-if (!sessionSecret) {
-  throw new Error('SESSION_SECRET must be set')
-}
+invariant(sessionSecret, 'SESSION_SECRET must be set')
 
 const storage = createCookieSessionStorage({
   cookie: {
