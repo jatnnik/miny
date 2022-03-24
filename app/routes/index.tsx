@@ -64,21 +64,21 @@ export const action: ActionFunction = async ({ request }) => {
 }
 
 const Header = ({ username }: HeaderProps) => (
-  <div className='flex justify-between items-center mb-8'>
-    <div className='flex items-center'>
+  <div className="mb-8 flex items-center justify-between">
+    <div className="flex items-center">
       <Avatar
         size={32}
         name={username}
-        variant='beam'
+        variant="beam"
         colors={['#FFAD08', '#EDD75A', '#73B06F', '#0C8F8F', '#405059']}
       />
-      <span className='block ml-2.5 text-sm font-medium'>{username}</span>
+      <span className="ml-2.5 block text-sm font-medium">{username}</span>
     </div>
-    <Form method='post'>
-      <input type='hidden' name='method' value='signout' />
+    <Form method="post">
+      <input type="hidden" name="method" value="signout" />
       <button
-        type='submit'
-        className='text-xs underline underline-offset-1 text-red-600 hover:text-red-500'
+        type="submit"
+        className="text-xs text-red-600 underline underline-offset-1 hover:text-red-500"
       >
         Abmelden
       </button>
@@ -93,25 +93,26 @@ export default function Dashboard() {
   const greeting = useGreeting()
 
   return (
-    <div className='py-10'>
+    <div className="py-10">
       <Container>
         <Header username={user.username} />
         <Card>
-          <div className='flex items-center'>
-            <h1 className='mr-2 font-black font-serif text-2xl text-slate-700'>
+          <div className="flex items-center">
+            <h1 className="mr-2 font-serif text-2xl font-black text-slate-700">
               {greeting} {user.username}
             </h1>
             <img
-              src='https://emojicdn.elk.sh/👋'
-              alt='Winkende Hand Emoji'
-              className='wave h-7'
-              height='28'
+              src="https://emojicdn.elk.sh/👋"
+              alt="Winkende Hand Emoji"
+              className="wave h-7"
+              height="28"
             />
           </div>
-          <p className='mt-4'>
-            Lorem ipsum, dolor sit amet consectetur adipisicing elit. Voluptas dolores id quo illum
-            facere vel quia culpa? Atque necessitatibus similique nemo voluptatibus iusto,
-            assumenda, minus, nisi ullam iste impedit voluptates?
+          <p className="mt-4">
+            Lorem ipsum, dolor sit amet consectetur adipisicing elit. Voluptas
+            dolores id quo illum facere vel quia culpa? Atque necessitatibus
+            similique nemo voluptatibus iusto, assumenda, minus, nisi ullam iste
+            impedit voluptates?
           </p>
         </Card>
       </Container>

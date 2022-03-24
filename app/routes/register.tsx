@@ -58,7 +58,7 @@ function validatePasswordConfirm(password: string, confirmPassword: unknown) {
 }
 
 export const meta: MetaFunction = () => {
-  return { title: 'Registrieren – miny' }
+  return { title: 'Registrieren' }
 }
 
 // Redirect to dashboard if the user already has a valid session
@@ -86,8 +86,11 @@ export const action: ActionFunction = async ({ request }) => {
     typeof password !== 'string' ||
     typeof confirmPassword !== 'string'
   ) {
-    return badRequest({ formError: 'Formular wurde nicht vollständig ausgefüllt' })
+    return badRequest({
+      formError: 'Formular wurde nicht vollständig ausgefüllt',
+    })
   }
+
   const fields = {
     firstName,
     email,
@@ -120,10 +123,16 @@ export const action: ActionFunction = async ({ request }) => {
       const message = error.message
       const emailIsTaken = message.includes('email-already-in-use')
       if (emailIsTaken) {
-        return badRequest<ActionData>({ formError: 'E-Mail wird bereits verwendet', fields })
+        return badRequest<ActionData>({
+          formError: 'E-Mail wird bereits verwendet',
+          fields,
+        })
       }
     }
-    return badRequest<ActionData>({ formError: 'Ein Fehler ist aufgetreten', fields })
+    return badRequest<ActionData>({
+      formError: 'Ein Fehler ist aufgetreten',
+      fields,
+    })
   }
 }
 
@@ -134,22 +143,24 @@ export default function Register() {
   const [username, setUsername] = React.useState('')
 
   return (
-    <div className='min-h-screen flex flex-col justify-center items-center'>
+    <div className="flex min-h-screen flex-col items-center justify-center">
       <Avatar
         size={48}
         name={username}
-        variant='beam'
+        variant="beam"
         colors={['#FFAD08', '#EDD75A', '#73B06F', '#0C8F8F', '#405059']}
       />
-      <div className='w-full max-w-md mt-6 px-6 py-4 bg-white shadow-md rounded-lg'>
-        <Form method='post'>
-          {actionData?.formError ? <ErrorBadge message={actionData.formError} /> : null}
+      <div className="mt-6 w-full max-w-md rounded-lg bg-white px-6 py-4 shadow-md">
+        <Form method="post">
+          {actionData?.formError ? (
+            <ErrorBadge message={actionData.formError} />
+          ) : null}
 
           <fieldset disabled={transition.state === 'submitting'}>
             <Input
-              type='text'
-              name='firstName'
-              label='Vorname'
+              type="text"
+              name="firstName"
+              label="Vorname"
               required
               autoFocus
               minLength={2}
@@ -158,35 +169,35 @@ export default function Register() {
               onChange={e => setUsername(e.target.value)}
             />
 
-            <div className='mt-4'>
+            <div className="mt-4">
               <Input
-                type='email'
-                name='email'
-                label='E-Mail'
+                type="email"
+                name="email"
+                label="E-Mail"
                 required
                 defaultValue={actionData?.fields?.email}
                 validationError={actionData?.fieldErrors?.email}
               />
             </div>
 
-            <div className='mt-4'>
+            <div className="mt-4">
               <Input
-                type='password'
-                name='password'
-                label='Passwort'
+                type="password"
+                name="password"
+                label="Passwort"
                 required
-                autoComplete='current-password'
+                autoComplete="current-password"
                 minLength={6}
                 defaultValue={actionData?.fields?.password}
                 validationError={actionData?.fieldErrors?.password}
               />
             </div>
 
-            <div className='mt-4'>
+            <div className="mt-4">
               <Input
-                type='password'
-                name='confirmPassword'
-                label='Passwort bestätigen'
+                type="password"
+                name="confirmPassword"
+                label="Passwort bestätigen"
                 required
                 minLength={6}
                 defaultValue={actionData?.fields?.confirmPassword}
@@ -194,19 +205,21 @@ export default function Register() {
               />
             </div>
 
-            <div className='flex items-center justify-between mt-4'>
-              <div className='space-y-1'>
+            <div className="mt-4 flex items-center justify-between">
+              <div className="space-y-1">
                 <Link
-                  className='block underline text-sm text-slate-600 hover:text-slate-900'
-                  to='/login'
+                  className="block text-sm text-slate-600 underline hover:text-slate-900"
+                  to="/login"
                 >
                   Anmelden
                 </Link>
               </div>
 
               <SubmitButton
-                type='submit'
-                label={transition.state === 'submitting' ? 'Lade...' : 'Registrieren'}
+                type="submit"
+                label={
+                  transition.state === 'submitting' ? 'Lade...' : 'Registrieren'
+                }
               />
             </div>
           </fieldset>

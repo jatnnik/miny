@@ -1,5 +1,8 @@
 import admin from 'firebase-admin'
-import { applicationDefault, initializeApp as initializeAdminApp } from 'firebase-admin/app'
+import {
+  applicationDefault,
+  initializeApp as initializeAdminApp,
+} from 'firebase-admin/app'
 import { initializeApp } from 'firebase/app'
 import {
   createUserWithEmailAndPassword,
@@ -61,4 +64,12 @@ async function getDisplayName(id: string) {
   return displayName
 }
 
-export { db, signIn, signUp, getSessionToken, signOutFirebase, adminAuth, getDisplayName }
+export {
+  db,
+  signIn,
+  signUp,
+  getSessionToken,
+  signOutFirebase,
+  adminAuth,
+  getDisplayName,
+}

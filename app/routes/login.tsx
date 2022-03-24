@@ -13,7 +13,7 @@ import { signIn } from '~/utils/db.server'
 import { createUserSession, getUserSession } from '~/utils/session.server'
 
 export const meta: MetaFunction = () => {
-  return { title: 'Login – miny' }
+  return { title: 'Login' }
 }
 
 // Redirect to dashboard if the user already has a valid session
@@ -28,8 +28,6 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 // Sign user in, create the session and redirect to dashboard
 export const action: ActionFunction = async ({ request }) => {
-  console.log(request.headers.get('Content-Type'))
-
   const formData = await request.formData()
 
   const email = formData.get('email')?.toString()
@@ -48,54 +46,65 @@ export default function Login() {
   const transition = useTransition()
 
   return (
-    <div className='min-h-screen flex flex-col justify-center items-center'>
-      <div className='bg-red-400 bg-opacity-20 p-2 block rounded-lg'>
-        <img src='https://emojicdn.elk.sh/🎒' className='h-8' height={32} width={32} />
+    <div className="flex min-h-screen flex-col items-center justify-center">
+      <div className="block rounded-lg bg-red-400 bg-opacity-20 p-2">
+        <img
+          src="https://emojicdn.elk.sh/🎒"
+          className="h-8"
+          height={32}
+          width={32}
+        />
       </div>
-      <div className='w-full max-w-md mt-6 px-6 py-4 bg-white shadow-md rounded-lg'>
-        <Form method='post'>
+      <div className="mt-6 w-full max-w-md rounded-lg bg-white px-6 py-4 shadow-md">
+        <Form method="post">
           {actionData?.error ? (
-            <div className='bg-red-50 text-red-500 p-3 rounded-lg mb-6 text-sm flex items-center'>
-              {renderLoginError(actionData.error.code as string)}
+            <div className="mb-6 flex items-center rounded-lg bg-red-50 p-3 text-sm text-red-500">
+              {actionData.error.code}
             </div>
           ) : null}
 
           <fieldset disabled={transition.state === 'submitting'}>
             <div>
-              <label htmlFor='email' className='text-sm font-medium block mb-0.5'>
+              <label
+                htmlFor="email"
+                className="mb-0.5 block text-sm font-medium"
+              >
                 E-Mail
               </label>
 
               <input
-                type='email'
-                id='email'
-                name='email'
-                className='rounded-lg shadow-sm border-slate-300 focus:border-slate-400 focus:ring focus:ring-slate-200 focus:ring-opacity-50 block mt-1 w-full'
+                type="email"
+                id="email"
+                name="email"
+                className="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-slate-400 focus:ring focus:ring-slate-200 focus:ring-opacity-50"
                 required
                 autoFocus
               />
             </div>
 
-            <div className='mt-4'>
-              <label htmlFor='password' className='text-sm font-medium block mb-0.5'>
+            <div className="mt-4">
+              <label
+                htmlFor="password"
+                className="mb-0.5 block text-sm font-medium"
+              >
                 Passwort
               </label>
 
               <input
-                type='password'
-                id='password'
-                name='password'
-                className='rounded-lg shadow-sm border-slate-300 focus:border-slate-400 focus:ring focus:ring-slate-200 focus:ring-opacity-50 block mt-1 w-full'
+                type="password"
+                id="password"
+                name="password"
+                className="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-slate-400 focus:ring focus:ring-slate-200 focus:ring-opacity-50"
                 required
-                autoComplete='current-password'
+                autoComplete="current-password"
               />
             </div>
 
-            <div className='flex items-center justify-between mt-4'>
-              <div className='space-y-1'>
+            <div className="mt-4 flex items-center justify-between">
+              <div className="space-y-1">
                 <Link
-                  className='block underline text-sm text-slate-600 hover:text-slate-900'
-                  to='/register'
+                  className="block text-sm text-slate-600 underline hover:text-slate-900"
+                  to="/register"
                 >
                   Registrieren
                 </Link>
@@ -109,8 +118,8 @@ export default function Login() {
               </div>
 
               <button
-                type='submit'
-                className='px-4 py-2 bg-slate-700 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-slate-600 active:bg-slate-800 focus:outline-none focus:border-slate-800 focus:ring ring-slate-300 disabled:opacity-25 transition ease-in-out duration-150 ml-3'
+                type="submit"
+                className="ml-3 rounded-md border border-transparent bg-slate-700 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white ring-slate-300 transition duration-150 ease-in-out hover:bg-slate-600 focus:border-slate-800 focus:outline-none focus:ring active:bg-slate-800 disabled:opacity-25"
               >
                 {transition.state === 'submitting' ? 'Lade...' : 'Anmelden'}
               </button>

@@ -6,8 +6,8 @@ type Props = {
 
 export function ErrorBadge({ message }: Props) {
   return (
-    <div className='bg-red-50 text-red-500 p-3 rounded-lg mb-6 text-sm flex items-center'>
-      <ExclamationCircleIcon className='h-4 mr-1.5' /> {message}
+    <div className="mb-6 flex items-center rounded-lg bg-red-50 p-3 text-sm text-red-500">
+      <ExclamationCircleIcon className="mr-1.5 h-4" /> {message}
     </div>
   )
 }
