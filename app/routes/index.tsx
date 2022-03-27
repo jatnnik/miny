@@ -75,7 +75,7 @@ function useGreeting() {
   const currentHour = new Date().getHours()
   let greeting = 'Hey'
 
-  if (currentHour < 11) {
+  if (currentHour < 11 && currentHour > 4) {
     greeting = 'Guten Morgen'
   } else if (currentHour > 18) {
     greeting = 'Guten Abend'

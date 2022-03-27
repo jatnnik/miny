@@ -11,6 +11,22 @@ async function seed() {
     // no worries if it doesn't exist yet
   })
 
+  const dateFromSeedUser = await prisma.date.findFirst({
+    where: {
+      user: {
+        email,
+      },
+    },
+  })
+
+  if (dateFromSeedUser) {
+    await prisma.date
+      .delete({ where: { id: dateFromSeedUser.id } })
+      .catch(() => {
+        // no worries if it doesn't exist yet
+      })
+  }
+
   const hashedPassword = await bcrypt.hash('minyiscool', 10)
 
   const user = await prisma.user.create({
@@ -18,6 +34,15 @@ async function seed() {
       email,
       password: hashedPassword,
       name: 'Jannik',
+      slug: 'jannik',
+    },
+  })
+
+  await prisma.date.create({
+    data: {
+      userId: user.id,
+      date: new Date().toISOString(),
+      startTime: '10:00',
     },
   })
 

@@ -1,5 +1,6 @@
 import type { User } from '@prisma/client'
 import bcrypt from 'bcryptjs'
+import crypto from 'crypto'
 
 import { prisma } from '~/db.server'
 
@@ -13,6 +14,10 @@ export async function getUserByEmail(email: User['email']) {
   return prisma.user.findUnique({ where: { email } })
 }
 
+export async function getUserBySlug(slug: string) {
+  return prisma.user.findFirst({ where: { slug } })
+}
+
 export async function createUser(
   email: User['email'],
   password: string,
@@ -20,11 +25,19 @@ export async function createUser(
 ) {
   const hashedPassword = await bcrypt.hash(password, 10)
 
+  let slug = name.replace(' ', '-').toLowerCase()
+  const existingSlug = await getUserBySlug(slug)
+  if (existingSlug) {
+    const randomSlug = crypto.randomBytes(5).toString('hex')
+    slug = `${slug}-${randomSlug}`
+  }
+
   return prisma.user.create({
     data: {
       name,
       email,
       password: hashedPassword,
+      slug,
     },
   })
 }
