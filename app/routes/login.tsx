@@ -1,3 +1,4 @@
+import React from 'react'
 import {
   redirect,
   Form,
@@ -7,10 +8,26 @@ import {
   type LoaderFunction,
   type ActionFunction,
   type MetaFunction,
+  json,
+  useSearchParams,
 } from 'remix'
-import invariant from 'tiny-invariant'
-import { signIn } from '~/utils/db.server'
-import { createUserSession, getUserSession } from '~/utils/session.server'
+import { badRequest, validateEmail } from '~/utils'
+import { ErrorBadge } from '~/components/Badges'
+import { labelStyles, inputStyles, errorStyles } from '~/components/Input'
+import { SubmitButton } from '~/components/Buttons'
+
+// Types
+interface ActionData {
+  formError?: string
+  errors?: {
+    email?: string
+    password?: string
+  }
+  fields?: {
+    email: string
+    password: string
+  }
+}
 
 export const meta: MetaFunction = () => {
   return { title: 'Login' }
@@ -18,32 +35,72 @@ export const meta: MetaFunction = () => {
 
 // Redirect to dashboard if the user already has a valid session
 export const loader: LoaderFunction = async ({ request }) => {
-  const sessionUser = await getUserSession(request)
-  if (sessionUser) {
-    return redirect('/')
-  }
+  // const sessionUser = await getUserSession(request)
+  // if (sessionUser) {
+  //   return redirect('/')
+  // }
 
-  return null
+  return json({})
 }
 
 // Sign user in, create the session and redirect to dashboard
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData()
 
-  const email = formData.get('email')?.toString()
-  const password = formData.get('password')?.toString()
+  const email = formData.get('email')
+  const password = formData.get('password')
+  const redirectTo = formData.get('redirectTo')
+  const remember = formData.get('remember')
 
-  invariant(email, 'email is required')
-  invariant(password, 'password is required')
+  if (!validateEmail(email)) {
+    return badRequest<ActionData>({
+      errors: {
+        email: 'Ungültige E-Mail',
+      },
+    })
+  }
 
-  const { user } = await signIn(email, password)
-  const token = await user.getIdToken()
-  return createUserSession(token)
+  if (typeof password !== 'string') {
+    return badRequest<ActionData>({
+      errors: {
+        password: 'Passwort wird benötigt',
+      },
+    })
+  }
+
+  if (password.length < 6) {
+    return badRequest<ActionData>({
+      errors: {
+        password: 'Passwort ist zu kurz',
+      },
+    })
+  }
+
+  const fields = {
+    email,
+    password,
+    remember,
+  }
+
+  console.log(fields)
+  return null
 }
 
 export default function Login() {
-  const actionData = useActionData()
+  const [searchParams] = useSearchParams()
+  const redirectTo = searchParams.get('redirectTo') || '/'
+  const actionData = useActionData<ActionData>()
   const transition = useTransition()
+  const emailRef = React.useRef<HTMLInputElement>(null)
+  const passwordRef = React.useRef<HTMLInputElement>(null)
+
+  React.useEffect(() => {
+    if (actionData?.errors?.email) {
+      emailRef.current?.focus()
+    } else if (actionData?.errors?.password) {
+      passwordRef.current?.focus()
+    }
+  }, [actionData])
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center">
@@ -57,72 +114,96 @@ export default function Login() {
       </div>
       <div className="mt-6 w-full max-w-md rounded-lg bg-white px-6 py-4 shadow-md">
         <Form method="post">
-          {actionData?.error ? (
-            <div className="mb-6 flex items-center rounded-lg bg-red-50 p-3 text-sm text-red-500">
-              {actionData.error.code}
-            </div>
+          {actionData?.formError ? (
+            <ErrorBadge message={actionData.formError} />
           ) : null}
 
           <fieldset disabled={transition.state === 'submitting'}>
             <div>
-              <label
-                htmlFor="email"
-                className="mb-0.5 block text-sm font-medium"
-              >
+              <label htmlFor={'email'} className={labelStyles}>
                 E-Mail
               </label>
 
               <input
+                ref={emailRef}
                 type="email"
                 id="email"
                 name="email"
-                className="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-slate-400 focus:ring focus:ring-slate-200 focus:ring-opacity-50"
+                className={inputStyles}
                 required
-                autoFocus
+                autoFocus={true}
+                autoComplete="email"
+                defaultValue={actionData?.fields?.email}
+                aria-invalid={actionData?.errors?.email ? true : undefined}
+                aria-describedby="email-error"
               />
+              {actionData?.errors?.email && (
+                <p className={errorStyles} role="alert" id="email-error">
+                  {actionData.errors.email}
+                </p>
+              )}
             </div>
 
             <div className="mt-4">
-              <label
-                htmlFor="password"
-                className="mb-0.5 block text-sm font-medium"
-              >
+              <label htmlFor={'password'} className={labelStyles}>
                 Passwort
               </label>
-
               <input
+                ref={passwordRef}
                 type="password"
                 id="password"
                 name="password"
-                className="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-slate-400 focus:ring focus:ring-slate-200 focus:ring-opacity-50"
+                className={inputStyles}
                 required
                 autoComplete="current-password"
+                defaultValue={actionData?.fields?.password}
+                aria-invalid={actionData?.errors?.password ? true : undefined}
+                aria-describedby="password-error"
               />
+              {actionData?.errors?.password && (
+                <p className={errorStyles} role="alert" id="password-error">
+                  {actionData.errors.password}
+                </p>
+              )}
+            </div>
+
+            <input type="hidden" name="redirectTo" value={redirectTo} />
+
+            <div className="mt-4 flex items-center">
+              <input
+                id="remember"
+                name="remember"
+                type="checkbox"
+                defaultChecked
+                className="h-4 w-4 rounded border-slate-300 text-slate-600 focus:ring-slate-200 focus:ring-opacity-50"
+              />
+              <label
+                htmlFor="remember"
+                className="ml-2 block text-sm font-medium"
+              >
+                Angemeldet bleiben
+              </label>
             </div>
 
             <div className="mt-4 flex items-center justify-between">
               <div className="space-y-1">
                 <Link
-                  className="block text-sm text-slate-600 underline hover:text-slate-900"
-                  to="/register"
+                  className="block text-sm underline hover:text-slate-900"
+                  to={{
+                    pathname: '/register',
+                    search: searchParams.toString(),
+                  }}
                 >
                   Registrieren
                 </Link>
-
-                {/* <Link
-                  className='block underline text-sm text-slate-600 hover:text-slate-900'
-                  to='/forgot-password'
-                >
-                  Passwort vergessen?
-                </Link> */}
               </div>
 
-              <button
+              <SubmitButton
                 type="submit"
-                className="ml-3 rounded-md border border-transparent bg-slate-700 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white ring-slate-300 transition duration-150 ease-in-out hover:bg-slate-600 focus:border-slate-800 focus:outline-none focus:ring active:bg-slate-800 disabled:opacity-25"
-              >
-                {transition.state === 'submitting' ? 'Lade...' : 'Anmelden'}
-              </button>
+                label={
+                  transition.state === 'submitting' ? 'Lade...' : 'Anmelden'
+                }
+              />
             </div>
           </fieldset>
         </Form>

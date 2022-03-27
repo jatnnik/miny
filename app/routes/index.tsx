@@ -14,9 +14,8 @@ import Avatar from 'boring-avatars'
 import Container from '~/components/Container'
 import Card from '~/components/Card'
 
-import { LogoutIcon } from '@heroicons/react/outline'
 import { getDisplayName } from '~/utils/db.server'
-import { useGreeting } from '~/utils/hooks'
+import { useGreeting } from '~/hooks'
 
 type HeaderProps = {
   username: string
