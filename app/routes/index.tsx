@@ -2,88 +2,87 @@ import {
   type LoaderFunction,
   useLoaderData,
   json,
-  redirect,
   Form,
-  type ActionFunction,
   type MetaFunction,
+  Link,
 } from 'remix'
-import { signOut, getUserSession } from '~/utils/session.server'
-import invariant from 'tiny-invariant'
-import Avatar from 'boring-avatars'
+
+import { requireUser } from '~/session.server'
+import type { User } from '~/models/user.server'
 
 import Container from '~/components/Container'
 import Card from '~/components/Card'
 
-import { getDisplayName } from '~/utils/db.server'
-import { useGreeting } from '~/hooks'
+type LoaderData = { user: User }
+
+export const loader: LoaderFunction = async ({ request }) => {
+  const user = await requireUser(request)
+  return json({ user })
+}
+
+export const meta: MetaFunction = ({
+  data,
+}: {
+  data: LoaderData | undefined
+}) => {
+  const user = data?.user
+
+  if (user) {
+    return {
+      title: `${user.name}${
+        user.name.slice(-1) === 's' ? "'" : 's'
+      } Diensttermine`,
+    }
+  }
+
+  return {
+    title: 'Dashboard',
+  }
+}
 
 type HeaderProps = {
   username: string
 }
 
-type User = {
-  email?: string
-  username: string
-}
-
-export const meta: MetaFunction = () => {
-  return {
-    title: 'Dashboard – miny',
-  }
-}
-
-export const loader: LoaderFunction = async ({ request }) => {
-  // Redirect to login if user is not authenticated
-  const sessionUser = await getUserSession(request)
-
-  if (!sessionUser) {
-    return redirect('/login')
-  }
-
-  // Get username
-  const username = await getDisplayName(sessionUser.uid)
-  invariant(username, 'user has no username')
-
-  // Create the user object
-  const user: User = {
-    email: sessionUser.email,
-    username,
-  }
-
-  return json({ user })
-}
-
-export const action: ActionFunction = async ({ request }) => {
-  const formData = await request.formData()
-  const method = formData.get('method')?.toString()
-
-  if (method === 'signout') {
-    return signOut(request)
-  }
-}
-
 const Header = ({ username }: HeaderProps) => (
   <div className="mb-8 flex items-center justify-between">
     <div className="flex items-center">
-      <Avatar
-        size={32}
-        name={username}
-        variant="beam"
-        colors={['#FFAD08', '#EDD75A', '#73B06F', '#0C8F8F', '#405059']}
-      />
-      <span className="ml-2.5 block text-sm font-medium">{username}</span>
+      <div className="block rounded-lg bg-red-400 bg-opacity-20 p-2">
+        <img
+          src="https://emojicdn.elk.sh/🎒"
+          className="h-5"
+          height={20}
+          width={20}
+        />
+      </div>
+      <Link className="ml-2 block text-sm font-medium" to="/">
+        {username}
+        {username.slice(-1) === 's' ? "'" : 's'} Diensttermine
+      </Link>
     </div>
-    <Form method="post">
-      <input type="hidden" name="method" value="signout" />
+    <Form action="/logout" method="post">
       <button
         type="submit"
-        className="text-xs text-red-600 underline underline-offset-1 hover:text-red-500"
+        className="text-xs text-red-700 underline underline-offset-1 hover:text-red-600"
       >
         Abmelden
       </button>
     </Form>
   </div>
 )
+
+function useGreeting() {
+  const currentHour = new Date().getHours()
+  let greeting = 'Hey'
+
+  if (currentHour < 11) {
+    greeting = 'Guten Morgen'
+  } else if (currentHour > 18) {
+    greeting = 'Guten Abend'
+  }
+
+  return greeting
+}
 
 export default function Dashboard() {
   const data = useLoaderData()
@@ -94,18 +93,12 @@ export default function Dashboard() {
   return (
     <div className="py-10">
       <Container>
-        <Header username={user.username} />
+        <Header username={user.name} />
         <Card>
           <div className="flex items-center">
             <h1 className="mr-2 font-serif text-2xl font-black text-slate-700">
-              {greeting} {user.username}
+              {greeting} {user.name}!
             </h1>
-            <img
-              src="https://emojicdn.elk.sh/👋"
-              alt="Winkende Hand Emoji"
-              className="wave h-7"
-              height="28"
-            />
           </div>
           <p className="mt-4">
             Lorem ipsum, dolor sit amet consectetur adipisicing elit. Voluptas

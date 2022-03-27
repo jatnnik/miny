@@ -3,21 +3,28 @@ import {
   Form,
   Link,
   type LoaderFunction,
-  redirect,
   useActionData,
   type ActionFunction,
   useTransition,
   type MetaFunction,
   json,
   useSearchParams,
+  redirect,
 } from 'remix'
+import { getUserId, createUserSession } from '~/session.server'
+import { createUser, getUserByEmail } from '~/models/user.server'
 import { validateEmail, validateStringLength, badRequest } from '~/utils'
 
 import Input from '~/components/Input'
 import { SubmitButton } from '~/components/Buttons'
 import { ErrorBadge } from '~/components/Badges'
 
-// Types
+export const loader: LoaderFunction = async ({ request }) => {
+  const userId = await getUserId(request)
+  if (userId) return redirect('/')
+  return json({})
+}
+
 interface ActionData {
   formError?: string
   errors?: {
@@ -32,20 +39,6 @@ interface ActionData {
     password: string
     confirmPassword: string
   }
-}
-
-export const meta: MetaFunction = () => {
-  return { title: 'Registrieren' }
-}
-
-// Redirect to dashboard if the user already has a valid session
-export const loader: LoaderFunction = async ({ request }) => {
-  // const sessionUser = await getUserSession(request)
-  // if (sessionUser) {
-  //   return redirect('/')
-  // }
-
-  return json({})
 }
 
 export const action: ActionFunction = async ({ request }) => {
@@ -91,34 +84,27 @@ export const action: ActionFunction = async ({ request }) => {
     return badRequest<ActionData>({ errors, fields })
   }
 
-  console.log(fields)
-  return null
+  const existingUser = await getUserByEmail(email)
+  if (existingUser) {
+    return badRequest<ActionData>({
+      errors: {
+        email: 'E-Mail wird schon verwendet',
+      },
+    })
+  }
 
-  // Register the new user, create a session and redirect to dashboard
-  // try {
-  //   const { user } = await signUp(email, password)
+  const user = await createUser(email, password, firstName)
 
-  //   // Set the displayName after creating the user
-  //   await updateProfile(user, { displayName: firstName })
+  return createUserSession({
+    request,
+    userId: user.id,
+    remember: false,
+    redirectTo: typeof redirectTo === 'string' ? redirectTo : '/',
+  })
+}
 
-  //   const token = await user.getIdToken()
-  //   return createUserSession(token)
-  // } catch (error) {
-  //   if (error instanceof Error) {
-  //     const message = error.message
-  //     const emailIsTaken = message.includes('email-already-in-use')
-  //     if (emailIsTaken) {
-  //       return badRequest<ActionData>({
-  //         formError: 'E-Mail wird bereits verwendet',
-  //         fields,
-  //       })
-  //     }
-  //   }
-  //   return badRequest<ActionData>({
-  //     formError: 'Ein Fehler ist aufgetreten',
-  //     fields,
-  //   })
-  // }
+export const meta: MetaFunction = () => {
+  return { title: 'Registrieren' }
 }
 
 export default function Register() {

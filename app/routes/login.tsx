@@ -1,6 +1,5 @@
 import React from 'react'
 import {
-  redirect,
   Form,
   Link,
   useActionData,
@@ -10,13 +9,21 @@ import {
   type MetaFunction,
   json,
   useSearchParams,
+  redirect,
 } from 'remix'
+import { createUserSession, getUserId } from '~/session.server'
 import { badRequest, validateEmail } from '~/utils'
 import { ErrorBadge } from '~/components/Badges'
 import { labelStyles, inputStyles, errorStyles } from '~/components/Input'
 import { SubmitButton } from '~/components/Buttons'
+import { verifyLogin } from '~/models/user.server'
 
-// Types
+export const loader: LoaderFunction = async ({ request }) => {
+  const userId = await getUserId(request)
+  if (userId) return redirect('/')
+  return json({})
+}
+
 interface ActionData {
   formError?: string
   errors?: {
@@ -29,21 +36,6 @@ interface ActionData {
   }
 }
 
-export const meta: MetaFunction = () => {
-  return { title: 'Login' }
-}
-
-// Redirect to dashboard if the user already has a valid session
-export const loader: LoaderFunction = async ({ request }) => {
-  // const sessionUser = await getUserSession(request)
-  // if (sessionUser) {
-  //   return redirect('/')
-  // }
-
-  return json({})
-}
-
-// Sign user in, create the session and redirect to dashboard
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData()
 
@@ -82,8 +74,25 @@ export const action: ActionFunction = async ({ request }) => {
     remember,
   }
 
-  console.log(fields)
-  return null
+  const user = await verifyLogin(email, password)
+
+  if (!user) {
+    return badRequest<ActionData>({
+      formError: 'E-Mail oder Passwort ist falsch',
+      fields,
+    })
+  }
+
+  return createUserSession({
+    request,
+    userId: user.id,
+    remember: remember === 'on' ? true : false,
+    redirectTo: typeof redirectTo === 'string' ? redirectTo : '/',
+  })
+}
+
+export const meta: MetaFunction = () => {
+  return { title: 'Login' }
 }
 
 export default function Login() {
