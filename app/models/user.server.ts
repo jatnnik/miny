@@ -57,6 +57,15 @@ export async function verifyLogin(email: User['email'], password: string) {
     return null
   }
 
+  await prisma.user.update({
+    where: {
+      email,
+    },
+    data: {
+      loginCount: user.loginCount + 1,
+    },
+  })
+
   const { password: _password, ...userWithoutPassword } = user
 
   return userWithoutPassword

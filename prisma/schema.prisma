@@ -14,14 +14,15 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  name      String   @db.VarChar(255)
-  email     String   @unique
-  password  String
-  slug      String?  @unique
-  dates     Date[]
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  name       String   @db.VarChar(255)
+  email      String   @unique
+  password   String
+  loginCount Int      @default(0)
+  slug       String?  @unique
+  dates      Date[]
 }
 
 model Date {

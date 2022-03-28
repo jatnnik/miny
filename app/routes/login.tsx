@@ -17,6 +17,7 @@ import { ErrorBadge } from '~/components/Badges'
 import { labelStyles, inputStyles, errorStyles } from '~/components/Input'
 import { SubmitButton } from '~/components/Buttons'
 import { verifyLogin } from '~/models/user.server'
+import { prisma } from '@prisma/client'
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await getUserId(request)
