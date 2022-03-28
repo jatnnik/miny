@@ -1,6 +1,7 @@
 import { Link } from 'remix'
 import type { User } from '~/models/user.server'
 import Card from '../Card'
+import { headingStyles } from '../Heading'
 
 function useGreeting() {
   const currentHour = new Date().getHours()
@@ -21,13 +22,11 @@ export default function Welcome({ user, link }: { user: User; link: string }) {
 
   return (
     <Card>
-      <div className="flex items-center">
-        <h1 className="mr-2 font-serif text-2xl font-black text-slate-700">
-          {greeting} {user.name}!
-        </h1>
-      </div>
+      <h1 className={headingStyles}>
+        {greeting} {user.name}!
+      </h1>
       {firstLogin && (
-        <div className="mt-4">
+        <div>
           <h3 className="mb-0.5 font-medium text-slate-800">
             Willkommen bei miny!
           </h3>
@@ -40,8 +39,8 @@ export default function Welcome({ user, link }: { user: User; link: string }) {
         </div>
       )}
       <p className="mt-3">
-        Dein Link zum Teilen deiner Termine:{' '}
-        <Link to={`/u/${user.slug}`} className="underline">
+        Link:{' '}
+        <Link to={`/u/${user.slug}`} className="underline underline-offset-1">
           {link}
         </Link>
       </p>
