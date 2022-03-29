@@ -7,15 +7,36 @@ import { prisma } from '~/db.server'
 export type { User } from '@prisma/client'
 
 export async function getUserById(id: User['id']) {
-  return prisma.user.findUnique({ where: { id } })
+  return prisma.user.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+    },
+  })
 }
 
 export async function getUserByEmail(email: User['email']) {
-  return prisma.user.findUnique({ where: { email } })
+  return prisma.user.findUnique({
+    where: { email },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+    },
+  })
 }
 
 export async function getUserBySlug(slug: string) {
-  return prisma.user.findFirst({ where: { slug } })
+  return prisma.user.findFirst({
+    where: { slug },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+    },
+  })
 }
 
 export async function createUser(

@@ -16,7 +16,7 @@ function useGreeting() {
   return greeting
 }
 
-export default function Welcome({ user, link }: { user: User; link: string }) {
+export default function Welcome({ user }: { user: User }) {
   const greeting = useGreeting()
   const firstLogin = user.loginCount === 0
 
@@ -39,9 +39,9 @@ export default function Welcome({ user, link }: { user: User; link: string }) {
         </div>
       )}
       <p className="mt-3">
-        Link:{' '}
+        Dein Link:{' '}
         <Link to={`/u/${user.slug}`} className="underline underline-offset-1">
-          {link}
+          miny.vercel.app/u/{user.slug}
         </Link>
       </p>
     </Card>
