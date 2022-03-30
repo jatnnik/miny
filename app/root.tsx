@@ -56,7 +56,7 @@ export const ErrorBoundary: ErrorBoundaryComponent = ({ error }) => {
         <Links />
       </head>
       <body className="p-4">
-        <h1>Oh no! An error occured.</h1>
+        <h1>Oh no! Ein Fehler ist aufgetreten.</h1>
         <pre className="mt-3 inline-block bg-gray-200">
           {error.name}: {error.message}
         </pre>
@@ -77,7 +77,7 @@ export const CatchBoundary = () => {
         <Links />
       </head>
       <body className="p-4">
-        <h1>Whoopsie! An error was thrown!</h1>
+        <h1>Whoopsie! Da ging leider was schief...</h1>
         <pre className="mt-3 inline-block bg-gray-200">
           {caught.status} {caught.statusText}
         </pre>

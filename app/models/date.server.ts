@@ -1,4 +1,5 @@
-import type { User, Prisma } from '@prisma/client'
+import type { User, Prisma, Date } from '@prisma/client'
+import { redirect } from 'remix'
 import { prisma } from '~/db.server'
 
 export type DateWithParticipants = Prisma.DateGetPayload<{
@@ -10,6 +11,16 @@ export type DateWithParticipants = Prisma.DateGetPayload<{
     }
   }
 }>
+
+export async function isOwner(ownerId: Date['userId'], userId: User['id']) {
+  return ownerId === userId
+}
+
+export async function getDateById(id: Date['id']) {
+  return prisma.date.findUnique({
+    where: { id },
+  })
+}
 
 export async function getDatesByUserId(id: User['id']) {
   return prisma.date.findMany({
@@ -48,6 +59,22 @@ export async function createDate(fields: Fields, userId: string) {
       maxParticipants: fields.maxParticipants,
       note: fields.note,
       userId: Number(userId),
+    },
+  })
+}
+
+export async function deleteDate(id: Date['id'], userId: User['id']) {
+  const date = await getDateById(id)
+
+  if (!date) return null
+
+  if (!isOwner(date.id, userId)) {
+    return null
+  }
+
+  return await prisma.date.delete({
+    where: {
+      id,
     },
   })
 }

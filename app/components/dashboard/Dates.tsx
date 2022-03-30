@@ -1,4 +1,4 @@
-import { Link } from 'remix'
+import { Form, Link, useTransition } from 'remix'
 import type { DateWithParticipants } from '~/models/date.server'
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/outline'
 import Card from '../Card'
@@ -12,11 +12,7 @@ const formatDate = (date: string) =>
   })
 
 function DateSlot({ date }: { date: DateWithParticipants }) {
-  const handleDelete = () => {
-    if (window.confirm('Willst du diesen Termin wirklich löschen?')) {
-      console.log('delete date')
-    }
-  }
+  const transition = useTransition()
 
   return (
     <div className="flex justify-between pt-4">
@@ -56,31 +52,59 @@ function DateSlot({ date }: { date: DateWithParticipants }) {
       </div>
       <div>
         {date.isAssigned ? (
-          <button
-            className="opacity-50 transition-opacity duration-75 hover:opacity-100"
-            onClick={handleDelete}
-            title="Löschen"
-            aria-label="Termin löschen"
+          <Form
+            method="post"
+            onSubmit={event => {
+              if (
+                !window.confirm('Möchtest du diesen Termin wirklich löschen?')
+              ) {
+                event.preventDefault()
+              }
+            }}
           >
-            <TrashIcon className="h-4" />
-          </button>
-        ) : (
-          <div>
+            <input type="hidden" name="_method" value="delete" />
+            <input type="hidden" name="id" value={date.id} />
             <button
-              className="mr-2 opacity-50 transition-opacity duration-75 hover:opacity-100"
+              className="opacity-50 transition-opacity duration-75 hover:opacity-100 disabled:opacity-25"
+              title="Löschen"
+              aria-label="Termin löschen"
+              type="submit"
+              disabled={transition.state === 'submitting'}
+            >
+              <TrashIcon className="h-4" />
+            </button>
+          </Form>
+        ) : (
+          <div className="flex items-center space-x-2">
+            <button
+              className="opacity-50 transition-opacity duration-75 hover:opacity-100"
               title="Bearbeiten"
               aria-label="Termin bearbeiten"
             >
               <PencilIcon className="h-4" />
             </button>
-            <button
-              className="opacity-50 transition-opacity duration-75 hover:opacity-100"
-              onClick={handleDelete}
-              title="Löschen"
-              aria-label="Termin löschen"
+            <Form
+              method="post"
+              onSubmit={event => {
+                if (
+                  !window.confirm('Möchtest du diesen Termin wirklich löschen?')
+                ) {
+                  event.preventDefault()
+                }
+              }}
             >
-              <TrashIcon className="h-4" />
-            </button>
+              <input type="hidden" name="_method" value="delete" />
+              <input type="hidden" name="id" value={date.id} />
+              <button
+                className="opacity-50 transition-opacity duration-75 hover:opacity-100 disabled:opacity-25"
+                title="Löschen"
+                aria-label="Termin löschen"
+                type="submit"
+                disabled={transition.state === 'submitting'}
+              >
+                <TrashIcon className="h-4" />
+              </button>
+            </Form>
           </div>
         )}
       </div>
@@ -103,7 +127,9 @@ export default function Dates({ dates }: { dates: DateWithParticipants[] }) {
         </Link>
       </div>
       {!hasDates && (
-        <p className="mt-4">Du hast aktuell keine Termine eingetragen.</p>
+        <p className="mt-6 italic">
+          Du hast aktuell keine Termine eingetragen.
+        </p>
       )}
 
       {hasDates && (
