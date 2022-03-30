@@ -13,6 +13,7 @@ export async function getUserById(id: User['id']) {
       id: true,
       name: true,
       email: true,
+      slug: true,
     },
   })
 }
@@ -24,6 +25,7 @@ export async function getUserByEmail(email: User['email']) {
       id: true,
       name: true,
       email: true,
+      slug: true,
     },
   })
 }
@@ -35,6 +37,7 @@ export async function getUserBySlug(slug: string) {
       id: true,
       name: true,
       email: true,
+      slug: true,
     },
   })
 }
