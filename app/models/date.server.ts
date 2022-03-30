@@ -1,5 +1,4 @@
 import type { User, Prisma, Date } from '@prisma/client'
-import { redirect } from 'remix'
 import { prisma } from '~/db.server'
 
 export type DateWithParticipants = Prisma.DateGetPayload<{
@@ -40,7 +39,7 @@ export async function getDatesByUserId(id: User['id']) {
   })
 }
 
-interface Fields {
+interface CreateFields {
   date: string
   startTime: string
   endTime?: string | null
@@ -49,7 +48,7 @@ interface Fields {
   note?: string | null
 }
 
-export async function createDate(fields: Fields, userId: string) {
+export async function createDate(fields: CreateFields, userId: string) {
   return await prisma.date.create({
     data: {
       date: fields.date,
@@ -59,6 +58,26 @@ export async function createDate(fields: Fields, userId: string) {
       maxParticipants: fields.maxParticipants,
       note: fields.note,
       userId: Number(userId),
+    },
+  })
+}
+
+interface UpdateFields extends CreateFields {
+  id: number
+}
+
+export async function updateDate(fields: UpdateFields) {
+  return await prisma.date.update({
+    where: {
+      id: fields.id,
+    },
+    data: {
+      date: fields.date,
+      startTime: fields.startTime,
+      endTime: fields.endTime,
+      isGroupDate: fields.isGroupDate,
+      maxParticipants: fields.maxParticipants,
+      note: fields.note,
     },
   })
 }

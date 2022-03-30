@@ -76,13 +76,15 @@ function DateSlot({ date }: { date: DateWithParticipants }) {
           </Form>
         ) : (
           <div className="flex items-center space-x-2">
-            <button
-              className="opacity-50 transition-opacity duration-75 hover:opacity-100"
-              title="Bearbeiten"
-              aria-label="Termin bearbeiten"
-            >
-              <PencilIcon className="h-4" />
-            </button>
+            <Link to={`/edit?id=${date.id}`}>
+              <button
+                className="opacity-50 transition-opacity duration-75 hover:opacity-100"
+                title="Bearbeiten"
+                aria-label="Termin bearbeiten"
+              >
+                <PencilIcon className="h-4" />
+              </button>
+            </Link>
             <Form
               method="post"
               onSubmit={event => {
