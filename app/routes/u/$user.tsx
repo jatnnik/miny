@@ -14,6 +14,7 @@ import Card from '~/components/Card'
 import Header from '~/components/profile/Header'
 import { headingStyles } from '~/components/Heading'
 import DateSlot from '~/components/profile/Date'
+import Avatar from 'boring-avatars'
 
 type LoaderData = {
   user: {
@@ -30,7 +31,7 @@ export const loader: LoaderFunction = async ({ params }) => {
   invariant(username, 'Invalid user slug')
 
   const user = await getUserBySlug(username)
-  if (!user) {
+  if (user === null) {
     throw json('Not found', 404)
   }
 
@@ -39,13 +40,21 @@ export const loader: LoaderFunction = async ({ params }) => {
   return json<LoaderData>({ user, dates })
 }
 
-export const meta: MetaFunction = ({ data }: { data: LoaderData }) => {
-  const { user } = data as LoaderData
+export const meta: MetaFunction = ({
+  data,
+}: {
+  data: LoaderData | undefined
+}) => {
+  if (data?.user) {
+    return {
+      title: `${data.user.name}${
+        data.user.name.slice(-1) === 's' ? "'" : 's'
+      } Diensttermine`,
+    }
+  }
 
   return {
-    title: `${user.name}${
-      user.name.slice(-1) === 's' ? "'" : 's'
-    } Diensttermine`,
+    title: '404',
   }
 }
 
@@ -57,14 +66,20 @@ export default function UserPage() {
       <Container>
         <Header />
         <Card withMarginTop>
-          <h1 className={headingStyles}>
+          <Avatar
+            name={user.name}
+            colors={['#92A1C6', '#146A7C', '#F0AB3D', '#C271B4', '#C20D90']}
+            variant="beam"
+            size={36}
+          />
+          <h1 className={`${headingStyles} mt-4`}>
             {user.name} möchte einen Diensttermin mit dir ausmachen
           </h1>
           {dates.length > 0 ? (
             <>
               <p className="mt-4">
-                Tippe einfach auf einen Termin, um dich einzutragen. {user.name}{' '}
-                bekommt dann automatisch eine Nachricht.
+                Tippe einfach auf "Eintragen", um dir einen Termin zu schnappen.{' '}
+                {user.name} bekommt dann automatisch eine Nachricht.
               </p>
               <h2 className="mt-6 font-serif text-xl font-black text-slate-700">
                 Termine

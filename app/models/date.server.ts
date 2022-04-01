@@ -28,6 +28,9 @@ export async function getDatesByUserId(id: User['id']) {
   return prisma.appointment.findMany({
     where: {
       userId: id,
+      date: {
+        gte: new Date(),
+      },
     },
     orderBy: {
       date: 'asc',
@@ -47,6 +50,9 @@ export async function getFreeDates(userId: User['id']) {
     where: {
       userId,
       isAssigned: false,
+      date: {
+        gte: new Date(),
+      },
     },
     orderBy: {
       date: 'asc',
