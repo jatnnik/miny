@@ -1,7 +1,7 @@
-import type { User, Prisma, Date } from '@prisma/client'
+import type { User, Prisma, Appointment } from '@prisma/client'
 import { prisma } from '~/db.server'
 
-export type DateWithParticipants = Prisma.DateGetPayload<{
+export type DateWithParticipants = Prisma.AppointmentGetPayload<{
   include: {
     participants: {
       select: {
@@ -11,20 +11,42 @@ export type DateWithParticipants = Prisma.DateGetPayload<{
   }
 }>
 
-export async function isOwner(ownerId: Date['userId'], userId: User['id']) {
+export async function isOwner(
+  ownerId: Appointment['userId'],
+  userId: User['id']
+) {
   return ownerId === userId
 }
 
-export async function getDateById(id: Date['id']) {
-  return prisma.date.findUnique({
+export async function getDateById(id: Appointment['id']) {
+  return prisma.appointment.findUnique({
     where: { id },
   })
 }
 
 export async function getDatesByUserId(id: User['id']) {
-  return prisma.date.findMany({
+  return prisma.appointment.findMany({
     where: {
       userId: id,
+    },
+    orderBy: {
+      date: 'asc',
+    },
+    include: {
+      participants: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  })
+}
+
+export async function getFreeDates(userId: User['id']) {
+  return prisma.appointment.findMany({
+    where: {
+      userId,
+      isAssigned: false,
     },
     orderBy: {
       date: 'asc',
@@ -49,7 +71,7 @@ interface CreateFields {
 }
 
 export async function createDate(fields: CreateFields, userId: string) {
-  return await prisma.date.create({
+  return await prisma.appointment.create({
     data: {
       date: fields.date,
       startTime: fields.startTime,
@@ -67,7 +89,7 @@ interface UpdateFields extends CreateFields {
 }
 
 export async function updateDate(fields: UpdateFields) {
-  return await prisma.date.update({
+  return await prisma.appointment.update({
     where: {
       id: fields.id,
     },
@@ -82,7 +104,7 @@ export async function updateDate(fields: UpdateFields) {
   })
 }
 
-export async function deleteDate(id: Date['id'], userId: User['id']) {
+export async function deleteDate(id: Appointment['id'], userId: User['id']) {
   const date = await getDateById(id)
 
   if (!date) return null
@@ -91,7 +113,7 @@ export async function deleteDate(id: Date['id'], userId: User['id']) {
     return null
   }
 
-  return await prisma.date.delete({
+  return await prisma.appointment.delete({
     where: {
       id,
     },

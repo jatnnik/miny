@@ -1,13 +1,7 @@
-import { Form, Link, useTransition } from 'remix'
-import type { DateWithParticipants } from '~/models/date.server'
-import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/outline'
-import Card from '../Card'
-import { headingStyles } from '../Heading'
+import { DateWithParticipants } from '~/models/date.server'
 import { formatDate } from '~/utils'
 
-function DateSlot({ date }: { date: DateWithParticipants }) {
-  const transition = useTransition()
-
+export default function DateSlot({ date }: { date: DateWithParticipants }) {
   return (
     <div className="flex justify-between pt-4">
       <div>
@@ -44,7 +38,7 @@ function DateSlot({ date }: { date: DateWithParticipants }) {
           </span>
         )}
       </div>
-      <div>
+      {/* <div>
         {date.isAssigned ? (
           <Form
             method="post"
@@ -103,38 +97,7 @@ function DateSlot({ date }: { date: DateWithParticipants }) {
             </Form>
           </div>
         )}
-      </div>
+      </div> */}
     </div>
-  )
-}
-
-export default function Dates({ dates }: { dates: DateWithParticipants[] }) {
-  const hasDates = dates.length > 0
-
-  return (
-    <Card withMarginTop>
-      <div className="flex items-center justify-between">
-        <h2 className={headingStyles}>Deine Termine</h2>
-        <Link
-          className="flex items-center rounded-md border border-transparent bg-slate-700 px-4 py-2 pl-3 text-xs font-semibold uppercase tracking-widest text-white ring-slate-300 transition duration-75 ease-in-out hover:bg-slate-600 focus:border-slate-800 focus:outline-none focus:ring active:bg-slate-600 disabled:opacity-25"
-          to="/new"
-        >
-          <PlusIcon className="mr-2 h-3.5" /> Neuer Termin
-        </Link>
-      </div>
-      {!hasDates && (
-        <p className="mt-6 italic">
-          Du hast aktuell keine Termine eingetragen.
-        </p>
-      )}
-
-      {hasDates && (
-        <div className="mt-2 flex flex-col space-y-4 divide-y divide-dashed">
-          {dates.map(date => (
-            <DateSlot date={date} key={date.id} />
-          ))}
-        </div>
-      )}
-    </Card>
   )
 }

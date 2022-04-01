@@ -51,12 +51,8 @@ export const action: ActionFunction = async ({ request }) => {
   return null
 }
 
-export const meta: MetaFunction = ({
-  data,
-}: {
-  data: LoaderData | undefined
-}) => {
-  const user = data?.user
+export const meta: MetaFunction = ({ data }: { data: LoaderData }) => {
+  const user = data.user
 
   if (user) {
     return {

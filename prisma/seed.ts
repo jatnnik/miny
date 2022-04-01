@@ -11,7 +11,7 @@ async function seed() {
     // no worries if it doesn't exist yet
   })
 
-  const dateFromSeedUser = await prisma.date.findFirst({
+  const dateFromSeedUser = await prisma.appointment.findFirst({
     where: {
       user: {
         email,
@@ -20,7 +20,7 @@ async function seed() {
   })
 
   if (dateFromSeedUser) {
-    await prisma.date
+    await prisma.appointment
       .delete({ where: { id: dateFromSeedUser.id } })
       .catch(() => {
         // no worries if it doesn't exist yet
@@ -38,7 +38,7 @@ async function seed() {
     },
   })
 
-  await prisma.date.create({
+  await prisma.appointment.create({
     data: {
       userId: user.id,
       date: new Date().toISOString(),

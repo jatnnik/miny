@@ -14,18 +14,18 @@ datasource db {
 }
 
 model User {
-  id         Int      @id @default(autoincrement())
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  name       String   @db.VarChar(255)
-  email      String   @unique
+  id         Int           @id @default(autoincrement())
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  name       String        @db.VarChar(255)
+  email      String        @unique
   password   String
-  loginCount Int      @default(0)
-  slug       String?  @unique
-  dates      Date[]
+  loginCount Int           @default(0)
+  slug       String?       @unique
+  dates      Appointment[]
 }
 
-model Date {
+model Appointment {
   id              Int           @id @default(autoincrement())
   date            DateTime
   startTime       String
@@ -48,6 +48,6 @@ model Participant {
   name      String   @db.VarChar(255)
   createdAt DateTime @default(now())
 
-  date   Date @relation(fields: [dateId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  date   Appointment @relation(fields: [dateId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   dateId Int
 }

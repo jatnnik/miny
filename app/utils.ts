@@ -32,3 +32,10 @@ export function validateDate(dateStr: string) {
 export function validateTime(timeStr: string) {
   return /^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/.test(timeStr)
 }
+
+export const formatDate = (date: string) =>
+  new Date(date).toLocaleDateString('de-DE', {
+    day: '2-digit',
+    month: 'long',
+    weekday: 'short',
+  })
