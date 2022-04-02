@@ -22,9 +22,11 @@ function DateSlot({ date }: { date: DateWithParticipants }) {
               Gruppentermin ({date.participants.length}/{date.maxParticipants})
             </span>
             {date.participants.length > 0 && (
-              <ul className="mt-1 list-inside list-disc">
+              <ul className="mt-2 list-inside list-disc">
                 {date.participants.map((participant, i) => (
-                  <li key={i}>{participant.name}</li>
+                  <li key={i} className="text-sm">
+                    {participant.name}
+                  </li>
                 ))}
               </ul>
             )}
@@ -70,7 +72,7 @@ function DateSlot({ date }: { date: DateWithParticipants }) {
           </Form>
         ) : (
           <div className="flex items-center space-x-2">
-            <Link to={`/edit?id=${date.id}`}>
+            <Link to={`/edit/${date.id}`}>
               <button
                 className="opacity-50 transition-opacity duration-75 hover:opacity-100"
                 title="Bearbeiten"

@@ -3,6 +3,7 @@ import { type InputHTMLAttributes } from 'react'
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string
   validationError?: string
+  name: string
 }
 
 export const labelStyles = 'mb-0.5 block text-sm font-medium'

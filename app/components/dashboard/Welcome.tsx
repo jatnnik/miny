@@ -39,7 +39,9 @@ export default function Welcome({ user }: { user: User }) {
         </div>
       )}
       <p className="mt-3">
-        Dein Link:{' '}
+        <span className="block text-sm font-medium text-amber-800">
+          Dein Link zum Teilen:
+        </span>
         <Link to={`/u/${user.slug}`} className="underline underline-offset-1">
           miny.vercel.app/u/{user.slug}
         </Link>

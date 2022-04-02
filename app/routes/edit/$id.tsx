@@ -12,7 +12,7 @@ import {
 } from 'remix'
 import { useState } from 'react'
 import { requireUser } from '~/session.server'
-import { getDateById, updateDate } from '~/models/date.server'
+import { getDateById, isOwner, updateDate } from '~/models/date.server'
 import { addDays, isPast, formatDistanceToNow } from 'date-fns'
 import { de } from 'date-fns/locale'
 
@@ -47,11 +47,9 @@ type LoaderData = {
   }
 }
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader: LoaderFunction = async ({ request, params }) => {
   const user = await requireUser(request)
-
-  const url = new URL(request.url)
-  const id = url.searchParams.get('id')
+  const id = params.id
 
   if (typeof id !== 'string' || isNaN(Number(id))) {
     return redirect('/')
@@ -210,7 +208,7 @@ export default function EditDate() {
             })}
           </p>
 
-          <Form className="mt-4" method="post" action={`/edit?id=${date.id}`}>
+          <Form className="mt-4" method="post">
             {actionData?.formError ? (
               <ErrorBadge message={actionData.formError} />
             ) : null}
