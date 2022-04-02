@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { Form } from 'remix'
+import { Form, useTransition } from 'remix'
 import { type DateWithParticipants } from '~/models/date.server'
 import { formatDate } from '~/utils'
 import Input from '../Input'
 
 export default function DateSlot({ date }: { date: DateWithParticipants }) {
   const [showForm, setShowForm] = useState(false)
+  const transition = useTransition()
 
   return (
     <div className="flex justify-between pt-4">
@@ -49,15 +50,27 @@ export default function DateSlot({ date }: { date: DateWithParticipants }) {
         )}
 
         {showForm && (
-          <Form className="mt-4 flex items-center space-x-2">
-            <fieldset>
-              <Input label="Dein Name" name="name" type="text" required />
+          <Form
+            className="mt-4 flex items-center space-x-2"
+            method="post"
+            reloadDocument
+          >
+            <fieldset disabled={transition.state === 'submitting'}>
+              <Input
+                label="Dein Name"
+                name="name"
+                type="text"
+                autoComplete="given-name"
+                required
+              />
             </fieldset>
+            <input type="hidden" name="dateId" value={date.id} />
             <button
-              className="mt-6 rounded-md border border-transparent bg-slate-700 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white ring-slate-300 transition duration-150 ease-in-out hover:bg-slate-600 focus:border-slate-800 focus:outline-none focus:ring active:bg-slate-800 disabled:opacity-25"
+              className="mt-6 rounded-md border border-transparent bg-green-700 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white ring-slate-300 transition duration-150 ease-in-out hover:bg-green-600 focus:border-green-800 focus:outline-none focus:ring active:bg-green-800 disabled:opacity-25"
               type="submit"
+              disabled={transition.state === 'submitting'}
             >
-              Senden
+              {transition.state === 'submitting' ? 'Sendet...' : 'Senden'}
             </button>
           </Form>
         )}

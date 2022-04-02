@@ -138,7 +138,7 @@ export default function Register() {
               minLength={2}
               defaultValue={actionData?.fields?.firstName}
               validationError={actionData?.errors?.firstName}
-              autoComplete="firstName"
+              autoComplete="given-name"
             />
 
             <div className="mt-4">
