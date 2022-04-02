@@ -103,7 +103,10 @@ export const action: ActionFunction = async ({ request }) => {
 }
 
 export const meta: MetaFunction = () => {
-  return { title: 'Registrieren' }
+  return {
+    title: 'Registrieren',
+    'og:title': 'Registrieren | miny',
+  }
 }
 
 export default function Register() {

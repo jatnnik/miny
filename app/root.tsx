@@ -1,26 +1,53 @@
 import {
   Links,
   LiveReload,
+  type LoaderFunction,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
   useCatch,
+  json,
 } from 'remix'
 import type { MetaFunction, ErrorBoundaryComponent } from 'remix'
 import type { FC } from 'react'
 
 import tailwind from './styles/tailwind-build.css'
 
-export const meta: MetaFunction = () => {
+type LoaderData = {
+  url: string
+  host: string
+}
+export const loader: LoaderFunction = ({ request }) => {
+  return json<LoaderData>({
+    url: request.url,
+    host: request.headers.get('host') ?? 'https://miny.vercel.app',
+  })
+}
+
+export const meta: MetaFunction = ({ data }: { data: LoaderData }) => {
   return {
     title: 'miny',
-    description: 'Ganz einfach Diensttermine vereinbaren.',
+    description: 'Ganz einfach Diensttermine ausmachen.',
+    'og:title': 'miny',
+    'og:description': 'Ganz einfach Diensttermine ausmachen.',
+    'og:image': `${data.host}/og_image.png`,
+    'og:url': data.url,
+    'og:type': 'website',
+    'theme-color': '#1e293b',
+    'mobile-web-app-capable': 'yes',
+    'apple-mobile-web-app-title': 'miny',
+    'apple-mobile-web-app-capable': 'yes',
+    'apple-mobile-web-app-status-bar-style': 'default',
+    robots: 'noindex',
   }
 }
 
 export const links = () => {
-  return [{ rel: 'stylesheet', href: tailwind }]
+  return [
+    { rel: 'stylesheet', href: tailwind },
+    { rel: 'shortcut icon', href: '/favicon.ico' },
+  ]
 }
 
 export default function App() {

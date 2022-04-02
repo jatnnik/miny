@@ -102,15 +102,21 @@ export const meta: MetaFunction = ({
   data: LoaderData | undefined
 }) => {
   if (data?.user) {
-    return {
-      title: `${data.user.name}${
-        data.user.name.slice(-1) === 's' ? "'" : 's'
-      } Diensttermine`,
-    }
-  }
+    const title = `${data.user.name}${
+      data.user.name.slice(-1) === 's' ? "'" : 's'
+    } Diensttermine`
 
-  return {
-    title: 'Fehler',
+    return {
+      title,
+      'og:title': `${title} | miny`,
+      'og:description': `${data.user.name} möchte einen Diensttermin mit dir ausmachen`,
+    }
+  } else {
+    return {
+      title: 'Fehler',
+      'og:title': 'Fehler',
+      'og:description': 'Benutzer nicht gefunden',
+    }
   }
 }
 
