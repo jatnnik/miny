@@ -43,7 +43,7 @@ export default function Welcome({ user }: { user: User }) {
           Dein Link zum Teilen:
         </span>
         <Link to={`/u/${user.slug}`} className="underline underline-offset-1">
-          miny.vercel.app/u/{user.slug}
+          dienst.vercel.app/u/{user.slug}
         </Link>
       </p>
     </Card>

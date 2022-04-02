@@ -35,7 +35,7 @@ export const meta: MetaFunction = ({ data }: { data: LoaderData }) => {
     description: 'Ganz einfach Diensttermine ausmachen.',
     'og:title': 'miny',
     'og:description': 'Ganz einfach Diensttermine ausmachen.',
-    'og:image': `${data.host}/og_image.png`,
+    'og:image': `https://${data.host}/og_image.png`,
     'og:url': data.url,
     'og:type': 'website',
     'theme-color': '#1e293b',
