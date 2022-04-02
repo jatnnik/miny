@@ -18,9 +18,9 @@ export default function Header() {
       </div>
       <Link
         to="/register"
-        className="text-sm text-red-700 underline underline-offset-1 hover:text-red-600"
+        className="text-sm text-amber-800 underline underline-offset-1 hover:text-amber-700"
       >
-        Registrieren
+        Jetzt anmelden
       </Link>
     </div>
   )

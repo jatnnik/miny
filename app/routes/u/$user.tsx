@@ -3,10 +3,13 @@ import {
   useCatch,
   json,
   useLoaderData,
+  useFetcher,
   type MetaFunction,
   type ActionFunction,
   redirect,
+  useParams,
 } from 'remix'
+import { useEffect } from 'react'
 import { getUserBySlug } from '~/models/user.server'
 import invariant from 'tiny-invariant'
 import {
@@ -52,7 +55,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
   const user = await getUserBySlug(username)
   if (user === null) {
-    throw json('Not found', 404)
+    throw json('user not found', 404)
   }
 
   const dates = await getFreeDates(user.id)
@@ -80,10 +83,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   const appointment = await dateExistsAndIsAvailable(Number(dateId))
   if (!appointment) {
-    throw json(
-      'Dieser Termin existiert nicht mehr oder es hat sich bereits jemand anderes eingetragen.',
-      404
-    )
+    throw json('appointment not found or already assigned', 403)
   }
 
   await assignDate(Number(dateId), name)
@@ -110,12 +110,31 @@ export const meta: MetaFunction = ({
   }
 
   return {
-    title: '404',
+    title: 'Fehler',
   }
 }
 
 export default function UserPage() {
-  const { user, dates, assignedDate } = useLoaderData<LoaderData>()
+  const { user, assignedDate, ...loaderData } = useLoaderData<LoaderData>()
+  const fetcher = useFetcher()
+  const params = useParams()
+
+  const data = fetcher.data || loaderData
+  const dates = data.dates
+
+  const revalidate = () => {
+    if (document.visibilityState === 'visible') {
+      fetcher.load(`/u/${params.user}`)
+    }
+  }
+
+  useEffect(() => {
+    document.addEventListener('visibilitychange', revalidate)
+
+    return () => {
+      document.removeEventListener('visibilitychange', revalidate)
+    }
+  }, [])
 
   return (
     <div className="py-10">
@@ -149,7 +168,7 @@ export default function UserPage() {
                 Termine
               </h2>
               <div className="flex flex-col space-y-4 divide-y divide-dashed">
-                {dates.map(date => (
+                {dates.map((date: DateWithParticipants) => (
                   <DateSlot date={date} key={date.id} />
                 ))}
               </div>
@@ -168,15 +187,23 @@ export default function UserPage() {
 export function CatchBoundary() {
   const caught = useCatch()
 
+  let errorMessage = `Ein Fehler ist aufgetreten: ${caught.status} ${caught.statusText}`
+
+  switch (caught.status) {
+    case 403:
+      errorMessage =
+        'Dieser Termin existiert nicht mehr oder es hat sich bereits jemand anderes eingetragen.'
+      break
+    case 404:
+      errorMessage = 'Benutzer konnte nicht gefunden werden.'
+      break
+  }
+
   return (
     <div className="py-10">
       <Container>
         <Header />
-        <Card withMarginTop>
-          {caught.status === 404
-            ? 'Hm, diesen Benutzer konnten wir leider nicht finden.'
-            : `Ein Fehler ist aufgetreten (${caught.status})`}
-        </Card>
+        <Card withMarginTop>{errorMessage}</Card>
       </Container>
     </div>
   )
