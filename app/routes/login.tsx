@@ -4,20 +4,21 @@ import {
   Link,
   useActionData,
   useTransition,
+  useSearchParams,
+} from '@remix-run/react'
+import {
   type LoaderFunction,
   type ActionFunction,
   type MetaFunction,
   json,
-  useSearchParams,
   redirect,
-} from 'remix'
+} from '@remix-run/node'
 import { createUserSession, getUserId } from '~/session.server'
 import { badRequest, validateEmail } from '~/utils'
 import { ErrorBadge } from '~/components/Badges'
 import { labelStyles, inputStyles, errorStyles } from '~/components/Input'
 import { SubmitButton } from '~/components/Buttons'
 import { verifyLogin } from '~/models/user.server'
-import { prisma } from '@prisma/client'
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await getUserId(request)
@@ -118,6 +119,7 @@ export default function Login() {
         <img
           src="https://emojicdn.elk.sh/🎒"
           className="h-8"
+          alt="Rucksack Emoji"
           height={32}
           width={32}
         />

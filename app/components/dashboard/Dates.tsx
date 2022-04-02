@@ -1,4 +1,4 @@
-import { Form, Link, useTransition } from 'remix'
+import { Form, Link, useTransition } from '@remix-run/react'
 import type { DateWithParticipants } from '~/models/date.server'
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/outline'
 import Card from '../Card'

@@ -1,15 +1,17 @@
 import {
   Form,
   Link,
-  type LoaderFunction,
   useActionData,
-  type ActionFunction,
   useTransition,
-  type MetaFunction,
-  json,
   useSearchParams,
+} from '@remix-run/react'
+import {
+  LoaderFunction,
   redirect,
-} from 'remix'
+  json,
+  ActionFunction,
+  MetaFunction,
+} from '@remix-run/node'
 import { getUserId, createUserSession } from '~/session.server'
 import { createUser, getUserByEmail } from '~/models/user.server'
 import { validateEmail, validateStringLength, badRequest } from '~/utils'
@@ -121,6 +123,7 @@ export default function Register() {
         <img
           src="https://emojicdn.elk.sh/🎒"
           className="h-8"
+          alt="Rucksack Emoji"
           height={32}
           width={32}
         />

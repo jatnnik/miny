@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Form, useTransition } from 'remix'
+import { Form, useTransition } from '@remix-run/react'
 import { type DateWithParticipants } from '~/models/date.server'
 import { formatDate } from '~/utils'
 import Input from '../Input'

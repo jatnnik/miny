@@ -1,4 +1,4 @@
-import { Link, Form } from 'remix'
+import { Link, Form } from '@remix-run/react'
 
 export default function Header({ username }: { username: string }) {
   return (
@@ -8,6 +8,7 @@ export default function Header({ username }: { username: string }) {
           <img
             src="https://emojicdn.elk.sh/🎒"
             className="h-5"
+            alt="Rucksack Emoji"
             height={20}
             width={20}
           />

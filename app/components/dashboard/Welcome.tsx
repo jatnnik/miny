@@ -1,4 +1,4 @@
-import { Link } from 'remix'
+import { Link } from '@remix-run/react'
 import type { User } from '~/models/user.server'
 import Card from '../Card'
 import { headingStyles } from '../Heading'

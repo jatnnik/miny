@@ -1,16 +1,18 @@
 import {
   Links,
   LiveReload,
-  type LoaderFunction,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
   useCatch,
+} from '@remix-run/react'
+import {
+  type MetaFunction,
+  type ErrorBoundaryComponent,
+  type LoaderFunction,
   json,
-} from 'remix'
-import type { MetaFunction, ErrorBoundaryComponent } from 'remix'
-import type { FC } from 'react'
+} from '@remix-run/node'
 
 import tailwind from './styles/tailwind-build.css'
 
@@ -27,6 +29,8 @@ export const loader: LoaderFunction = ({ request }) => {
 
 export const meta: MetaFunction = ({ data }: { data: LoaderData }) => {
   return {
+    charset: 'utf-8',
+    viewport: 'width=device-width,initial-scale=1',
     title: 'miny',
     description: 'Ganz einfach Diensttermine ausmachen.',
     'og:title': 'miny',
@@ -51,26 +55,21 @@ export const links = () => {
 }
 
 export default function App() {
-  return <Layout />
+  return (
+    <html lang="de" className="h-full">
+      <head>
+        <Meta />
+        <Links />
+      </head>
+      <body className="h-full min-h-screen bg-slate-50 font-sans text-slate-600 antialiased">
+        <Outlet />
+        <ScrollRestoration />
+        <Scripts />
+        <LiveReload />
+      </body>
+    </html>
+  )
 }
-
-const Layout: FC = ({ children }) => (
-  <html lang="de" className="h-full">
-    <head>
-      <meta charSet="utf-8" />
-      <meta name="viewport" content="width=device-width,initial-scale=1" />
-      <Meta />
-      <Links />
-    </head>
-    <body className="h-full min-h-screen bg-slate-50 font-sans text-slate-600 antialiased">
-      {children}
-      <Outlet />
-      <ScrollRestoration />
-      <Scripts />
-      {process.env.NODE_ENV === 'development' && <LiveReload />}
-    </body>
-  </html>
-)
 
 export const ErrorBoundary: ErrorBoundaryComponent = ({ error }) => {
   console.error(error)

@@ -1,10 +1,10 @@
 import {
   type LoaderFunction,
-  useLoaderData,
   json,
   type MetaFunction,
   type ActionFunction,
-} from 'remix'
+} from '@remix-run/node'
+import { useLoaderData } from '@remix-run/react'
 
 import { requireUser, requireUserId } from '~/session.server'
 import {

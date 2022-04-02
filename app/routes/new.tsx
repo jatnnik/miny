@@ -1,15 +1,19 @@
 import {
-  type LoaderFunction,
-  type MetaFunction,
-  type ActionFunction,
   useLoaderData,
   useActionData,
   useTransition,
-  redirect,
-} from 'remix'
+  Link,
+  Form,
+} from '@remix-run/react'
 import { useState } from 'react'
 import type { User } from '~/models/user.server'
-import { json, Link, Form } from 'remix'
+import {
+  json,
+  type LoaderFunction,
+  type MetaFunction,
+  type ActionFunction,
+  redirect,
+} from '@remix-run/node'
 import { requireUser, requireUserId } from '~/session.server'
 import { isPast, addDays } from 'date-fns'
 

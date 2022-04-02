@@ -1,18 +1,20 @@
 import {
   Form,
-  json,
   Link,
+  useLoaderData,
+  useTransition,
+  useActionData,
+} from '@remix-run/react'
+import {
   type LoaderFunction,
   type MetaFunction,
   type ActionFunction,
   redirect,
-  useLoaderData,
-  useTransition,
-  useActionData,
-} from 'remix'
+  json,
+} from '@remix-run/node'
 import { useState } from 'react'
 import { requireUser } from '~/session.server'
-import { getDateById, isOwner, updateDate } from '~/models/date.server'
+import { getDateById, updateDate } from '~/models/date.server'
 import { addDays, isPast, formatDistanceToNow } from 'date-fns'
 import { de } from 'date-fns/locale'
 

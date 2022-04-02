@@ -1,14 +1,16 @@
 import {
-  type LoaderFunction,
   useCatch,
-  json,
   useLoaderData,
   useFetcher,
-  type MetaFunction,
-  type ActionFunction,
-  redirect,
   useParams,
-} from 'remix'
+} from '@remix-run/react'
+import {
+  LoaderFunction,
+  json,
+  ActionFunction,
+  redirect,
+  MetaFunction,
+} from '@remix-run/node'
 import { useEffect } from 'react'
 import { getUserBySlug } from '~/models/user.server'
 import invariant from 'tiny-invariant'
@@ -21,13 +23,13 @@ import {
   sendAssignmentEmail,
 } from '~/models/date.server'
 import type { Appointment } from '@prisma/client'
+import { badRequest, formatDate } from '~/utils'
 
 import Container from '~/components/Container'
 import Card from '~/components/Card'
 import Header from '~/components/profile/Header'
 import { headingStyles } from '~/components/Heading'
 import DateSlot from '~/components/profile/Date'
-import { badRequest, formatDate } from '~/utils'
 
 type LoaderData = {
   user: {
@@ -128,19 +130,19 @@ export default function UserPage() {
   const data = fetcher.data || loaderData
   const dates = data.dates
 
-  const revalidate = () => {
-    if (document.visibilityState === 'visible') {
-      fetcher.load(`/u/${params.user}`)
-    }
-  }
-
   useEffect(() => {
+    const revalidate = () => {
+      if (document.visibilityState === 'visible') {
+        fetcher.load(`/u/${params.user}`)
+      }
+    }
+
     document.addEventListener('visibilitychange', revalidate)
 
     return () => {
       document.removeEventListener('visibilitychange', revalidate)
     }
-  }, [])
+  }, [fetcher, params.user])
 
   return (
     <div className="py-10">
