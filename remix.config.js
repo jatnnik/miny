@@ -8,4 +8,6 @@ module.exports = {
   serverBuildDirectory: 'build',
   devServerPort: 8002,
   ignoredRouteFiles: ['.*'],
+  server: process.env.NODE_ENV === 'development' ? undefined : './server.js',
+  serverBuildTarget: 'vercel',
 }
