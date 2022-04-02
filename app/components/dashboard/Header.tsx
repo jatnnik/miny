@@ -6,7 +6,7 @@ export default function Header({ username }: { username: string }) {
       <div className="flex items-center">
         <div className="block rounded-lg bg-red-400 bg-opacity-20 p-2">
           <img
-            src="https://emojicdn.elk.sh/🎒"
+            src="/backpack.png"
             className="h-5"
             alt="Rucksack Emoji"
             height={20}

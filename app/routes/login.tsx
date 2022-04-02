@@ -117,7 +117,7 @@ export default function Login() {
     <div className="flex min-h-screen flex-col items-center justify-center">
       <div className="block rounded-lg bg-red-400 bg-opacity-20 p-2">
         <img
-          src="https://emojicdn.elk.sh/🎒"
+          src="/backpack.png"
           className="h-8"
           alt="Rucksack Emoji"
           height={32}
