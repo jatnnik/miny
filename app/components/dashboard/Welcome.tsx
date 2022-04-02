@@ -26,8 +26,8 @@ export default function Welcome({ user }: { user: User }) {
         {greeting} {user.name}!
       </h1>
       {firstLogin && (
-        <div>
-          <h3 className="mb-0.5 font-medium text-slate-800">
+        <div className="mt-4">
+          <h3 className="mb-0.5 font-medium text-amber-800">
             Willkommen bei miny!
           </h3>
           <p>

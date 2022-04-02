@@ -14,6 +14,7 @@ export async function getUserById(id: User['id']) {
       name: true,
       email: true,
       slug: true,
+      loginCount: true,
     },
   })
 }
