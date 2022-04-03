@@ -67,7 +67,7 @@ function DateSlot({ date }: { date: DateWithParticipants }) {
               type="submit"
               disabled={transition.state === 'submitting'}
             >
-              <TrashIcon className="h5 sm:h-4" />
+              <TrashIcon className="h-5 sm:h-4" />
             </button>
           </Form>
         ) : (
