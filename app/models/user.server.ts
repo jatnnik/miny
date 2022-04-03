@@ -6,6 +6,14 @@ import { prisma } from '~/db.server'
 
 export type { User } from '@prisma/client'
 
+export type PublicUser = {
+  id: number
+  name: string
+  email: string
+  slug: string | null
+  loginCount: number
+}
+
 export async function getUserById(id: User['id']) {
   return prisma.user.findUnique({
     where: { id },

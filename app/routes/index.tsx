@@ -5,14 +5,14 @@ import {
   type ActionFunction,
 } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
-
 import { requireUser, requireUserId } from '~/session.server'
 import {
   deleteDate,
   getDatesByUserId,
   type DateWithParticipants,
 } from '~/models/date.server'
-import type { User } from '~/models/user.server'
+import type { PublicUser } from '~/models/user.server'
+import { utcToZonedTime } from 'date-fns-tz'
 
 import Container from '~/components/Container'
 import Header from '~/components/dashboard/Header'
@@ -20,12 +20,25 @@ import Welcome from '~/components/dashboard/Welcome'
 import Dates from '~/components/dashboard/Dates'
 import { badRequest } from '~/utils'
 
-type LoaderData = { user: User; dates: DateWithParticipants[] }
+type LoaderData = {
+  user: PublicUser
+  dates: DateWithParticipants[]
+  greeting: string
+}
 
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await requireUser(request)
   const dates = await getDatesByUserId(user.id)
-  return json({ user, dates })
+  let greeting = 'Hey'
+
+  const currentHour = utcToZonedTime(new Date(), 'Europe/Berlin').getHours()
+  if (currentHour < 11 && currentHour > 4) {
+    greeting = 'Guten Morgen'
+  } else if (currentHour > 18) {
+    greeting = 'Guten Abend'
+  }
+
+  return json<LoaderData>({ user, dates, greeting })
 }
 
 interface ActionData {
@@ -68,13 +81,13 @@ export const meta: MetaFunction = ({ data }: { data: LoaderData }) => {
 }
 
 export default function Dashboard() {
-  const { user, dates } = useLoaderData() as LoaderData
+  const { user, dates, greeting } = useLoaderData() as LoaderData
 
   return (
     <div className="py-10">
       <Container>
         <Header username={user.name} />
-        <Welcome user={user} />
+        <Welcome user={user} greeting={greeting} />
         <Dates dates={dates} />
         <div className="mt-4 text-center text-xs text-slate-500">
           v1.0 &middot; Danke für die Idee, Linda!

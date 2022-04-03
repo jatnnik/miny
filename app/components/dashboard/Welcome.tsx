@@ -1,23 +1,15 @@
 import { Link } from '@remix-run/react'
-import type { User } from '~/models/user.server'
+import type { PublicUser } from '~/models/user.server'
 import Card from '../Card'
 import { headingStyles } from '../Heading'
 
-function useGreeting() {
-  const currentHour = new Date().getHours()
-  let greeting = 'Hey'
-
-  if (currentHour < 11 && currentHour > 4) {
-    greeting = 'Guten Morgen'
-  } else if (currentHour > 18) {
-    greeting = 'Guten Abend'
-  }
-
-  return greeting
-}
-
-export default function Welcome({ user }: { user: User }) {
-  const greeting = useGreeting()
+export default function Welcome({
+  user,
+  greeting,
+}: {
+  user: PublicUser
+  greeting: string
+}) {
   const firstLogin = user.loginCount === 0
 
   return (
