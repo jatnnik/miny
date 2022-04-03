@@ -90,7 +90,18 @@ export default function Dashboard() {
         <Welcome user={user} greeting={greeting} />
         <Dates dates={dates} />
         <div className="mt-4 text-center text-xs text-slate-500">
-          v1.0 &middot; Danke für die Idee, Linda!
+          <span className="block">
+            v1.0 &middot; Danke für die Idee, Linda!
+          </span>
+          <a
+            href="https://github.com/wh1zk1d/miny/blob/main/CHANGELOG.md"
+            target="_blank"
+            rel="noreferrer"
+            title="Changelog"
+            className="underline underline-offset-1"
+          >
+            Changelog
+          </a>
         </div>
       </Container>
     </div>
