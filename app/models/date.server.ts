@@ -249,7 +249,8 @@ export async function sendAssignmentEmail(
 
   let text = `Hi ${recipient.name}!\n\n`
   if (isGroupDate) {
-    text += `${partnerName} hat sich für einen Gruppentermin eingetragen. Ihr seid jetzt ${appointment._count.participants}/${appointment.maxParticipants} Teilnehmer.`
+    const participants = await getParticipateCount(appointment.id)
+    text += `${partnerName} hat sich für einen Gruppentermin eingetragen. Ihr seid jetzt ${participants}/${appointment.maxParticipants} Teilnehmer.`
   } else {
     text += `${partnerName} hat sich für einen Diensttermin mit dir eingetragen.`
   }
