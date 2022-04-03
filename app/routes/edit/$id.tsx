@@ -112,8 +112,6 @@ export const action: ActionFunction = async ({ request }) => {
     isFlexible: flexible === 'on',
   }
 
-  console.log(fields.isFlexible)
-
   // Validate date
   if (!validateDate(date)) {
     return badRequest<ActionData>({
