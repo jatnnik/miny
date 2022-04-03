@@ -26,6 +26,7 @@ import { ErrorBadge } from '~/components/Badges'
 import { SubmitButton } from '~/components/Buttons'
 import Input from '~/components/Input'
 import { badRequest, validateDate, validateTime } from '~/utils'
+import { Appointment } from '@prisma/client'
 
 type User = {
   id: number
@@ -36,17 +37,7 @@ type User = {
 
 type LoaderData = {
   user: User
-  date: {
-    id: number
-    date: Date
-    startTime: string
-    endTime: string | null
-    isGroupDate: boolean
-    maxParticipants: number | null
-    note: string | null
-    createdAt: Date
-    updatedAt: Date
-  }
+  date: Appointment
 }
 
 export const loader: LoaderFunction = async ({ request, params }) => {
@@ -83,6 +74,7 @@ interface ActionData {
     isGroupDate: boolean
     maxParticipants: number | null
     note: string | null
+    isFlexible: boolean
   }
 }
 
@@ -95,6 +87,7 @@ export const action: ActionFunction = async ({ request }) => {
   const isGroupDate = formData.get('isGroupDate')
   const maxParticipants = formData.get('maxParticipants')
   const note = formData.get('note')
+  const flexible = formData.get('flexibleTime')
 
   if (
     typeof date !== 'string' ||
@@ -116,7 +109,10 @@ export const action: ActionFunction = async ({ request }) => {
     maxParticipants:
       typeof maxParticipants === 'string' ? parseInt(maxParticipants) : null,
     note: typeof note === 'string' ? note : null,
+    isFlexible: flexible === 'on',
   }
+
+  console.log(fields.isFlexible)
 
   // Validate date
   if (!validateDate(date)) {
@@ -140,7 +136,7 @@ export const action: ActionFunction = async ({ request }) => {
   fields.date = new Date(date).toISOString()
 
   // Validate start and end time
-  if (!validateTime(startTime)) {
+  if (!fields.isFlexible && !validateTime(startTime)) {
     return badRequest<ActionData>({
       fields,
       errors: {
@@ -192,6 +188,7 @@ export default function EditDate() {
   const actionData = useActionData<ActionData>()
   const transition = useTransition()
   const [isGroupDate, setIsGroupdate] = useState(date.isGroupDate)
+  const [fixedStart, setFixedStart] = useState(!date.isFlexible)
 
   const tomorrow = addDays(new Date(), 1).toLocaleDateString('en-CA')
 
@@ -228,28 +225,45 @@ export default function EditDate() {
                 />
               </div>
 
+              <div className="mt-6 flex items-center">
+                <input
+                  id="flexibleTime"
+                  name="flexibleTime"
+                  type="checkbox"
+                  defaultChecked={!fixedStart}
+                  onChange={() => setFixedStart(!fixedStart)}
+                  className="h-4 w-4 rounded border-slate-300 text-slate-600 focus:ring-slate-200 focus:ring-opacity-50"
+                />
+                <label htmlFor="flexibleTime" className="ml-2 block">
+                  Flexible Zeit
+                </label>
+              </div>
+
               <div className="mt-4 flex space-x-4">
                 <div className="w-full">
                   <Input
                     name="startTime"
                     id="startTime"
-                    label="Von*"
-                    type="time"
+                    label={fixedStart ? 'Von*' : 'Zeit*'}
+                    type={fixedStart ? 'time' : 'text'}
+                    placeholder={!fixedStart ? 'Vormittags' : ''}
                     defaultValue={date.startTime}
                     validationError={actionData?.errors?.startTime}
                     required
                   />
                 </div>
-                <div className="w-full">
-                  <Input
-                    name="endTime"
-                    id="endTime"
-                    label="Bis"
-                    type="time"
-                    defaultValue={date.endTime || undefined}
-                    validationError={actionData?.errors?.endTime}
-                  />
-                </div>
+                {fixedStart ? (
+                  <div className="w-full">
+                    <Input
+                      name="endTime"
+                      id="endTime"
+                      label="Bis"
+                      type="time"
+                      defaultValue={date.endTime || undefined}
+                      validationError={actionData?.errors?.endTime}
+                    />
+                  </div>
+                ) : null}
               </div>
 
               <div className="mt-6 flex items-center">

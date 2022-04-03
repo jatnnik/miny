@@ -124,6 +124,7 @@ interface CreateFields {
   isGroupDate?: boolean
   maxParticipants?: number | null
   note?: string | null
+  isFlexible: boolean
 }
 
 export async function createDate(fields: CreateFields, userId: string) {
@@ -136,6 +137,7 @@ export async function createDate(fields: CreateFields, userId: string) {
       maxParticipants: fields.maxParticipants,
       note: fields.note,
       userId: Number(userId),
+      isFlexible: fields.isFlexible,
     },
   })
 }
@@ -156,6 +158,7 @@ export async function updateDate(fields: UpdateFields) {
       isGroupDate: fields.isGroupDate,
       maxParticipants: fields.maxParticipants,
       note: fields.note,
+      isFlexible: fields.isFlexible,
     },
   })
 }

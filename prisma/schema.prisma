@@ -31,6 +31,7 @@ model Appointment {
   startTime       String
   endTime         String?
   isAssigned      Boolean       @default(false)
+  isFlexible      Boolean       @default(false)
   partnerName     String?
   isGroupDate     Boolean       @default(false)
   maxParticipants Int?

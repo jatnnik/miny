@@ -51,25 +51,22 @@ interface ActionData {
     isGroupDate: boolean
     maxParticipants: number | null
     note: string | null
+    isFlexible: boolean
   }
 }
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData()
 
-  const method = formData.get('_method')
   const date = formData.get('date')
   const startTime = formData.get('startTime')
   const endTime = formData.get('endTime')
   const isGroupDate = formData.get('isGroupDate')
   const maxParticipants = formData.get('maxParticipants')
   const note = formData.get('note')
+  const flexible = formData.get('flexibleTime')
 
-  if (
-    typeof method !== 'string' ||
-    typeof date !== 'string' ||
-    typeof startTime !== 'string'
-  ) {
+  if (typeof date !== 'string' || typeof startTime !== 'string') {
     return badRequest<ActionData>({
       formError: 'Pflichtfelder wurden nicht ausgefüllt',
     })
@@ -83,75 +80,72 @@ export const action: ActionFunction = async ({ request }) => {
     maxParticipants:
       typeof maxParticipants === 'string' ? parseInt(maxParticipants) : null,
     note: typeof note === 'string' ? note : null,
+    isFlexible: flexible === 'on',
   }
 
-  if (method === 'add') {
-    // Validate date
-    if (!validateDate(date)) {
-      return badRequest<ActionData>({
-        fields,
-        errors: {
-          date: 'Ungültiges Datum',
-        },
-      })
-    }
-
-    if (isPast(new Date(date))) {
-      return badRequest<ActionData>({
-        fields,
-        errors: {
-          date: 'Ungültiges Datum (zu früh)',
-        },
-      })
-    }
-
-    fields.date = new Date(date).toISOString()
-
-    // Validate start and end time
-    if (!validateTime(startTime)) {
-      return badRequest<ActionData>({
-        fields,
-        errors: {
-          startTime: 'Ungültige Uhrzeit',
-        },
-      })
-    }
-
-    if (fields.endTime && !validateTime(fields.endTime)) {
-      return badRequest<ActionData>({
-        fields,
-        errors: {
-          endTime: 'Ungültige Uhrzeit',
-        },
-      })
-    }
-
-    if (fields.endTime && fields.endTime < fields.startTime) {
-      return badRequest<ActionData>({
-        fields,
-        errors: {
-          endTime: 'Früher als Start',
-        },
-      })
-    }
-
-    // Validate maxParticipants
-    if (fields.maxParticipants && isNaN(fields.maxParticipants)) {
-      return badRequest<ActionData>({
-        fields,
-        errors: {
-          maxParticipants: 'Keine gültige Zahl',
-        },
-      })
-    }
-
-    const userId = await requireUserId(request)
-
-    await createDate(fields, userId)
-    return redirect('/')
+  // Validate date
+  if (!validateDate(date)) {
+    return badRequest<ActionData>({
+      fields,
+      errors: {
+        date: 'Ungültiges Datum',
+      },
+    })
   }
 
-  return badRequest<ActionData>({ formError: 'Ungültige Methode' })
+  if (isPast(new Date(date))) {
+    return badRequest<ActionData>({
+      fields,
+      errors: {
+        date: 'Ungültiges Datum (zu früh)',
+      },
+    })
+  }
+
+  fields.date = new Date(date).toISOString()
+
+  // Validate start and end time
+  if (!fields.isFlexible && !validateTime(startTime)) {
+    return badRequest<ActionData>({
+      fields,
+      errors: {
+        startTime: 'Ungültige Uhrzeit',
+      },
+    })
+  }
+
+  if (fields.endTime && !validateTime(fields.endTime)) {
+    return badRequest<ActionData>({
+      fields,
+      errors: {
+        endTime: 'Ungültige Uhrzeit',
+      },
+    })
+  }
+
+  if (fields.endTime && fields.endTime < fields.startTime) {
+    return badRequest<ActionData>({
+      fields,
+      errors: {
+        endTime: 'Früher als Start',
+      },
+    })
+  }
+
+  // Validate maxParticipants
+  if (fields.maxParticipants && isNaN(fields.maxParticipants)) {
+    return badRequest<ActionData>({
+      fields,
+      errors: {
+        maxParticipants: 'Keine gültige Zahl',
+      },
+    })
+  }
+
+  const userId = await requireUserId(request)
+
+  await createDate(fields, userId)
+  return redirect('/')
 }
 
 export const meta: MetaFunction = () => {
@@ -165,6 +159,7 @@ export default function CreateDate() {
   const actionData = useActionData<ActionData>()
   const transition = useTransition()
   const [isGroupDate, setIsGroupDate] = useState(false)
+  const [fixedStart, setFixedStart] = useState(true)
 
   const tomorrow = addDays(new Date(), 1).toLocaleDateString('en-CA')
 
@@ -196,28 +191,45 @@ export default function CreateDate() {
                 />
               </div>
 
+              <div className="mt-6 flex items-center">
+                <input
+                  id="flexibleTime"
+                  name="flexibleTime"
+                  type="checkbox"
+                  defaultChecked={actionData?.fields?.isFlexible}
+                  onChange={() => setFixedStart(!fixedStart)}
+                  className="h-4 w-4 rounded border-slate-300 text-slate-600 focus:ring-slate-200 focus:ring-opacity-50"
+                />
+                <label htmlFor="flexibleTime" className="ml-2 block">
+                  Flexible Zeit
+                </label>
+              </div>
+
               <div className="mt-4 flex space-x-4">
                 <div className="w-full">
                   <Input
                     name="startTime"
                     id="startTime"
-                    label="Von*"
-                    type="time"
+                    label={fixedStart ? 'Von*' : 'Zeit*'}
+                    type={fixedStart ? 'time' : 'text'}
+                    placeholder={!fixedStart ? 'Vormittags' : ''}
                     defaultValue={actionData?.fields?.startTime}
                     validationError={actionData?.errors?.startTime}
                     required
                   />
                 </div>
-                <div className="w-full">
-                  <Input
-                    name="endTime"
-                    id="endTime"
-                    label="Bis"
-                    type="time"
-                    defaultValue={actionData?.fields?.endTime || undefined}
-                    validationError={actionData?.errors?.endTime}
-                  />
-                </div>
+                {fixedStart ? (
+                  <div className="w-full">
+                    <Input
+                      name="endTime"
+                      id="endTime"
+                      label="Bis"
+                      type="time"
+                      defaultValue={actionData?.fields?.endTime || undefined}
+                      validationError={actionData?.errors?.endTime}
+                    />
+                  </div>
+                ) : null}
               </div>
 
               <div className="mt-6 flex items-center">
@@ -260,8 +272,6 @@ export default function CreateDate() {
                   validationError={actionData?.errors?.note}
                 />
               </div>
-
-              <input type="hidden" name="_method" value="add" />
             </fieldset>
 
             <div className="mt-8 flex items-center justify-between">

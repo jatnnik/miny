@@ -41,7 +41,7 @@ async function seed() {
   await prisma.appointment.create({
     data: {
       userId: user.id,
-      date: new Date().toISOString(),
+      date: new Date('2024-03-01').toISOString(),
       startTime: '10:00',
     },
   })
