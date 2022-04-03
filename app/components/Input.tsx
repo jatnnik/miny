@@ -8,7 +8,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 
 export const labelStyles = 'mb-0.5 block text-sm font-medium'
 export const inputStyles =
-  'mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-slate-400 focus:ring focus:ring-slate-200 focus:ring-opacity-50'
+  'mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-slate-400 focus:ring focus:ring-slate-200 focus:ring-opacity-50 text-left'
 export const errorStyles = 'mt-1.5 text-sm font-medium text-red-700'
 
 const Input = ({ name, label, validationError, ...props }: InputProps) => {

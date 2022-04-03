@@ -28,7 +28,6 @@ import { badRequest, formatDate } from '~/utils'
 import Container from '~/components/Container'
 import Card from '~/components/Card'
 import Header from '~/components/profile/Header'
-import { headingStyles } from '~/components/Heading'
 import DateSlot from '~/components/profile/Date'
 
 type LoaderData = {
@@ -150,7 +149,9 @@ export default function UserPage() {
         <Header />
         {assignedDate && (
           <Card withMarginTop>
-            <h1 className={headingStyles}>Viel Spaß im Dienst!</h1>
+            <h1 className="font-serif text-2xl font-black text-slate-700">
+              Viel Spaß im Dienst!
+            </h1>
             <p className="mt-4">Dein Termin mit {user.name}:</p>
             <p className="font-medium text-amber-800">
               {formatDate(assignedDate.date.toString())},{' '}
@@ -160,7 +161,7 @@ export default function UserPage() {
           </Card>
         )}
         <Card withMarginTop>
-          <h1 className={headingStyles}>
+          <h1 className="font-serif text-2xl font-black text-slate-700">
             {!assignedDate
               ? `${user.name} möchte einen Diensttermin mit dir ausmachen`
               : `Möchtest du noch einen Termin mit ${user.name} ausmachen?`}

@@ -35,9 +35,9 @@ function DateSlot({ date }: { date: DateWithParticipants }) {
 
         {!date.isGroupDate &&
           (date.isAssigned ? (
-            <span className="block">Mit: {date.partnerName}</span>
+            <span className="block text-sm">Mit: {date.partnerName}</span>
           ) : (
-            <span className="block italic">Noch frei</span>
+            <span className="block text-sm italic">Noch frei</span>
           ))}
 
         {date.note && (
@@ -71,14 +71,14 @@ function DateSlot({ date }: { date: DateWithParticipants }) {
             </button>
           </Form>
         ) : (
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-3 sm:space-x-2">
             <Link to={`/edit/${date.id}`}>
               <button
                 className="opacity-50 transition-opacity duration-75 hover:opacity-100"
                 title="Bearbeiten"
                 aria-label="Termin bearbeiten"
               >
-                <PencilIcon className="h-4" />
+                <PencilIcon className="h-5 sm:h-4" />
               </button>
             </Link>
             <Form
@@ -100,7 +100,7 @@ function DateSlot({ date }: { date: DateWithParticipants }) {
                 type="submit"
                 disabled={transition.state === 'submitting'}
               >
-                <TrashIcon className="h-4" />
+                <TrashIcon className="h-5 sm:h-4" />
               </button>
             </Form>
           </div>
@@ -118,7 +118,7 @@ export default function Dates({ dates }: { dates: DateWithParticipants[] }) {
       <div className="flex items-center justify-between">
         <h2 className={headingStyles}>Deine Termine</h2>
         <Link
-          className="flex items-center rounded-md border border-transparent bg-slate-700 px-4 py-2 pl-3 text-xs font-semibold uppercase tracking-widest text-white ring-slate-300 transition duration-75 ease-in-out hover:bg-slate-600 focus:border-slate-800 focus:outline-none focus:ring active:bg-slate-600 disabled:opacity-25"
+          className="flex items-center rounded-md border border-transparent bg-slate-700 px-3 py-2 pl-3 text-xs font-medium uppercase tracking-widest text-white ring-slate-300 transition duration-75 ease-in-out hover:bg-slate-600 focus:border-slate-800 focus:outline-none focus:ring active:bg-slate-600 disabled:opacity-25"
           to="/new"
         >
           <PlusIcon className="mr-2 h-3.5" /> Neu
@@ -131,7 +131,7 @@ export default function Dates({ dates }: { dates: DateWithParticipants[] }) {
       )}
 
       {hasDates && (
-        <div className="mt-2 flex flex-col space-y-4 divide-y divide-dashed">
+        <div className="mt-3 flex flex-col space-y-4 divide-y divide-dashed">
           {dates.map(date => (
             <DateSlot date={date} key={date.id} />
           ))}

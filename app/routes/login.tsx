@@ -124,7 +124,7 @@ export default function Login() {
           width={32}
         />
       </div>
-      <div className="mt-6 w-full max-w-md rounded-lg bg-white px-6 py-4 shadow-md">
+      <div className="mt-6 w-full max-w-xs rounded-lg bg-white px-6 py-4 shadow-md sm:max-w-md">
         <Form method="post">
           {actionData?.formError ? (
             <ErrorBadge message={actionData.formError} />
