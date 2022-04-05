@@ -133,13 +133,23 @@ export const action: ActionFunction = async ({ request }) => {
   }
 
   // Validate maxParticipants
-  if (fields.maxParticipants && isNaN(fields.maxParticipants)) {
-    return badRequest<ActionData>({
-      fields,
-      errors: {
-        maxParticipants: 'Keine gültige Zahl',
-      },
-    })
+  if (fields.maxParticipants) {
+    if (isNaN(fields.maxParticipants)) {
+      return badRequest<ActionData>({
+        fields,
+        errors: {
+          maxParticipants: 'Keine gültige Zahl',
+        },
+      })
+    }
+    if (fields.maxParticipants > 100) {
+      return badRequest<ActionData>({
+        fields,
+        errors: {
+          maxParticipants: 'Max. 100 erlaubt',
+        },
+      })
+    }
   }
 
   const userId = await requireUserId(request)
@@ -254,6 +264,8 @@ export default function CreateDate() {
                     name="maxParticipants"
                     type="number"
                     min={2}
+                    max={100}
+                    maxLength={3}
                     defaultValue={actionData?.fields?.maxParticipants || 2}
                     pattern="[0-9]"
                     validationError={actionData?.errors?.maxParticipants}
