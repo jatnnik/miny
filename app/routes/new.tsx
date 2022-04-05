@@ -24,7 +24,7 @@ import { headingStyles } from '~/components/Heading'
 import Input from '~/components/Input'
 import { SubmitButton } from '~/components/Buttons'
 import { createDate } from '~/models/date.server'
-import { badRequest, validateDate, validateTime } from '~/utils'
+import { badRequest, onlySpaces, validateDate, validateTime } from '~/utils'
 import { ErrorBadge } from '~/components/Badges'
 
 type LoaderData = { user: User }
@@ -105,13 +105,25 @@ export const action: ActionFunction = async ({ request }) => {
   fields.date = new Date(date).toISOString()
 
   // Validate start and end time
-  if (!fields.isFlexible && !validateTime(startTime)) {
+  if (!fields.isFlexible && !validateTime(fields.startTime)) {
     return badRequest<ActionData>({
       fields,
       errors: {
         startTime: 'Ungültige Uhrzeit',
       },
     })
+  }
+
+  if (fields.isFlexible && onlySpaces(fields.startTime)) {
+    return badRequest<ActionData>({
+      fields,
+      errors: {
+        startTime: 'Ungültiges Format',
+      },
+    })
+  } else {
+    // Remove any whitespace at start and end
+    fields.startTime = fields.startTime.trim()
   }
 
   if (fields.endTime && !validateTime(fields.endTime)) {
