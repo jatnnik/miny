@@ -194,7 +194,7 @@ export async function assignDate(dateId: Appointment['id'], name: string) {
   if (appointment.isGroupDate) {
     await prisma.participant.create({
       data: {
-        name,
+        name: name.trim(),
         dateId,
       },
     })
@@ -221,7 +221,7 @@ export async function assignDate(dateId: Appointment['id'], name: string) {
       },
       data: {
         isAssigned: true,
-        partnerName: name,
+        partnerName: name.trim(),
       },
     })
   }
@@ -259,9 +259,10 @@ export async function sendAssignmentEmail(
   }
 
   text += `\n\nEuer Termin:\n`
-  text += `${formatDate(appointment.date.toString())}, ${
-    appointment.startTime
-  }${appointment.endTime && `–${appointment.endTime}`}`
+  text += `${formatDate(appointment.date.toString())}, ${appointment.startTime}`
+  if (appointment.endTime && !appointment.isFlexible) {
+    text += `–${appointment.endTime}`
+  }
   text += '\n\nViel Spaß im Dienst!\nminy\n\n'
   text += 'Hier kommst du zu deinen Terminen: https://dienst.vercel.app/'
 
