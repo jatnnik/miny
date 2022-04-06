@@ -51,6 +51,11 @@ export const links = () => {
   return [
     { rel: 'stylesheet', href: tailwind },
     { rel: 'shortcut icon', href: '/favicon.ico' },
+    {
+      rel: 'prefetch',
+      as: 'image',
+      href: '/backpack.png',
+    },
   ]
 }
 
