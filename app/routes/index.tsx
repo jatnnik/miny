@@ -38,14 +38,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     greeting = 'Guten Abend'
   }
 
-  return json<LoaderData>(
-    { user, dates, greeting },
-    {
-      headers: {
-        'Cache-Control': 's-maxage=10',
-      },
-    }
-  )
+  return json<LoaderData>({ user, dates, greeting })
 }
 
 interface ActionData {
