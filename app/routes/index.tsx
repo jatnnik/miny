@@ -64,6 +64,12 @@ export const action: ActionFunction = async ({ request }) => {
   return null
 }
 
+export const headers = () => {
+  return {
+    'Cache-Control': 's-maxage=1, stale-while-revalidate=59',
+  }
+}
+
 export const meta: MetaFunction = ({ data }: { data: LoaderData }) => {
   const user = data.user
 
