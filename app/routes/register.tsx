@@ -104,6 +104,12 @@ export const action: ActionFunction = async ({ request }) => {
   })
 }
 
+export const headers = () => {
+  return {
+    'Cache-Control': 's-maxage=604800',
+  }
+}
+
 export const meta: MetaFunction = () => {
   return {
     title: 'Registrieren',
