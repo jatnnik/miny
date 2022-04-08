@@ -95,7 +95,7 @@ export const action: ActionFunction = async ({ request }) => {
 
 export const headers = () => {
   return {
-    'Cache-Control': 's-maxage=86400, stale-while-revalidate=604800',
+    'Cache-Control': 's-maxage=604800',
   }
 }
 

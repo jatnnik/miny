@@ -38,7 +38,14 @@ export const loader: LoaderFunction = async ({ request }) => {
     greeting = 'Guten Abend'
   }
 
-  return json<LoaderData>({ user, dates, greeting })
+  return json<LoaderData>(
+    { user, dates, greeting },
+    {
+      headers: {
+        'Cache-Control': 's-maxage=10',
+      },
+    }
+  )
 }
 
 interface ActionData {
@@ -62,12 +69,6 @@ export const action: ActionFunction = async ({ request }) => {
 
   await deleteDate(Number(dateId), Number(userId))
   return null
-}
-
-export const headers = () => {
-  return {
-    'Cache-Control': 's-maxage=1, stale-while-revalidate=300',
-  }
 }
 
 export const meta: MetaFunction = ({ data }: { data: LoaderData }) => {
