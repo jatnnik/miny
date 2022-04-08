@@ -97,12 +97,6 @@ export const action: ActionFunction = async ({ request, params }) => {
   return redirect(`/u/${params.user}?assigned=${dateId}`)
 }
 
-export const headers = () => {
-  return {
-    'Cache-Control': 's-maxage=1, stale-while-revalidate=59',
-  }
-}
-
 export const meta: MetaFunction = ({
   data,
 }: {
