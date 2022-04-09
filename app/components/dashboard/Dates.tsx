@@ -18,7 +18,7 @@ function DateSlot({ date }: { date: DateWithParticipants }) {
 
         {date.isGroupDate && (
           <>
-            <span className="block text-sm italic">
+            <span className="block text-sm italic text-slate-700">
               Gruppentermin ({date.participants.length}/{date.maxParticipants})
             </span>
             {date.participants.length > 0 && (
@@ -35,13 +35,19 @@ function DateSlot({ date }: { date: DateWithParticipants }) {
 
         {!date.isGroupDate &&
           (date.isAssigned ? (
-            <span className="block text-sm">Mit: {date.partnerName}</span>
+            <span className="block text-sm text-slate-700">
+              Mit: {date.partnerName}
+            </span>
           ) : (
             <span className="block text-sm italic">Noch frei</span>
           ))}
 
         {date.note && (
-          <span className="mt-2 block text-sm italic text-slate-500">
+          <span
+            className={`block text-sm italic ${
+              date.isGroupDate && date.participants.length > 0 ? 'mt-2' : 'mt-1'
+            }`}
+          >
             Notiz: {date.note}
           </span>
         )}

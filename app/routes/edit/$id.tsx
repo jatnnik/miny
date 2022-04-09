@@ -15,8 +15,10 @@ import {
 import { useState } from 'react'
 import { requireUser } from '~/session.server'
 import { getDateById, updateDate } from '~/models/date.server'
-import { addDays, isPast, formatDistanceToNow } from 'date-fns'
+import { addDays, isPast, formatDistanceToNow, format } from 'date-fns'
 import { de } from 'date-fns/locale'
+import { badRequest, onlySpaces, validateDate, validateTime } from '~/utils'
+import { Appointment } from '@prisma/client'
 
 import Container from '~/components/Container'
 import Card from '~/components/Card'
@@ -25,8 +27,6 @@ import { headingStyles } from '~/components/Heading'
 import { ErrorBadge } from '~/components/Badges'
 import { SubmitButton } from '~/components/Buttons'
 import Input from '~/components/Input'
-import { badRequest, onlySpaces, validateDate, validateTime } from '~/utils'
-import { Appointment } from '@prisma/client'
 
 type User = {
   id: number
@@ -54,7 +54,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     return redirect('/')
   }
 
-  return json({ user, date })
+  return json<LoaderData>({ user, date })
 }
 
 interface ActionData {
@@ -210,7 +210,7 @@ export default function EditDate() {
   const [isGroupDate, setIsGroupdate] = useState(date.isGroupDate)
   const [fixedStart, setFixedStart] = useState(!date.isFlexible)
 
-  const tomorrow = addDays(new Date(), 1).toLocaleDateString('en-CA')
+  const tomorrow = format(addDays(new Date(), 1), 'yyyy-MM-dd')
 
   return (
     <div className="py-10">
