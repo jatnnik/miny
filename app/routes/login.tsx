@@ -95,7 +95,7 @@ export const action: ActionFunction = async ({ request }) => {
 
 export const headers = () => {
   return {
-    'Cache-Control': 'public, max-age=600, s-maxage=2592000',
+    'Cache-Control': 'public, max-age=600, s-maxage=864000',
   }
 }
 
