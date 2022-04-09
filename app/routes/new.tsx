@@ -56,8 +56,9 @@ interface ActionData {
 }
 
 export const action: ActionFunction = async ({ request }) => {
-  const formData = await request.formData()
+  const userId = await requireUserId(request)
 
+  const formData = await request.formData()
   const date = formData.get('date')
   const startTime = formData.get('startTime')
   const endTime = formData.get('endTime')
@@ -163,8 +164,6 @@ export const action: ActionFunction = async ({ request }) => {
       })
     }
   }
-
-  const userId = await requireUserId(request)
 
   await createDate(fields, userId)
   return redirect('/')
