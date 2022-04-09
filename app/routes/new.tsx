@@ -13,6 +13,7 @@ import {
   type MetaFunction,
   type ActionFunction,
   redirect,
+  HeadersFunction,
 } from '@remix-run/node'
 import { requireUser, requireUserId } from '~/session.server'
 import { isPast, addDays, format } from 'date-fns'
@@ -167,6 +168,12 @@ export const action: ActionFunction = async ({ request }) => {
 
   await createDate(fields, userId)
   return redirect('/')
+}
+
+export const headers: HeadersFunction = () => {
+  return {
+    'Cache-Control': `s-maxage=${60 * 5}, stale-while-revalidate=${60 * 10}`,
+  }
 }
 
 export const meta: MetaFunction = () => {
