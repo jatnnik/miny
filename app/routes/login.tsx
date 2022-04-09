@@ -12,6 +12,7 @@ import {
   type MetaFunction,
   json,
   redirect,
+  type HeadersFunction,
 } from '@remix-run/node'
 import { createUserSession, getUserId } from '~/session.server'
 import { badRequest, validateEmail } from '~/utils'
@@ -93,9 +94,9 @@ export const action: ActionFunction = async ({ request }) => {
   })
 }
 
-export const headers = () => {
+export const headers: HeadersFunction = () => {
   return {
-    'Cache-Control': 'public, max-age=600, s-maxage=864000',
+    'Cache-Control': `s-maxage=${60 * 60 * 24 * 30}`,
   }
 }
 

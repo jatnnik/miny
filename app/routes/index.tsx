@@ -3,7 +3,6 @@ import {
   json,
   type MetaFunction,
   type ActionFunction,
-  type HeadersFunction,
 } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { requireUser, requireUserId } from '~/session.server'
@@ -39,15 +38,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     greeting = 'Guten Abend'
   }
 
-  return json<LoaderData>(
-    { user, dates, greeting },
-    {
-      headers: {
-        'Cache-Control': 'public, max-age=30, s-maxage=60',
-        Vary: 'Cookie',
-      },
-    }
-  )
+  return json<LoaderData>({ user, dates, greeting })
 }
 
 interface ActionData {
@@ -71,13 +62,6 @@ export const action: ActionFunction = async ({ request }) => {
 
   await deleteDate(Number(dateId), Number(userId))
   return null
-}
-
-export const headers: HeadersFunction = ({ loaderHeaders }) => {
-  return {
-    'Cache-Control': loaderHeaders.get('Cache-Control') ?? '',
-    Vary: loaderHeaders.get('Vary') ?? '',
-  }
 }
 
 export const meta: MetaFunction = ({ data }: { data: LoaderData }) => {

@@ -6,11 +6,12 @@ import {
   useSearchParams,
 } from '@remix-run/react'
 import {
-  LoaderFunction,
   redirect,
   json,
-  ActionFunction,
-  MetaFunction,
+  type LoaderFunction,
+  type ActionFunction,
+  type MetaFunction,
+  type HeadersFunction,
 } from '@remix-run/node'
 import { getUserId, createUserSession } from '~/session.server'
 import { createUser, getUserByEmail } from '~/models/user.server'
@@ -104,9 +105,9 @@ export const action: ActionFunction = async ({ request }) => {
   })
 }
 
-export const headers = () => {
+export const headers: HeadersFunction = () => {
   return {
-    'Cache-Control': 'public, max-age=600, s-maxage=2592000',
+    'Cache-Control': `s-maxage=${60 * 60 * 24 * 30}`,
   }
 }
 
