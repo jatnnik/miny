@@ -2,6 +2,7 @@ import type { User, Prisma, Appointment } from '@prisma/client'
 import { prisma } from '~/db.server'
 import nodemailer from 'nodemailer'
 import { formatDate } from '~/utils'
+import { formatInTimeZone } from 'date-fns-tz'
 
 export type DateWithParticipants = Prisma.AppointmentGetPayload<{
   include: {
@@ -79,7 +80,9 @@ export async function getDatesByUserId(id: User['id']) {
     where: {
       userId: id,
       date: {
-        gte: new Date(),
+        gte:
+          formatInTimeZone(new Date(), 'Europe/Berlin', 'yyyy-MM-dd') +
+          'T00:00:00.000Z',
       },
     },
     orderBy: {
@@ -101,7 +104,9 @@ export async function getFreeDates(userId: User['id']) {
       userId,
       isAssigned: false,
       date: {
-        gte: new Date(),
+        gte:
+          formatInTimeZone(new Date(), 'Europe/Berlin', 'yyyy-MM-dd') +
+          'T00:00:00.000Z',
       },
     },
     orderBy: {
