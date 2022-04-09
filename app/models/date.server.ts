@@ -259,9 +259,8 @@ export async function sendAssignmentEmail(
   }
 
   text += `\n\nEuer Termin:\n`
-  text += `${formatDate(appointment.date.toString())}, ${
-    appointment.startTime
-  }${appointment.endTime && `–${appointment.endTime}`}`
+  text += `${formatDate(appointment.date.toString())}, ${appointment.startTime}`
+  if (appointment.endTime) text += `-${appointment.endTime}`
   text += '\n\nViel Spaß im Dienst!\nminy\n\n'
   text += 'Hier kommst du zu deinen Terminen: https://dienst.vercel.app/'
 

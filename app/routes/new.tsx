@@ -15,7 +15,7 @@ import {
   redirect,
 } from '@remix-run/node'
 import { requireUser, requireUserId } from '~/session.server'
-import { isPast, addDays } from 'date-fns'
+import { isPast, addDays, format } from 'date-fns'
 
 import Container from '~/components/Container'
 import Header from '~/components/dashboard/Header'
@@ -161,7 +161,7 @@ export default function CreateDate() {
   const [isGroupDate, setIsGroupDate] = useState(false)
   const [fixedStart, setFixedStart] = useState(true)
 
-  const tomorrow = addDays(new Date(), 1).toLocaleDateString('en-CA')
+  const tomorrow = format(addDays(new Date(), 1), 'yyyy-MM-dd')
 
   return (
     <div className="py-10">
