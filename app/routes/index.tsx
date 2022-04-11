@@ -4,7 +4,7 @@ import {
   type MetaFunction,
   type ActionFunction,
 } from '@remix-run/node'
-import { useLoaderData } from '@remix-run/react'
+import { Link, useLoaderData } from '@remix-run/react'
 import { requireUser, requireUserId } from '~/session.server'
 import {
   deleteDate,
@@ -101,7 +101,11 @@ export default function Dashboard() {
             className="underline underline-offset-1"
           >
             Changelog
-          </a>
+          </a>{' '}
+          &middot;{' '}
+          <Link to="/privacy" className="underline underline-offset-1">
+            Datenschutzerklärung
+          </Link>
         </div>
       </Container>
     </div>

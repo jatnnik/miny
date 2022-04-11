@@ -227,6 +227,12 @@ export default function Login() {
           </fieldset>
         </Form>
       </div>
+      <Link
+        to="/privacy"
+        className="mt-4 text-center text-xs text-slate-500 underline"
+      >
+        Datenschutzerklärung
+      </Link>
     </div>
   )
 }

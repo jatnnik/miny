@@ -192,6 +192,30 @@ export default function Register() {
               />
             </div>
 
+            <div className="mt-4 flex items-center">
+              <input
+                id="agreeGdpr"
+                name="agreeGdpr"
+                type="checkbox"
+                defaultChecked
+                className="h-4 w-4 rounded border-slate-300 text-slate-600 focus:ring-slate-200 focus:ring-opacity-50"
+                required
+              />
+              <label
+                htmlFor="agreeGdpr"
+                className="ml-2 block text-sm font-medium"
+              >
+                Ich stimme der{' '}
+                <Link
+                  to="/privacy"
+                  className="font-medium underline underline-offset-1 hover:no-underline"
+                >
+                  Datenschutzerklärung
+                </Link>{' '}
+                zu
+              </label>
+            </div>
+
             <input type="hidden" name="redirectTo" value={redirectTo} />
 
             <div className="mt-4 flex items-center justify-between">
@@ -217,6 +241,12 @@ export default function Register() {
           </fieldset>
         </Form>
       </div>
+      <Link
+        to="/privacy"
+        className="mt-4 text-center text-xs text-slate-500 underline"
+      >
+        Datenschutzerklärung
+      </Link>
     </div>
   )
 }

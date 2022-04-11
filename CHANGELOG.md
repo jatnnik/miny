@@ -2,6 +2,17 @@
 
 Alle neuen Features und Bugfixes werden hier gesammelt.
 
+## [1.0] 2022-11-04
+
+### Fixed
+
+- Link kann jetzt besser kopiert werden
+- Benutznamen wurden teilweise falsch generiert
+
+### Added
+
+- Datenschutzerklärung
+
 ## [1.0] 2022-05-04
 
 ### Fixed
