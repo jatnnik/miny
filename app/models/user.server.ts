@@ -58,7 +58,7 @@ export async function createUser(
 ) {
   const hashedPassword = await bcrypt.hash(password, 10)
 
-  let slug = name.replace(' ', '-').toLowerCase()
+  let slug = name.trim().replace(' ', '-').toLowerCase()
   const existingSlug = await getUserBySlug(slug)
   if (existingSlug) {
     const randomSlug = crypto.randomBytes(5).toString('hex')

@@ -73,7 +73,7 @@ export default function DateSlot({ date }: { date: DateWithParticipants }) {
       </div>
       {date.note && (
         <span
-          className={`block max-w-[42ch] text-sm italic ${
+          className={`bloc text-sm italic ${
             date.isGroupDate && date.participants.length > 0 ? 'mt-3' : 'mt-1'
           }`}
         >
