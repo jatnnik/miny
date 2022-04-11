@@ -170,12 +170,6 @@ export const action: ActionFunction = async ({ request }) => {
   return redirect('/')
 }
 
-export const headers: HeadersFunction = () => {
-  return {
-    'Cache-Control': `s-maxage=${60 * 5}, stale-while-revalidate=${60 * 10}`,
-  }
-}
-
 export const meta: MetaFunction = () => {
   return {
     title: 'Neuer Termin',
