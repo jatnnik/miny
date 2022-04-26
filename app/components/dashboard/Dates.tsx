@@ -11,7 +11,11 @@ function DateSlot({ date }: { date: DateWithParticipants }) {
   return (
     <div className="flex justify-between pt-4">
       <div>
-        <span className="mb-1 block font-medium text-amber-800">
+        <span
+          className={`mb-1 block font-medium ${
+            date.isAssigned ? 'text-red-700' : 'text-green-700'
+          }`}
+        >
           {formatDate(date.date.toString())}, {date.startTime}
           {date.endTime && `–${date.endTime}`}
         </span>
