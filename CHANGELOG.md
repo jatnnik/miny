@@ -2,6 +2,15 @@
 
 Alle neuen Features und Bugfixes werden hier gesammelt.
 
+## [1.0] 2022-27-04
+
+### Added
+
+- Der Status jedes Termins wird jetzt farblich gekennzeichnet (frei = grün, vergeben = rot)
+- Partner können jetzt auch wieder entfernt werden (nur Einzeltermine)
+- Partner kann manuell eingetragen werden (nur Einzeltermine)
+- Partner kann geändert werden (nur Einzeltermine)
+
 ## [1.0] 2022-11-04
 
 ### Fixed
