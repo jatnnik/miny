@@ -70,6 +70,7 @@ interface ActionData {
     isGroupDate?: string
     maxParticipants?: string
     note?: string
+    partner?: string
   }
   fields?: {
     date: string
@@ -79,6 +80,7 @@ interface ActionData {
     maxParticipants: number | null
     note: string | null
     isFlexible: boolean
+    partner: string | null
   }
 }
 
@@ -95,6 +97,7 @@ export const action: ActionFunction = async ({ request }) => {
     const maxParticipants = formData.get('maxParticipants')
     const note = formData.get('note')
     const flexible = formData.get('flexibleTime')
+    const partner = formData.get('partner')
 
     if (
       typeof date !== 'string' ||
@@ -117,6 +120,7 @@ export const action: ActionFunction = async ({ request }) => {
         typeof maxParticipants === 'string' ? parseInt(maxParticipants) : null,
       note: typeof note === 'string' ? note : null,
       isFlexible: flexible === 'on',
+      partner: typeof partner === 'string' ? partner : null,
     }
 
     // Validate date
@@ -214,7 +218,7 @@ export const action: ActionFunction = async ({ request }) => {
     }
 
     await removePartnerFromDate(Number(id))
-    return json('successfully removed partner')
+    return redirect('/')
   }
 }
 
@@ -230,6 +234,9 @@ export default function EditDate() {
   const transition = useTransition()
   const [isGroupDate, setIsGroupdate] = useState(date.isGroupDate)
   const [fixedStart, setFixedStart] = useState(!date.isFlexible)
+  const [selfAssignPartner, setSelfAssignPartner] = useState(
+    typeof date.partnerName === 'string'
+  )
 
   const tomorrow = format(addDays(new Date(), 1), 'yyyy-MM-dd')
   const updatedAt = formatDistanceToNow(new Date(date.updatedAt), {
@@ -252,7 +259,7 @@ export default function EditDate() {
             {actionData?.formError ? (
               <ErrorBadge message={actionData.formError} />
             ) : null}
-            <fieldset disabled={transition.state !== 'idle'}>
+            <fieldset disabled={transition.state === 'submitting'}>
               <div>
                 <Input
                   name="date"
@@ -307,19 +314,21 @@ export default function EditDate() {
                 ) : null}
               </div>
 
-              <div className="mt-6 flex items-center">
-                <input
-                  id="groupDate"
-                  name="isGroupDate"
-                  type="checkbox"
-                  defaultChecked={isGroupDate}
-                  onChange={e => setIsGroupdate(e.target.checked)}
-                  className="h-4 w-4 rounded border-slate-300 text-slate-600 focus:ring-slate-200 focus:ring-opacity-50"
-                />
-                <label htmlFor="groupDate" className="ml-2 block">
-                  Gruppentermin
-                </label>
-              </div>
+              {!selfAssignPartner && (
+                <div className="mt-6 flex items-center">
+                  <input
+                    id="groupDate"
+                    name="isGroupDate"
+                    type="checkbox"
+                    defaultChecked={isGroupDate}
+                    onChange={e => setIsGroupdate(e.target.checked)}
+                    className="h-4 w-4 rounded border-slate-300 text-slate-600 focus:ring-slate-200 focus:ring-opacity-50"
+                  />
+                  <label htmlFor="groupDate" className="ml-2 block">
+                    Gruppentermin
+                  </label>
+                </div>
+              )}
 
               {isGroupDate && (
                 <div className="mt-4">
@@ -349,14 +358,44 @@ export default function EditDate() {
                 />
               </div>
 
+              {!isGroupDate && !date.isAssigned && (
+                <div className="mt-6 flex items-center">
+                  <input
+                    id="selfAssignedPartner"
+                    name="selfAssignedPartner"
+                    type="checkbox"
+                    defaultChecked={selfAssignPartner}
+                    onChange={() => setSelfAssignPartner(!selfAssignPartner)}
+                    className="h-4 w-4 rounded border-slate-300 text-slate-600 focus:ring-slate-200 focus:ring-opacity-50"
+                  />
+                  <label htmlFor="selfAssignedPartner" className="ml-2 block">
+                    Partner eintragen
+                  </label>
+                </div>
+              )}
+
+              {selfAssignPartner && (
+                <div className="mt-4">
+                  <Input
+                    label="Partner*"
+                    id="partner"
+                    name="partner"
+                    type="text"
+                    defaultValue={date.partnerName || undefined}
+                    validationError={actionData?.errors?.partner}
+                    required
+                  />
+                </div>
+              )}
+
               {date.isAssigned && !date.isGroupDate && (
                 <button
-                  className="mt-6 text-sm text-red-700 hover:text-red-800"
+                  className="mt-2 text-sm text-red-700 hover:text-red-800"
                   type="submit"
                   name="action"
                   value="remove-partner"
                 >
-                  Partner entfernen ({date.partnerName})
+                  Partner entfernen
                 </button>
               )}
 
@@ -372,9 +411,11 @@ export default function EditDate() {
                 name="action"
                 value="save"
                 title="Speichern"
-                disabled={transition.state !== 'idle'}
+                disabled={transition.state === 'submitting'}
                 label={
-                  transition.state !== 'idle' ? 'Speichert...' : 'Speichern'
+                  transition.state === 'submitting'
+                    ? 'Speichert...'
+                    : 'Speichern'
                 }
               />
             </div>

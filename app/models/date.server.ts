@@ -167,6 +167,8 @@ export async function updateDate(fields: UpdateFields) {
       maxParticipants: fields.maxParticipants,
       note: fields.note,
       isFlexible: fields.isFlexible,
+      partnerName: fields.partner,
+      isAssigned: typeof fields.partner === 'string',
     },
   })
 }

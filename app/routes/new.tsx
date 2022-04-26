@@ -202,7 +202,7 @@ export default function CreateDate() {
             {actionData?.formError ? (
               <ErrorBadge message={actionData.formError} />
             ) : null}
-            <fieldset disabled={transition.state !== 'idle'}>
+            <fieldset disabled={transition.state === 'submitting'}>
               <div>
                 <Input
                   name="date"
@@ -316,7 +316,7 @@ export default function CreateDate() {
                     className="h-4 w-4 rounded border-slate-300 text-slate-600 focus:ring-slate-200 focus:ring-opacity-50"
                   />
                   <label htmlFor="selfAssignedPartner" className="ml-2 block">
-                    Partner manuell eintragen
+                    Partner eintragen
                   </label>
                 </div>
               )}
