@@ -43,6 +43,7 @@ interface ActionData {
     isGroupDate?: string
     maxParticipants?: string
     note?: string
+    partner?: string
   }
   fields?: {
     date: string
@@ -51,6 +52,8 @@ interface ActionData {
     isGroupDate: boolean
     maxParticipants: number | null
     note: string | null
+    partner: string | null
+    selfAssignPartner: boolean
     isFlexible: boolean
   }
 }
@@ -66,6 +69,8 @@ export const action: ActionFunction = async ({ request }) => {
   const maxParticipants = formData.get('maxParticipants')
   const note = formData.get('note')
   const flexible = formData.get('flexibleTime')
+  const selfAssigned = formData.get('selfAssignPartner')
+  const partner = formData.get('partner')
 
   if (typeof date !== 'string' || typeof startTime !== 'string') {
     return badRequest<ActionData>({
@@ -82,6 +87,8 @@ export const action: ActionFunction = async ({ request }) => {
       typeof maxParticipants === 'string' ? parseInt(maxParticipants) : null,
     note: typeof note === 'string' ? note : null,
     isFlexible: flexible === 'on',
+    selfAssignPartner: selfAssigned === 'on',
+    partner: typeof partner === 'string' ? partner : null,
   }
 
   // Validate date
@@ -181,6 +188,7 @@ export default function CreateDate() {
   const transition = useTransition()
   const [isGroupDate, setIsGroupDate] = useState(false)
   const [fixedStart, setFixedStart] = useState(true)
+  const [selfAssignPartner, setSelfAssignPartner] = useState(false)
 
   const tomorrow = format(addDays(new Date(), 1), 'yyyy-MM-dd')
 
@@ -194,7 +202,7 @@ export default function CreateDate() {
             {actionData?.formError ? (
               <ErrorBadge message={actionData.formError} />
             ) : null}
-            <fieldset disabled={transition.state === 'submitting'}>
+            <fieldset disabled={transition.state !== 'idle'}>
               <div>
                 <Input
                   name="date"
@@ -253,19 +261,21 @@ export default function CreateDate() {
                 ) : null}
               </div>
 
-              <div className="mt-6 flex items-center">
-                <input
-                  id="groupDate"
-                  name="isGroupDate"
-                  type="checkbox"
-                  defaultChecked={actionData?.fields?.isGroupDate}
-                  onChange={e => setIsGroupDate(e.target.checked)}
-                  className="h-4 w-4 rounded border-slate-300 text-slate-600 focus:ring-slate-200 focus:ring-opacity-50"
-                />
-                <label htmlFor="groupDate" className="ml-2 block">
-                  Gruppentermin
-                </label>
-              </div>
+              {!selfAssignPartner && (
+                <div className="mt-6 flex items-center">
+                  <input
+                    id="groupDate"
+                    name="isGroupDate"
+                    type="checkbox"
+                    defaultChecked={actionData?.fields?.isGroupDate}
+                    onChange={e => setIsGroupDate(e.target.checked)}
+                    className="h-4 w-4 rounded border-slate-300 text-slate-600 focus:ring-slate-200 focus:ring-opacity-50"
+                  />
+                  <label htmlFor="groupDate" className="ml-2 block">
+                    Gruppentermin
+                  </label>
+                </div>
+              )}
 
               {isGroupDate && (
                 <div className="mt-4">
@@ -295,6 +305,35 @@ export default function CreateDate() {
                   validationError={actionData?.errors?.note}
                 />
               </div>
+
+              {!isGroupDate && (
+                <div className="mt-6 flex items-center">
+                  <input
+                    id="selfAssignedPartner"
+                    name="selfAssignedPartner"
+                    type="checkbox"
+                    onChange={() => setSelfAssignPartner(!selfAssignPartner)}
+                    className="h-4 w-4 rounded border-slate-300 text-slate-600 focus:ring-slate-200 focus:ring-opacity-50"
+                  />
+                  <label htmlFor="selfAssignedPartner" className="ml-2 block">
+                    Partner manuell eintragen
+                  </label>
+                </div>
+              )}
+
+              {selfAssignPartner && (
+                <div className="mt-4">
+                  <Input
+                    label="Partner*"
+                    id="partner"
+                    name="partner"
+                    type="text"
+                    defaultValue={actionData?.fields?.partner || undefined}
+                    validationError={actionData?.errors?.partner}
+                    required
+                  />
+                </div>
+              )}
             </fieldset>
 
             <div className="mt-8 flex items-center justify-between">

@@ -130,6 +130,7 @@ interface CreateFields {
   maxParticipants?: number | null
   note?: string | null
   isFlexible: boolean
+  partner?: string | null
 }
 
 export async function createDate(fields: CreateFields, userId: string) {
@@ -143,6 +144,8 @@ export async function createDate(fields: CreateFields, userId: string) {
       note: fields.note,
       userId: Number(userId),
       isFlexible: fields.isFlexible,
+      partnerName: fields.partner,
+      isAssigned: typeof fields.partner === 'string',
     },
   })
 }

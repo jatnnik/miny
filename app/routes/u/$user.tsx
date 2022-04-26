@@ -169,8 +169,8 @@ export default function UserPage() {
           {dates.length > 0 ? (
             <>
               <p className="mt-4">
-                Tippe einfach auf &bdquo;Eintragen&ldquo;, um dir einen Termin
-                zu schnappen. {user.name} bekommt dann automatisch eine
+                Tippe einfach auf das Kalender-Symbol, um dich für einen Termin
+                einzutragen. {user.name} bekommt dann automatisch eine
                 Nachricht.
               </p>
               <h2 className="mt-8 font-serif text-xl font-black text-slate-700">

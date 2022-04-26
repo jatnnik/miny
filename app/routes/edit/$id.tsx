@@ -351,7 +351,7 @@ export default function EditDate() {
 
               {date.isAssigned && !date.isGroupDate && (
                 <button
-                  className="mt-6 text-red-700 hover:text-red-800"
+                  className="mt-6 text-sm text-red-700 hover:text-red-800"
                   type="submit"
                   name="action"
                   value="remove-partner"

@@ -3,6 +3,7 @@ import { Form, useTransition } from '@remix-run/react'
 import { type DateWithParticipants } from '~/models/date.server'
 import { formatDate } from '~/utils'
 import { labelStyles, inputStyles } from '../Input'
+import { CalendarIcon } from '@heroicons/react/outline'
 
 export default function DateSlot({ date }: { date: DateWithParticipants }) {
   const [showForm, setShowForm] = useState(false)
@@ -29,13 +30,15 @@ export default function DateSlot({ date }: { date: DateWithParticipants }) {
             {date.endTime ? `–${date.endTime}` : null}
           </span>
 
+          {date.note && (
+            <span className="text-sm italic">Notiz: {date.note}</span>
+          )}
+
           {date.isGroupDate && (
             <>
               <span className="block text-sm italic">
-                Gruppentermin{' '}
-                <span className="block sm:inline">
-                  ({date.participants.length}/{date.maxParticipants} Teilnehmer)
-                </span>
+                Gruppentermin ({date.participants.length}/{date.maxParticipants}{' '}
+                Teilnehmer)
               </span>
               {date.participants.length > 0 && (
                 <div className="mt-3 flex items-center space-x-2">
@@ -62,24 +65,16 @@ export default function DateSlot({ date }: { date: DateWithParticipants }) {
         </div>
         <div>
           <button
-            className={`rounded-md border border-transparent bg-slate-700 px-4 py-2 text-xs font-medium uppercase tracking-widest text-white ring-slate-300 transition duration-150 ease-in-out hover:bg-slate-600 focus:border-slate-800 focus:outline-none focus:ring active:bg-slate-800 disabled:opacity-25 ${
+            className={`rounded-md border border-transparent bg-slate-700 px-2.5 py-2 text-xs font-medium uppercase tracking-widest text-white ring-slate-300 transition duration-150 ease-in-out hover:bg-slate-600 focus:border-slate-800 focus:outline-none focus:ring active:bg-slate-800 disabled:opacity-25 ${
               showForm ? 'opacity-50' : ''
             }`}
             onClick={() => setShowForm(!showForm)}
           >
-            Eintragen
+            <CalendarIcon className="h-4 w-4" />
           </button>
         </div>
       </div>
-      {date.note && (
-        <span
-          className={`bloc text-sm italic ${
-            date.isGroupDate && date.participants.length > 0 ? 'mt-3' : 'mt-1'
-          }`}
-        >
-          Notiz: {date.note}
-        </span>
-      )}
+
       {showForm && (
         <Form
           className="mt-4 flex items-center space-x-2"
