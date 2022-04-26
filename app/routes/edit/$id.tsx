@@ -14,7 +14,11 @@ import {
 } from '@remix-run/node'
 import { useState } from 'react'
 import { requireUser } from '~/session.server'
-import { getDateById, updateDate } from '~/models/date.server'
+import {
+  getDateById,
+  removePartnerFromDate,
+  updateDate,
+} from '~/models/date.server'
 import { addDays, isPast, formatDistanceToNow, format } from 'date-fns'
 import { de } from 'date-fns/locale'
 import { badRequest, onlySpaces, validateDate, validateTime } from '~/utils'
@@ -50,7 +54,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
   const date = await getDateById(Number(id))
 
-  if (!date || date.isAssigned || date.userId !== user.id) {
+  if (!date || date.userId !== user.id) {
     return redirect('/')
   }
 
@@ -80,121 +84,138 @@ interface ActionData {
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData()
-  const id = formData.get('id')
-  const date = formData.get('date')
-  const startTime = formData.get('startTime')
-  const endTime = formData.get('endTime')
-  const isGroupDate = formData.get('isGroupDate')
-  const maxParticipants = formData.get('maxParticipants')
-  const note = formData.get('note')
-  const flexible = formData.get('flexibleTime')
 
-  if (
-    typeof date !== 'string' ||
-    typeof startTime !== 'string' ||
-    typeof id !== 'string' ||
-    isNaN(Number(id))
-  ) {
-    return badRequest<ActionData>({
-      formError: 'Pflichtfelder wurden nicht ausgefüllt',
-    })
-  }
+  // Action: save
+  if (formData.get('action') === 'save') {
+    const id = formData.get('id')
+    const date = formData.get('date')
+    const startTime = formData.get('startTime')
+    const endTime = formData.get('endTime')
+    const isGroupDate = formData.get('isGroupDate')
+    const maxParticipants = formData.get('maxParticipants')
+    const note = formData.get('note')
+    const flexible = formData.get('flexibleTime')
 
-  let fields = {
-    id: Number(id),
-    date,
-    startTime,
-    endTime: typeof endTime === 'string' ? endTime : null,
-    isGroupDate: isGroupDate === 'on',
-    maxParticipants:
-      typeof maxParticipants === 'string' ? parseInt(maxParticipants) : null,
-    note: typeof note === 'string' ? note : null,
-    isFlexible: flexible === 'on',
-  }
+    if (
+      typeof date !== 'string' ||
+      typeof startTime !== 'string' ||
+      typeof id !== 'string' ||
+      isNaN(Number(id))
+    ) {
+      return badRequest<ActionData>({
+        formError: 'Pflichtfelder wurden nicht ausgefüllt',
+      })
+    }
 
-  // Validate date
-  if (!validateDate(date)) {
-    return badRequest<ActionData>({
-      fields,
-      errors: {
-        date: 'Ungültiges Datum',
-      },
-    })
-  }
+    let fields = {
+      id: Number(id),
+      date,
+      startTime,
+      endTime: typeof endTime === 'string' ? endTime : null,
+      isGroupDate: isGroupDate === 'on',
+      maxParticipants:
+        typeof maxParticipants === 'string' ? parseInt(maxParticipants) : null,
+      note: typeof note === 'string' ? note : null,
+      isFlexible: flexible === 'on',
+    }
 
-  if (isPast(new Date(date))) {
-    return badRequest<ActionData>({
-      fields,
-      errors: {
-        date: 'Ungültiges Datum (zu früh)',
-      },
-    })
-  }
-
-  fields.date = new Date(date).toISOString()
-
-  // Validate start and end time
-  if (!fields.isFlexible && !validateTime(fields.startTime)) {
-    return badRequest<ActionData>({
-      fields,
-      errors: {
-        startTime: 'Ungültige Uhrzeit',
-      },
-    })
-  }
-
-  if (fields.isFlexible && onlySpaces(fields.startTime)) {
-    return badRequest<ActionData>({
-      fields,
-      errors: {
-        startTime: 'Ungültiges Format',
-      },
-    })
-  } else {
-    // Remove any whitespace at start and end
-    fields.startTime = fields.startTime.trim()
-  }
-
-  if (fields.endTime && !validateTime(fields.endTime)) {
-    return badRequest<ActionData>({
-      fields,
-      errors: {
-        endTime: 'Ungültige Uhrzeit',
-      },
-    })
-  }
-
-  if (fields.endTime && fields.endTime < fields.startTime) {
-    return badRequest<ActionData>({
-      fields,
-      errors: {
-        endTime: 'Früher als Start',
-      },
-    })
-  }
-
-  // Validate maxParticipants
-  if (fields.maxParticipants) {
-    if (isNaN(fields.maxParticipants)) {
+    // Validate date
+    if (!validateDate(date)) {
       return badRequest<ActionData>({
         fields,
         errors: {
-          maxParticipants: 'Keine gültige Zahl',
+          date: 'Ungültiges Datum',
         },
       })
     }
-    if (fields.maxParticipants > 100) {
+
+    if (isPast(new Date(date))) {
       return badRequest<ActionData>({
         fields,
         errors: {
-          maxParticipants: 'Max. 100 erlaubt',
+          date: 'Ungültiges Datum (zu früh)',
         },
       })
     }
+
+    fields.date = new Date(date).toISOString()
+
+    // Validate start and end time
+    if (!fields.isFlexible && !validateTime(fields.startTime)) {
+      return badRequest<ActionData>({
+        fields,
+        errors: {
+          startTime: 'Ungültige Uhrzeit',
+        },
+      })
+    }
+
+    if (fields.isFlexible && onlySpaces(fields.startTime)) {
+      return badRequest<ActionData>({
+        fields,
+        errors: {
+          startTime: 'Ungültiges Format',
+        },
+      })
+    } else {
+      // Remove any whitespace at start and end
+      fields.startTime = fields.startTime.trim()
+    }
+
+    if (fields.endTime && !validateTime(fields.endTime)) {
+      return badRequest<ActionData>({
+        fields,
+        errors: {
+          endTime: 'Ungültige Uhrzeit',
+        },
+      })
+    }
+
+    if (fields.endTime && fields.endTime < fields.startTime) {
+      return badRequest<ActionData>({
+        fields,
+        errors: {
+          endTime: 'Früher als Start',
+        },
+      })
+    }
+
+    // Validate maxParticipants
+    if (fields.maxParticipants) {
+      if (isNaN(fields.maxParticipants)) {
+        return badRequest<ActionData>({
+          fields,
+          errors: {
+            maxParticipants: 'Keine gültige Zahl',
+          },
+        })
+      }
+      if (fields.maxParticipants > 100) {
+        return badRequest<ActionData>({
+          fields,
+          errors: {
+            maxParticipants: 'Max. 100 erlaubt',
+          },
+        })
+      }
+    }
+
+    await updateDate(fields)
+    return redirect('/')
   }
 
-  await updateDate(fields)
-  return redirect('/')
+  // Action: Remove partner
+  if (formData.get('action') === 'remove-partner') {
+    const id = formData.get('id')
+    if (typeof id !== 'string' || isNaN(Number(id))) {
+      return badRequest<ActionData>({
+        formError: 'Ungültige ID',
+      })
+    }
+
+    await removePartnerFromDate(Number(id))
+    return json('successfully removed partner')
+  }
 }
 
 export const meta: MetaFunction = () => {
@@ -211,6 +232,10 @@ export default function EditDate() {
   const [fixedStart, setFixedStart] = useState(!date.isFlexible)
 
   const tomorrow = format(addDays(new Date(), 1), 'yyyy-MM-dd')
+  const updatedAt = formatDistanceToNow(new Date(date.updatedAt), {
+    locale: de,
+    addSuffix: true,
+  })
 
   return (
     <div className="py-10">
@@ -220,18 +245,14 @@ export default function EditDate() {
           <h1 className={headingStyles}>Termin bearbeiten</h1>
 
           <p className="mt-4 text-sm italic text-slate-500">
-            Letzte Änderung:{' '}
-            {formatDistanceToNow(new Date(date.updatedAt), {
-              locale: de,
-              addSuffix: true,
-            })}
+            Letzte Änderung: {updatedAt}
           </p>
 
           <Form className="mt-4" method="post">
             {actionData?.formError ? (
               <ErrorBadge message={actionData.formError} />
             ) : null}
-            <fieldset disabled={transition.state === 'submitting'}>
+            <fieldset disabled={transition.state !== 'idle'}>
               <div>
                 <Input
                   name="date"
@@ -303,7 +324,7 @@ export default function EditDate() {
               {isGroupDate && (
                 <div className="mt-4">
                   <Input
-                    label="Wie viele sollen mitmachen können?*"
+                    label="Wie viele sollen mitmachen können? (Max. 100)*"
                     id="maxParticipants"
                     name="maxParticipants"
                     type="number"
@@ -328,6 +349,17 @@ export default function EditDate() {
                 />
               </div>
 
+              {date.isAssigned && !date.isGroupDate && (
+                <button
+                  className="mt-6 text-red-700 hover:text-red-800"
+                  type="submit"
+                  name="action"
+                  value="remove-partner"
+                >
+                  Partner entfernen ({date.partnerName})
+                </button>
+              )}
+
               <input type="hidden" name="id" value={date.id} />
             </fieldset>
 
@@ -337,12 +369,12 @@ export default function EditDate() {
               </Link>
               <SubmitButton
                 type="submit"
+                name="action"
+                value="save"
                 title="Speichern"
-                disabled={transition.state === 'submitting'}
+                disabled={transition.state !== 'idle'}
                 label={
-                  transition.state === 'submitting'
-                    ? 'Speichert...'
-                    : 'Speichern'
+                  transition.state !== 'idle' ? 'Speichert...' : 'Speichern'
                 }
               />
             </div>

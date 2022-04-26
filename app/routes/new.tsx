@@ -13,7 +13,6 @@ import {
   type MetaFunction,
   type ActionFunction,
   redirect,
-  HeadersFunction,
 } from '@remix-run/node'
 import { requireUser, requireUserId } from '~/session.server'
 import { isPast, addDays, format } from 'date-fns'
@@ -271,7 +270,7 @@ export default function CreateDate() {
               {isGroupDate && (
                 <div className="mt-4">
                   <Input
-                    label="Wie viele sollen mitmachen können?*"
+                    label="Wie viele sollen mitmachen können? (Max. 100)*"
                     id="maxParticipants"
                     name="maxParticipants"
                     type="number"

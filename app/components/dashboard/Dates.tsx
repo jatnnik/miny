@@ -9,7 +9,7 @@ function DateSlot({ date }: { date: DateWithParticipants }) {
   const transition = useTransition()
 
   return (
-    <div className="flex justify-between pt-4">
+    <div className="flex items-center justify-between pt-4">
       <div>
         <span
           className={`mb-1 block font-medium ${
@@ -57,7 +57,16 @@ function DateSlot({ date }: { date: DateWithParticipants }) {
         )}
       </div>
       <div>
-        {date.isAssigned ? (
+        <div className="flex items-center space-x-3 sm:space-x-2">
+          <Link to={`/edit/${date.id}`}>
+            <button
+              className="opacity-50 transition-opacity duration-75 hover:opacity-100"
+              title="Bearbeiten"
+              aria-label="Termin bearbeiten"
+            >
+              <PencilIcon className="h-5 sm:h-4" />
+            </button>
+          </Link>
           <Form
             method="post"
             onSubmit={event => {
@@ -75,46 +84,12 @@ function DateSlot({ date }: { date: DateWithParticipants }) {
               title="Löschen"
               aria-label="Termin löschen"
               type="submit"
-              disabled={transition.state === 'submitting'}
+              disabled={transition.state !== 'idle'}
             >
               <TrashIcon className="h-5 sm:h-4" />
             </button>
           </Form>
-        ) : (
-          <div className="flex items-center space-x-3 sm:space-x-2">
-            <Link to={`/edit/${date.id}`}>
-              <button
-                className="opacity-50 transition-opacity duration-75 hover:opacity-100"
-                title="Bearbeiten"
-                aria-label="Termin bearbeiten"
-              >
-                <PencilIcon className="h-5 sm:h-4" />
-              </button>
-            </Link>
-            <Form
-              method="post"
-              onSubmit={event => {
-                if (
-                  !window.confirm('Möchtest du diesen Termin wirklich löschen?')
-                ) {
-                  event.preventDefault()
-                }
-              }}
-            >
-              <input type="hidden" name="_method" value="delete" />
-              <input type="hidden" name="id" value={date.id} />
-              <button
-                className="opacity-50 transition-opacity duration-75 hover:opacity-100 disabled:opacity-25"
-                title="Löschen"
-                aria-label="Termin löschen"
-                type="submit"
-                disabled={transition.state === 'submitting'}
-              >
-                <TrashIcon className="h-5 sm:h-4" />
-              </button>
-            </Form>
-          </div>
-        )}
+        </div>
       </div>
     </div>
   )

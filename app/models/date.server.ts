@@ -168,14 +168,21 @@ export async function updateDate(fields: UpdateFields) {
   })
 }
 
-export async function deleteDate(id: Appointment['id'], userId: User['id']) {
+export async function removePartnerFromDate(id: Appointment['id']) {
+  return await prisma.appointment.update({
+    where: {
+      id,
+    },
+    data: {
+      isAssigned: false,
+      partnerName: null,
+    },
+  })
+}
+
+export async function deleteDate(id: Appointment['id']) {
   const date = await getDateById(id)
-
   if (!date) return null
-
-  if (!isOwner(date.id, userId)) {
-    return null
-  }
 
   return await prisma.appointment.delete({
     where: {
