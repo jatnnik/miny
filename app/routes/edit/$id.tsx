@@ -22,7 +22,7 @@ import {
 import { addDays, isPast, formatDistanceToNow, format } from 'date-fns'
 import { de } from 'date-fns/locale'
 import { badRequest, onlySpaces, validateDate, validateTime } from '~/utils'
-import { Appointment } from '@prisma/client'
+import type { Appointment } from '@prisma/client'
 
 import Container from '~/components/Container'
 import Card from '~/components/Card'
@@ -390,7 +390,7 @@ export default function EditDate() {
 
               {date.isAssigned && !date.isGroupDate && (
                 <button
-                  className="mt-2 text-sm text-red-700 hover:text-red-800"
+                  className="mt-4 text-sm font-medium text-red-700 hover:text-red-800"
                   type="submit"
                   name="action"
                   value="remove-partner"
