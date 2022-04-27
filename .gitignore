@@ -8,4 +8,4 @@ node_modules
 /app/styles/tailwind-build.css
 .vercel
 .output
-/api/index.js
+api
