@@ -4,13 +4,12 @@ import {
   useFetcher,
   useParams,
 } from '@remix-run/react'
-import {
+import type {
   LoaderFunction,
-  json,
   ActionFunction,
-  redirect,
   MetaFunction,
 } from '@remix-run/node'
+import { json, redirect } from '@remix-run/node'
 import { useEffect } from 'react'
 import { getUserBySlug } from '~/models/user.server'
 import invariant from 'tiny-invariant'
