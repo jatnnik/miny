@@ -12,7 +12,7 @@ function DateSlot({ date }: { date: DateWithParticipants }) {
     <div className="flex items-center justify-between pt-4">
       <div>
         <span
-          className={`mb-1 block font-medium ${
+          className={`mb-0.5 block font-medium ${
             date.isAssigned ? 'text-red-700' : 'text-green-700'
           }`}
         >
@@ -20,9 +20,15 @@ function DateSlot({ date }: { date: DateWithParticipants }) {
           {date.endTime && `–${date.endTime}`}
         </span>
 
+        {date.category && (
+          <span className="mb-1.5 block text-sm italic text-slate-900">
+            {date.category}
+          </span>
+        )}
+
         {date.isGroupDate && (
           <>
-            <span className="block text-sm italic text-slate-700">
+            <span className="block text-sm italic">
               Gruppentermin ({date.participants.length}/{date.maxParticipants})
             </span>
             {date.participants.length > 0 && (
@@ -37,14 +43,11 @@ function DateSlot({ date }: { date: DateWithParticipants }) {
           </>
         )}
 
-        {!date.isGroupDate &&
-          (date.isAssigned ? (
-            <span className="block text-sm text-slate-700">
-              Mit: {date.partnerName}
-            </span>
-          ) : (
-            <span className="block text-sm italic">Noch frei</span>
-          ))}
+        {!date.isGroupDate && date.isAssigned && (
+          <span className="block text-sm text-slate-700">
+            Mit: {date.partnerName}
+          </span>
+        )}
 
         {date.note && (
           <span

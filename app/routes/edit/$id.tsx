@@ -44,6 +44,8 @@ type LoaderData = {
   date: Appointment
 }
 
+const categories = ['Zoom', 'Trolley', 'Haus-zu-Haus']
+
 export const loader: LoaderFunction = async ({ request, params }) => {
   const user = await requireUser(request)
   const id = params.id
@@ -58,6 +60,8 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     return redirect('/')
   }
 
+  console.log(date)
+
   return json<LoaderData>({ user, date })
 }
 
@@ -71,6 +75,7 @@ interface ActionData {
     maxParticipants?: string
     note?: string
     partner?: string
+    category?: string
   }
   fields?: {
     date: string
@@ -81,6 +86,7 @@ interface ActionData {
     note: string | null
     isFlexible: boolean
     partner: string | null
+    category: string | null
   }
 }
 
@@ -98,6 +104,7 @@ export const action: ActionFunction = async ({ request }) => {
     const note = formData.get('note')
     const flexible = formData.get('flexibleTime')
     const partner = formData.get('partner')
+    const category = formData.get('category')
 
     if (
       typeof date !== 'string' ||
@@ -121,6 +128,7 @@ export const action: ActionFunction = async ({ request }) => {
       note: typeof note === 'string' ? note : null,
       isFlexible: flexible === 'on',
       partner: typeof partner === 'string' ? partner : null,
+      category: typeof category === 'string' ? category : null,
     }
 
     // Validate date
@@ -162,7 +170,6 @@ export const action: ActionFunction = async ({ request }) => {
         },
       })
     } else {
-      // Remove any whitespace at start and end
       fields.startTime = fields.startTime.trim()
     }
 
@@ -199,6 +206,18 @@ export const action: ActionFunction = async ({ request }) => {
           fields,
           errors: {
             maxParticipants: 'Max. 100 erlaubt',
+          },
+        })
+      }
+    }
+
+    // Validate category
+    if (fields.category && fields.category.length > 0) {
+      if (!categories.includes(fields.category)) {
+        return badRequest<ActionData>({
+          fields,
+          errors: {
+            category: 'Ungültige Kategorie',
           },
         })
       }
@@ -312,6 +331,22 @@ export default function EditDate() {
                     />
                   </div>
                 ) : null}
+              </div>
+
+              <div className="mt-4">
+                <label htmlFor="category">Kategorie</label>
+                <select
+                  name="category"
+                  id="category"
+                  defaultValue={date.category || undefined}
+                >
+                  <option value="" selected disabled>
+                    Auswählen
+                  </option>
+                  {categories.map(category => (
+                    <option key={category}>{category}</option>
+                  ))}
+                </select>
               </div>
 
               {!selfAssignPartner && (

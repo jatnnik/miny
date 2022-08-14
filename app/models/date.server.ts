@@ -131,6 +131,7 @@ interface CreateFields {
   note?: string | null
   isFlexible: boolean
   partner?: string | null
+  category: string | null
 }
 
 export async function createDate(fields: CreateFields, userId: string) {
@@ -169,6 +170,7 @@ export async function updateDate(fields: UpdateFields) {
       isFlexible: fields.isFlexible,
       partnerName: fields.partner,
       isAssigned: typeof fields.partner === 'string',
+      category: fields.category,
     },
   })
 }
