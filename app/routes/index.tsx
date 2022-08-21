@@ -5,7 +5,7 @@ import {
   type ActionFunction,
 } from '@remix-run/node'
 import { Link, useLoaderData } from '@remix-run/react'
-import { requireUser, requireUserId } from '~/session.server'
+import { requireUser } from '~/session.server'
 import {
   deleteDate,
   getDatesByUserId,
@@ -58,9 +58,7 @@ export const action: ActionFunction = async ({ request }) => {
     throw badRequest<ActionData>({ formError: 'Ungültige Anfrage' })
   }
 
-  const userId = await requireUserId(request)
-
-  await deleteDate(Number(dateId), Number(userId))
+  await deleteDate(Number(dateId))
   return null
 }
 

@@ -3,6 +3,8 @@ import {
   useLoaderData,
   useFetcher,
   useParams,
+  Form,
+  useSubmit,
 } from '@remix-run/react'
 import type {
   LoaderFunction,
@@ -38,6 +40,7 @@ type LoaderData = {
   }
   dates: DateWithParticipants[]
   assignedDate: Appointment | null
+  showOnlyZoom: boolean
 }
 
 export const loader: LoaderFunction = async ({ request, params }) => {
@@ -46,6 +49,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
   const url = new URL(request.url)
   const assigned = url.searchParams.get('assigned')
+  const showOnlyZoom = url.searchParams.get('onlyZoom') === 'on'
 
   let assignedDate = null
 
@@ -58,8 +62,8 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     throw json('user not found', 404)
   }
 
-  const dates = await getFreeDates(user.id)
-  return json<LoaderData>({ user, dates, assignedDate })
+  const dates = await getFreeDates(user.id, showOnlyZoom)
+  return json<LoaderData>({ user, dates, assignedDate, showOnlyZoom })
 }
 
 export interface ActionData {
@@ -124,6 +128,7 @@ export default function UserPage() {
   const { user, assignedDate, ...loaderData } = useLoaderData<LoaderData>()
   const fetcher = useFetcher()
   const params = useParams()
+  const submit = useSubmit()
 
   const data = fetcher.data || loaderData
   const dates = data.dates
@@ -141,6 +146,10 @@ export default function UserPage() {
       document.removeEventListener('visibilitychange', revalidate)
     }
   }, [fetcher, params.user])
+
+  const handleFilterChange = (event: React.ChangeEvent<HTMLFormElement>) => {
+    submit(event.currentTarget, { replace: true })
+  }
 
   return (
     <div className="py-10">
@@ -172,6 +181,17 @@ export default function UserPage() {
                 einzutragen. {user.name} bekommt dann automatisch eine
                 Nachricht.
               </p>
+              <Form method="get" className="my-4" onChange={handleFilterChange}>
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    name="onlyZoom"
+                    defaultChecked={loaderData.showOnlyZoom}
+                    className="mr-2 h-4 w-4 rounded border-slate-300 text-slate-600 focus:ring-slate-200 focus:ring-opacity-50"
+                  />{' '}
+                  Nur Zoom Termine anzeigen
+                </label>
+              </Form>
               <h2 className="mt-8 font-serif text-xl font-black text-slate-700">
                 Termine
               </h2>

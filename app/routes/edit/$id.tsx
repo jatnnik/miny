@@ -19,9 +19,9 @@ import {
   removePartnerFromDate,
   updateDate,
 } from '~/models/date.server'
-import { addDays, isPast, formatDistanceToNow, format } from 'date-fns'
-import { de } from 'date-fns/locale'
-import { badRequest, onlySpaces, validateDate, validateTime } from '~/utils'
+import { isPast } from 'date-fns'
+import { badRequest, isOnlySpaces, validateDate, validateTime } from '~/utils'
+import { useTomorrow, useUpdatedAt } from '~/hooks'
 import type { Appointment } from '@prisma/client'
 
 import Container from '~/components/Container'
@@ -81,6 +81,7 @@ interface ActionData {
     note: string | null
     isFlexible: boolean
     partner: string | null
+    isZoom: boolean
   }
 }
 
@@ -98,6 +99,7 @@ export const action: ActionFunction = async ({ request }) => {
     const note = formData.get('note')
     const flexible = formData.get('flexibleTime')
     const partner = formData.get('partner')
+    const isZoom = formData.get('isZoom')
 
     if (
       typeof date !== 'string' ||
@@ -121,6 +123,7 @@ export const action: ActionFunction = async ({ request }) => {
       note: typeof note === 'string' ? note : null,
       isFlexible: flexible === 'on',
       partner: typeof partner === 'string' ? partner : null,
+      isZoom: isZoom === 'on',
     }
 
     // Validate date
@@ -154,7 +157,7 @@ export const action: ActionFunction = async ({ request }) => {
       })
     }
 
-    if (fields.isFlexible && onlySpaces(fields.startTime)) {
+    if (fields.isFlexible && isOnlySpaces(fields.startTime)) {
       return badRequest<ActionData>({
         fields,
         errors: {
@@ -162,7 +165,6 @@ export const action: ActionFunction = async ({ request }) => {
         },
       })
     } else {
-      // Remove any whitespace at start and end
       fields.startTime = fields.startTime.trim()
     }
 
@@ -238,11 +240,8 @@ export default function EditDate() {
     typeof date.partnerName === 'string'
   )
 
-  const tomorrow = format(addDays(new Date(), 1), 'yyyy-MM-dd')
-  const updatedAt = formatDistanceToNow(new Date(date.updatedAt), {
-    locale: de,
-    addSuffix: true,
-  })
+  const tomorrow = useTomorrow()
+  const updatedAt = useUpdatedAt(date.updatedAt)
 
   return (
     <div className="py-10">
@@ -251,11 +250,11 @@ export default function EditDate() {
         <Card withMarginTop>
           <h1 className={headingStyles}>Termin bearbeiten</h1>
 
-          <p className="mt-4 text-sm italic text-slate-500">
+          <p className="mt-6 text-sm italic text-slate-500">
             Letzte Änderung: {updatedAt}
           </p>
 
-          <Form className="mt-4" method="post">
+          <Form className="mt-6" method="post">
             {actionData?.formError ? (
               <ErrorBadge message={actionData.formError} />
             ) : null}
@@ -273,26 +272,41 @@ export default function EditDate() {
                 />
               </div>
 
-              <div className="mt-6 flex items-center">
-                <input
-                  id="flexibleTime"
-                  name="flexibleTime"
-                  type="checkbox"
-                  defaultChecked={!fixedStart}
-                  onChange={() => setFixedStart(!fixedStart)}
-                  className="h-4 w-4 rounded border-slate-300 text-slate-600 focus:ring-slate-200 focus:ring-opacity-50"
-                />
-                <label htmlFor="flexibleTime" className="ml-2 block">
-                  Flexible Zeit
-                </label>
+              <div className="mt-6 flex space-x-6">
+                <div className="flex items-center">
+                  <input
+                    id="flexibleTime"
+                    name="flexibleTime"
+                    type="checkbox"
+                    defaultChecked={!fixedStart}
+                    onChange={() => setFixedStart(!fixedStart)}
+                    className="h-4 w-4 rounded border-slate-300 text-slate-600 focus:ring-slate-200 focus:ring-opacity-50"
+                  />
+                  <label htmlFor="flexibleTime" className="ml-2 block">
+                    Zeit ist flexibel
+                  </label>
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    id="isZoom"
+                    name="isZoom"
+                    type="checkbox"
+                    defaultChecked={date.isZoom ?? false}
+                    className="h-4 w-4 rounded border-slate-300 text-slate-600 focus:ring-slate-200 focus:ring-opacity-50"
+                  />
+                  <label htmlFor="isZoom" className="ml-2 block">
+                    Zoom Termin
+                  </label>
+                </div>
               </div>
 
-              <div className="mt-4 flex space-x-4">
+              <div className="mt-6 flex space-x-4">
                 <div className="w-full">
                   <Input
                     name="startTime"
                     id="startTime"
-                    label={fixedStart ? 'Von*' : 'Zeit*'}
+                    label={fixedStart ? 'Von*' : 'Zeit (z.B. "Vormittags")*'}
                     type={fixedStart ? 'time' : 'text'}
                     placeholder={!fixedStart ? 'Vormittags' : ''}
                     defaultValue={date.startTime}
@@ -331,7 +345,7 @@ export default function EditDate() {
               )}
 
               {isGroupDate && (
-                <div className="mt-4">
+                <div className="mt-6">
                   <Input
                     label="Wie viele sollen mitmachen können? (Max. 100)*"
                     id="maxParticipants"
@@ -347,7 +361,7 @@ export default function EditDate() {
                 </div>
               )}
 
-              <div className="mt-4">
+              <div className="mt-6">
                 <Input
                   label="Notiz"
                   id="note"
@@ -375,7 +389,7 @@ export default function EditDate() {
               )}
 
               {selfAssignPartner && (
-                <div className="mt-4">
+                <div className="mt-6">
                   <Input
                     label="Partner*"
                     id="partner"
@@ -390,7 +404,7 @@ export default function EditDate() {
 
               {date.isAssigned && !date.isGroupDate && (
                 <button
-                  className="mt-4 text-sm font-medium text-red-700 hover:text-red-800"
+                  className="mt-6 text-sm font-medium text-red-700 hover:text-red-800"
                   type="submit"
                   name="action"
                   value="remove-partner"

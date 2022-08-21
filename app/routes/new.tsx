@@ -24,7 +24,7 @@ import { headingStyles } from '~/components/Heading'
 import Input from '~/components/Input'
 import { SubmitButton } from '~/components/Buttons'
 import { createDate } from '~/models/date.server'
-import { badRequest, onlySpaces, validateDate, validateTime } from '~/utils'
+import { badRequest, isOnlySpaces, validateDate, validateTime } from '~/utils'
 import { ErrorBadge } from '~/components/Badges'
 
 type LoaderData = { user: User }
@@ -122,7 +122,7 @@ export const action: ActionFunction = async ({ request }) => {
     })
   }
 
-  if (fields.isFlexible && onlySpaces(fields.startTime)) {
+  if (fields.isFlexible && isOnlySpaces(fields.startTime)) {
     return badRequest<ActionData>({
       fields,
       errors: {
