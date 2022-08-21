@@ -38,7 +38,7 @@ model Appointment {
   updatedAt       DateTime      @updatedAt
   note            String?       @db.VarChar(255)
   participants    Participant[]
-  category        String?
+  isZoom          Boolean?
 
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId Int

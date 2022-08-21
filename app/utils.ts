@@ -33,7 +33,7 @@ export function validateTime(timeStr: string) {
   return /^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/.test(timeStr)
 }
 
-export const onlySpaces = (str: string) => str.trim().length === 0
+export const isOnlySpaces = (str: string) => str.trim().length === 0
 
 export const formatDate = (date: string) =>
   new Date(date).toLocaleDateString('de-DE', {

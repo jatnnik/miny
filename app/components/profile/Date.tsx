@@ -3,7 +3,7 @@ import { Form, useTransition } from '@remix-run/react'
 import { type DateWithParticipants } from '~/models/date.server'
 import { formatDate } from '~/utils'
 import { labelStyles, inputStyles } from '../Input'
-import { CalendarIcon } from '@heroicons/react/outline'
+import { CalendarIcon, VideoCameraIcon } from '@heroicons/react/outline'
 
 export default function DateSlot({ date }: { date: DateWithParticipants }) {
   const [showForm, setShowForm] = useState(false)
@@ -18,14 +18,17 @@ export default function DateSlot({ date }: { date: DateWithParticipants }) {
       >
         <div>
           <span className="mb-1 block font-medium text-amber-800 sm:hidden">
-            {formatDate(date.date.toString())}
-            <br />
+            <span className="flex items-center">
+              {date.isZoom && <VideoCameraIcon className="mr-1 h-4" />}{' '}
+              {formatDate(date.date.toString())}
+            </span>
             <span className="text-slate-700">
               {date.startTime}
               {date.endTime && `–${date.endTime}`}
             </span>
           </span>
-          <span className="mb-1 hidden font-medium text-amber-800 sm:block">
+          <span className="mb-1 hidden font-medium text-amber-800 sm:flex sm:items-center">
+            {date.isZoom && <VideoCameraIcon className="mr-1 h-4" />}
             {formatDate(date.date.toString())}, {date.startTime}
             {date.endTime ? `–${date.endTime}` : null}
           </span>

@@ -1,6 +1,11 @@
 import { Form, Link, useTransition } from '@remix-run/react'
 import type { DateWithParticipants } from '~/models/date.server'
-import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/outline'
+import {
+  PlusIcon,
+  PencilIcon,
+  TrashIcon,
+  VideoCameraIcon,
+} from '@heroicons/react/outline'
 import Card from '../Card'
 import { headingStyles } from '../Heading'
 import { formatDate } from '~/utils'
@@ -12,19 +17,14 @@ function DateSlot({ date }: { date: DateWithParticipants }) {
     <div className="flex items-center justify-between pt-4">
       <div>
         <span
-          className={`mb-0.5 block font-medium ${
+          className={`mb-0.5 flex items-center font-medium ${
             date.isAssigned ? 'text-red-700' : 'text-green-700'
           }`}
         >
+          {date.isZoom && <VideoCameraIcon className="mr-1 h-4" />}
           {formatDate(date.date.toString())}, {date.startTime}
           {date.endTime && `–${date.endTime}`}
         </span>
-
-        {date.category && (
-          <span className="mb-1.5 block text-sm italic text-slate-900">
-            {date.category}
-          </span>
-        )}
 
         {date.isGroupDate && (
           <>

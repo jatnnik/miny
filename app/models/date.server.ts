@@ -98,28 +98,53 @@ export async function getDatesByUserId(id: User['id']) {
   })
 }
 
-export async function getFreeDates(userId: User['id']) {
-  return prisma.appointment.findMany({
-    where: {
-      userId,
-      isAssigned: false,
-      date: {
-        gte:
-          formatInTimeZone(new Date(), 'Europe/Berlin', 'yyyy-MM-dd') +
-          'T00:00:00.000Z',
-      },
-    },
-    orderBy: {
-      date: 'asc',
-    },
-    include: {
-      participants: {
-        select: {
-          name: true,
+export async function getFreeDates(userId: User['id'], onlyZoom = false) {
+  if (onlyZoom) {
+    return prisma.appointment.findMany({
+      where: {
+        userId,
+        isAssigned: false,
+        isZoom: true,
+        date: {
+          gte:
+            formatInTimeZone(new Date(), 'Europe/Berlin', 'yyyy-MM-dd') +
+            'T00:00:00.000Z',
         },
       },
-    },
-  })
+      orderBy: {
+        date: 'asc',
+      },
+      include: {
+        participants: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    })
+  } else {
+    return prisma.appointment.findMany({
+      where: {
+        userId,
+        isAssigned: false,
+        date: {
+          gte:
+            formatInTimeZone(new Date(), 'Europe/Berlin', 'yyyy-MM-dd') +
+            'T00:00:00.000Z',
+        },
+      },
+      orderBy: {
+        date: 'asc',
+      },
+      include: {
+        participants: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    })
+  }
 }
 
 interface CreateFields {
@@ -131,7 +156,7 @@ interface CreateFields {
   note?: string | null
   isFlexible: boolean
   partner?: string | null
-  category: string | null
+  isZoom: boolean
 }
 
 export async function createDate(fields: CreateFields, userId: string) {
@@ -170,7 +195,7 @@ export async function updateDate(fields: UpdateFields) {
       isFlexible: fields.isFlexible,
       partnerName: fields.partner,
       isAssigned: typeof fields.partner === 'string',
-      category: fields.category,
+      isZoom: fields.isZoom,
     },
   })
 }
