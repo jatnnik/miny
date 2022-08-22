@@ -172,6 +172,7 @@ export async function createDate(fields: CreateFields, userId: string) {
       isFlexible: fields.isFlexible,
       partnerName: fields.partner,
       isAssigned: typeof fields.partner === 'string',
+      isZoom: fields.isZoom,
     },
   })
 }

@@ -55,6 +55,7 @@ interface ActionData {
     partner: string | null
     selfAssignPartner: boolean
     isFlexible: boolean
+    isZoom: boolean
   }
 }
 
@@ -71,6 +72,7 @@ export const action: ActionFunction = async ({ request }) => {
   const flexible = formData.get('flexibleTime')
   const selfAssigned = formData.get('selfAssignPartner')
   const partner = formData.get('partner')
+  const isZoom = formData.get('isZoom')
 
   if (typeof date !== 'string' || typeof startTime !== 'string') {
     return badRequest<ActionData>({
@@ -89,6 +91,7 @@ export const action: ActionFunction = async ({ request }) => {
     isFlexible: flexible === 'on',
     selfAssignPartner: selfAssigned === 'on',
     partner: typeof partner === 'string' ? partner : null,
+    isZoom: isZoom === 'on',
   }
 
   // Validate date
@@ -220,18 +223,33 @@ export default function CreateDate() {
                 />
               </div>
 
-              <div className="mt-6 flex items-center">
-                <input
-                  id="flexibleTime"
-                  name="flexibleTime"
-                  type="checkbox"
-                  defaultChecked={actionData?.fields?.isFlexible}
-                  onChange={() => setFixedStart(!fixedStart)}
-                  className="h-4 w-4 rounded border-slate-300 text-slate-600 focus:ring-slate-200 focus:ring-opacity-50"
-                />
-                <label htmlFor="flexibleTime" className="ml-2 block">
-                  Flexible Zeit
-                </label>
+              <div className="mt-6 flex space-x-6">
+                <div className="flex items-center">
+                  <input
+                    id="flexibleTime"
+                    name="flexibleTime"
+                    type="checkbox"
+                    defaultChecked={actionData?.fields?.isFlexible}
+                    onChange={() => setFixedStart(!fixedStart)}
+                    className="h-4 w-4 rounded border-slate-300 text-slate-600 focus:ring-slate-200 focus:ring-opacity-50"
+                  />
+                  <label htmlFor="flexibleTime" className="ml-2 block">
+                    Zeit ist flexibel
+                  </label>
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    id="isZoom"
+                    name="isZoom"
+                    type="checkbox"
+                    defaultChecked={actionData?.fields?.isZoom ?? false}
+                    className="h-4 w-4 rounded border-slate-300 text-slate-600 focus:ring-slate-200 focus:ring-opacity-50"
+                  />
+                  <label htmlFor="isZoom" className="ml-2 block">
+                    Zoom Termin
+                  </label>
+                </div>
               </div>
 
               <div className="mt-4 flex space-x-4">
