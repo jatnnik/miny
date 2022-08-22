@@ -11,7 +11,8 @@
     "dev:css": "npm run generate:css -- --watch",
     "dev:remix": "node -r dotenv/config node_modules/.bin/remix dev",
     "format": "prettier --write .",
-    "generate:css": "tailwindcss -i app/styles/tailwind.css -o app/styles/tailwind-build.css"
+    "generate:css": "tailwindcss -i app/styles/tailwind.css -o app/styles/tailwind-build.css",
+    "db:connect": "pscale connect miny main --port 3309"
   },
   "dependencies": {
     "@heroicons/react": "^1.0.6",
