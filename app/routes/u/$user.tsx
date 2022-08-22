@@ -135,7 +135,7 @@ const LoadingSpinner = () => (
   <div role="status">
     <svg
       aria-hidden="true"
-      className="ml-3 h-5 w-5 animate-spin fill-slate-700 text-slate-300"
+      className="ml-2 h-5 w-5 animate-spin fill-slate-700 text-slate-300"
       viewBox="0 0 100 101"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -207,7 +207,7 @@ export default function UserPage() {
                       defaultChecked={loaderData.onlyZoom}
                       className="mr-2 h-4 w-4 rounded border-slate-300 text-slate-600 focus:ring-slate-200 focus:ring-opacity-50"
                     />{' '}
-                    Nur Zoom Termine anzeigen{' '}
+                    Nur Zoom Termine zeigen{' '}
                     {transition.state === 'submitting' && <LoadingSpinner />}
                   </label>
                 </Form>

@@ -14,14 +14,16 @@ function DateSlot({ date }: { date: DateWithParticipants }) {
   const transition = useTransition()
 
   return (
-    <div className="flex items-center justify-between pt-4">
+    <div className="flex items-start justify-between gap-2 pt-4">
       <div>
         <span
-          className={`mb-0.5 flex items-center font-medium ${
+          className={`relative mb-0.5 flex items-start font-medium leading-snug sm:static sm:items-center ${
             date.isAssigned ? 'text-red-700' : 'text-green-700'
           }`}
         >
-          {date.isZoom && <VideoCameraIcon className="mr-1 h-4" />}
+          {date.isZoom && (
+            <VideoCameraIcon className="absolute -left-5 top-[2px] mr-1 h-4 sm:static sm:left-0 sm:top-0" />
+          )}
           {formatDate(date.date.toString())}, {date.startTime}
           {date.endTime && `–${date.endTime}`}
         </span>
@@ -60,7 +62,7 @@ function DateSlot({ date }: { date: DateWithParticipants }) {
         )}
       </div>
       <div>
-        <div className="flex items-center space-x-3 sm:space-x-2">
+        <div className="flex items-center space-x-2">
           <Link to={`/edit/${date.id}`}>
             <button
               className="opacity-50 transition-opacity duration-75 hover:opacity-100"
@@ -109,7 +111,8 @@ export default function Dates({ dates }: { dates: DateWithParticipants[] }) {
           className="flex items-center rounded-md border border-transparent bg-slate-700 px-3 py-2 pl-3 text-xs font-medium uppercase tracking-widest text-white ring-slate-300 transition duration-75 ease-in-out hover:bg-slate-600 focus:border-slate-800 focus:outline-none focus:ring active:bg-slate-600 disabled:opacity-25"
           to="/new"
         >
-          <PlusIcon className="mr-2 h-3.5" /> Neu
+          <PlusIcon className="h-3.5 sm:mr-2" />{' '}
+          <span className="hidden sm:block">Neu</span>
         </Link>
       </div>
       {!hasDates && (

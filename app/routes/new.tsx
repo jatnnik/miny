@@ -257,7 +257,7 @@ export default function CreateDate() {
                   <Input
                     name="startTime"
                     id="startTime"
-                    label={fixedStart ? 'Von*' : 'Zeit*'}
+                    label={fixedStart ? 'Von*' : 'Zeit (z.B. "Vormittags")*'}
                     type={fixedStart ? 'time' : 'text'}
                     placeholder={!fixedStart ? 'Vormittags' : ''}
                     defaultValue={actionData?.fields?.startTime}
