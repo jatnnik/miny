@@ -1,4 +1,5 @@
 import type { LoaderFunction } from '@remix-run/node'
+import { json } from '@remix-run/node'
 import { type EventAttributes, createEvents } from 'ics'
 import type { Appointment } from '@prisma/client'
 
@@ -91,9 +92,11 @@ const getEndDateArray = (appointment: Appointment): DateArray => {
 const appointmentToEvent = (appointment: Appointment) => {
   const event: EventAttributes = {
     start: getStartDateArray(appointment),
+    startOutputType: 'local',
     ...(appointment.isFlexible || !appointment.endTime
       ? { duration: { hours: 2, minutes: 0 } }
       : { end: getEndDateArray(appointment) }),
+    endOutputType: 'local',
     title: getTitle(appointment),
     ...(appointment.isZoom ? { location: 'Zoom' } : {}),
     ...(appointment.note && { description: appointment.note }),
