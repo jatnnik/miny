@@ -1,5 +1,4 @@
 import type { LoaderFunction } from '@remix-run/node'
-import { json } from '@remix-run/node'
 import { type EventAttributes, createEvents } from 'ics'
 import type { Appointment } from '@prisma/client'
 
@@ -8,15 +7,18 @@ import { getDatesByUserId } from '~/models/date.server'
 
 type DateArray = [number, number, number, number, number]
 
-const convertFlexibleToTime = (flexibleVal: string) => {
-  switch (flexibleVal) {
-    case 'Vormittags':
-      return 10
-    case 'Nachmittags':
-      return 16
-    default:
-      return 10
+const convertFlexibleToTime = (flexibleTime: string) => {
+  const value = flexibleTime.toLowerCase()
+
+  if (value.includes('vormittag')) {
+    return 10
   }
+
+  if (value.includes('nachmittag')) {
+    return 14
+  }
+
+  return 10
 }
 
 const getTitle = (appointment: Appointment) => {
