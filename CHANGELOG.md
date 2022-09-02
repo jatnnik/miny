@@ -2,7 +2,14 @@
 
 Alle neuen Features und Bugfixes werden hier gesammelt.
 
-## [1.0] 2022-27-04
+## [1.0] 2022-08-21
+
+### Added
+
+- Termine können jetzt als Zoom-Termin markiert werden
+- Termine können jetzt so gefiltert werden, dass nur Zoom-Termine angezeigt werden
+
+## [1.0] 2022-04-27
 
 ### Added
 
@@ -11,7 +18,7 @@ Alle neuen Features und Bugfixes werden hier gesammelt.
 - Partner kann manuell eingetragen werden (nur Einzeltermine)
 - Partner kann geändert werden (nur Einzeltermine)
 
-## [1.0] 2022-11-04
+## [1.0] 2022-04-11
 
 ### Fixed
 
@@ -22,7 +29,7 @@ Alle neuen Features und Bugfixes werden hier gesammelt.
 
 - Datenschutzerklärung
 
-## [1.0] 2022-05-04
+## [1.0] 2022-04-05
 
 ### Fixed
 
@@ -30,7 +37,7 @@ Alle neuen Features und Bugfixes werden hier gesammelt.
 - Darstellungsfehler in E-Mails
 - Zeitraum Feld lässt leere Zeichenketten aus Leerzeichen zu
 
-## [1.0] 2022-03-04
+## [1.0] 2022-04-03
 
 ### Added
 
