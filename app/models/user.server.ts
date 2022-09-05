@@ -1,10 +1,10 @@
-import type { User } from '@prisma/client'
-import bcrypt from 'bcryptjs'
-import crypto from 'crypto'
+import type { User } from "@prisma/client"
+import bcrypt from "bcryptjs"
+import crypto from "crypto"
 
-import { prisma } from '~/db.server'
+import { prisma } from "~/db.server"
 
-export type { User } from '@prisma/client'
+export type { User } from "@prisma/client"
 
 export type PublicUser = {
   id: number
@@ -14,7 +14,7 @@ export type PublicUser = {
   loginCount: number
 }
 
-export async function getUserById(id: User['id']) {
+export async function getUserById(id: User["id"]) {
   return prisma.user.findUnique({
     where: { id },
     select: {
@@ -27,7 +27,7 @@ export async function getUserById(id: User['id']) {
   })
 }
 
-export async function getUserByEmail(email: User['email']) {
+export async function getUserByEmail(email: User["email"]) {
   return prisma.user.findUnique({
     where: { email },
     select: {
@@ -52,16 +52,16 @@ export async function getUserBySlug(slug: string) {
 }
 
 export async function createUser(
-  email: User['email'],
+  email: User["email"],
   password: string,
   name: string
 ) {
   const hashedPassword = await bcrypt.hash(password, 10)
 
-  let slug = name.trim().replace(' ', '-').toLowerCase()
+  let slug = name.trim().replace(" ", "-").toLowerCase()
   const existingSlug = await getUserBySlug(slug)
   if (existingSlug) {
-    const randomSlug = crypto.randomBytes(5).toString('hex')
+    const randomSlug = crypto.randomBytes(5).toString("hex")
     slug = `${slug}-${randomSlug}`
   }
 
@@ -75,7 +75,7 @@ export async function createUser(
   })
 }
 
-export async function verifyLogin(email: User['email'], password: string) {
+export async function verifyLogin(email: User["email"], password: string) {
   const user = await prisma.user.findUnique({
     where: { email },
   })

@@ -1,11 +1,11 @@
-import React from 'react'
+import React from "react"
 import {
   Form,
   Link,
   useActionData,
   useTransition,
   useSearchParams,
-} from '@remix-run/react'
+} from "@remix-run/react"
 import {
   type LoaderFunction,
   type ActionFunction,
@@ -13,17 +13,17 @@ import {
   json,
   redirect,
   type HeadersFunction,
-} from '@remix-run/node'
-import { createUserSession, getUserId } from '~/session.server'
-import { badRequest, validateEmail } from '~/utils'
-import { ErrorBadge } from '~/components/Badges'
-import { labelStyles, inputStyles, errorStyles } from '~/components/Input'
-import { SubmitButton } from '~/components/Buttons'
-import { verifyLogin } from '~/models/user.server'
+} from "@remix-run/node"
+import { createUserSession, getUserId } from "~/session.server"
+import { badRequest, validateEmail } from "~/utils"
+import { ErrorBadge } from "~/components/Badges"
+import { labelStyles, inputStyles, errorStyles } from "~/components/Input"
+import { SubmitButton } from "~/components/Buttons"
+import { verifyLogin } from "~/models/user.server"
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await getUserId(request)
-  if (userId) return redirect('/')
+  if (userId) return redirect("/")
   return json({})
 }
 
@@ -42,23 +42,23 @@ interface ActionData {
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData()
 
-  const email = formData.get('email')
-  const password = formData.get('password')
-  const redirectTo = formData.get('redirectTo')
-  const remember = formData.get('remember')
+  const email = formData.get("email")
+  const password = formData.get("password")
+  const redirectTo = formData.get("redirectTo")
+  const remember = formData.get("remember")
 
   if (!validateEmail(email)) {
     return badRequest<ActionData>({
       errors: {
-        email: 'Ungültige E-Mail',
+        email: "Ungültige E-Mail",
       },
     })
   }
 
-  if (typeof password !== 'string') {
+  if (typeof password !== "string") {
     return badRequest<ActionData>({
       errors: {
-        password: 'Passwort wird benötigt',
+        password: "Passwort wird benötigt",
       },
     })
   }
@@ -66,7 +66,7 @@ export const action: ActionFunction = async ({ request }) => {
   if (password.length < 6) {
     return badRequest<ActionData>({
       errors: {
-        password: 'Passwort ist zu kurz',
+        password: "Passwort ist zu kurz",
       },
     })
   }
@@ -81,7 +81,7 @@ export const action: ActionFunction = async ({ request }) => {
 
   if (!user) {
     return badRequest<ActionData>({
-      formError: 'E-Mail oder Passwort ist falsch',
+      formError: "E-Mail oder Passwort ist falsch",
       fields,
     })
   }
@@ -89,24 +89,24 @@ export const action: ActionFunction = async ({ request }) => {
   return createUserSession({
     request,
     userId: user.id,
-    remember: remember === 'on' ? true : false,
-    redirectTo: typeof redirectTo === 'string' ? redirectTo : '/',
+    remember: remember === "on" ? true : false,
+    redirectTo: typeof redirectTo === "string" ? redirectTo : "/",
   })
 }
 
 export const headers: HeadersFunction = () => {
   return {
-    'Cache-Control': `s-maxage=${60 * 60 * 24 * 30}`,
+    "Cache-Control": `s-maxage=${60 * 60 * 24 * 30}`,
   }
 }
 
 export const meta: MetaFunction = () => {
-  return { title: 'Login' }
+  return { title: "Login" }
 }
 
 export default function Login() {
   const [searchParams] = useSearchParams()
-  const redirectTo = searchParams.get('redirectTo') || '/'
+  const redirectTo = searchParams.get("redirectTo") || "/"
   const actionData = useActionData<ActionData>()
   const transition = useTransition()
   const emailRef = React.useRef<HTMLInputElement>(null)
@@ -137,9 +137,9 @@ export default function Login() {
             <ErrorBadge message={actionData.formError} />
           ) : null}
 
-          <fieldset disabled={transition.state === 'submitting'}>
+          <fieldset disabled={transition.state === "submitting"}>
             <div>
-              <label htmlFor={'email'} className={labelStyles}>
+              <label htmlFor={"email"} className={labelStyles}>
                 E-Mail
               </label>
 
@@ -164,7 +164,7 @@ export default function Login() {
             </div>
 
             <div className="mt-4">
-              <label htmlFor={'password'} className={labelStyles}>
+              <label htmlFor={"password"} className={labelStyles}>
                 Passwort
               </label>
               <input
@@ -209,7 +209,7 @@ export default function Login() {
                 <Link
                   className="block text-sm underline hover:text-slate-900"
                   to={{
-                    pathname: '/register',
+                    pathname: "/register",
                     search: searchParams.toString(),
                   }}
                 >
@@ -220,7 +220,7 @@ export default function Login() {
               <SubmitButton
                 type="submit"
                 label={
-                  transition.state === 'submitting' ? 'Lade...' : 'Anmelden'
+                  transition.state === "submitting" ? "Lade..." : "Anmelden"
                 }
               />
             </div>

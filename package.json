@@ -27,6 +27,7 @@
     "dotenv": "^16.0.2",
     "framer-motion": "^7.2.1",
     "ics": "^2.40.0",
+    "isbot": "^3.5.2",
     "nodemailer": "^6.7.8",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -54,7 +55,7 @@
   "prettier": {
     "semi": false,
     "tabWidth": 2,
-    "singleQuote": true,
+    "singleQuote": false,
     "arrowParens": "avoid",
     "printWidth": 80
   },

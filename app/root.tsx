@@ -6,15 +6,15 @@ import {
   Scripts,
   ScrollRestoration,
   useCatch,
-} from '@remix-run/react'
+} from "@remix-run/react"
 import {
   type MetaFunction,
   type ErrorBoundaryComponent,
   type LoaderFunction,
   json,
-} from '@remix-run/node'
+} from "@remix-run/node"
 
-import tailwind from './styles/tailwind-build.css'
+import tailwind from "./styles/tailwind-build.css"
 
 type LoaderData = {
   url: string
@@ -23,38 +23,38 @@ type LoaderData = {
 export const loader: LoaderFunction = ({ request }) => {
   return json<LoaderData>({
     url: request.url,
-    host: request.headers.get('host') ?? 'https://miny.vercel.app',
+    host: request.headers.get("host") ?? "https://miny.vercel.app",
   })
 }
 
 export const meta: MetaFunction = ({ data }: { data: LoaderData }) => {
   return {
-    charset: 'utf-8',
-    viewport: 'width=device-width,initial-scale=1',
-    title: 'miny',
-    description: 'Ganz einfach Diensttermine ausmachen.',
-    'og:title': 'miny',
-    'og:description': 'Ganz einfach Diensttermine ausmachen.',
-    'og:image': `https://${data.host}/og_image.png`,
-    'og:url': data.url,
-    'og:type': 'website',
-    'theme-color': '#1e293b',
-    'mobile-web-app-capable': 'yes',
-    'apple-mobile-web-app-title': 'miny',
-    'apple-mobile-web-app-capable': 'yes',
-    'apple-mobile-web-app-status-bar-style': 'default',
-    robots: 'noindex',
+    charset: "utf-8",
+    viewport: "width=device-width,initial-scale=1",
+    title: "miny",
+    description: "Ganz einfach Diensttermine ausmachen.",
+    "og:title": "miny",
+    "og:description": "Ganz einfach Diensttermine ausmachen.",
+    "og:image": `https://${data.host}/og_image.png`,
+    "og:url": data.url,
+    "og:type": "website",
+    "theme-color": "#1e293b",
+    "mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-title": "miny",
+    "apple-mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-status-bar-style": "default",
+    robots: "noindex",
   }
 }
 
 export const links = () => {
   return [
-    { rel: 'stylesheet', href: tailwind },
-    { rel: 'shortcut icon', href: '/favicon.ico' },
+    { rel: "stylesheet", href: tailwind },
+    { rel: "shortcut icon", href: "/favicon.ico" },
     {
-      rel: 'prefetch',
-      as: 'image',
-      href: '/backpack.png',
+      rel: "prefetch",
+      as: "image",
+      href: "/backpack.png",
     },
   ]
 }

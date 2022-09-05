@@ -4,15 +4,15 @@ import {
   Form,
   useSubmit,
   useTransition,
-} from '@remix-run/react'
+} from "@remix-run/react"
 import type {
   LoaderFunction,
   ActionFunction,
   MetaFunction,
-} from '@remix-run/node'
-import { json, redirect } from '@remix-run/node'
-import { getUserBySlug } from '~/models/user.server'
-import invariant from 'tiny-invariant'
+} from "@remix-run/node"
+import { json, redirect } from "@remix-run/node"
+import { getUserBySlug } from "~/models/user.server"
+import invariant from "tiny-invariant"
 import {
   type DateWithParticipants,
   getFreeDates,
@@ -20,15 +20,15 @@ import {
   assignDate,
   getDateById,
   sendAssignmentEmail,
-} from '~/models/date.server'
-import type { Appointment } from '@prisma/client'
-import { badRequest, formatDate } from '~/utils'
+} from "~/models/date.server"
+import type { Appointment } from "@prisma/client"
+import { badRequest, formatDate } from "~/utils"
 
-import Container from '~/components/Container'
-import Card from '~/components/Card'
-import Header from '~/components/profile/Header'
-import DateSlot from '~/components/profile/Date'
-import LoadingSpinner from '~/components/Spinner'
+import Container from "~/components/Container"
+import Card from "~/components/Card"
+import Header from "~/components/profile/Header"
+import DateSlot from "~/components/profile/Date"
+import LoadingSpinner from "~/components/Spinner"
 
 type LoaderData = {
   user: {
@@ -45,21 +45,21 @@ type LoaderData = {
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   const username = params.user
-  invariant(username, 'Invalid user slug')
+  invariant(username, "Invalid user slug")
 
   const url = new URL(request.url)
-  const assigned = url.searchParams.get('assigned')
-  const onlyZoom = url.searchParams.get('onlyZoom') === 'on'
+  const assigned = url.searchParams.get("assigned")
+  const onlyZoom = url.searchParams.get("onlyZoom") === "on"
 
   let assignedDate = null
 
-  if (typeof assigned === 'string' && !isNaN(Number(assigned))) {
+  if (typeof assigned === "string" && !isNaN(Number(assigned))) {
     assignedDate = await getDateById(Number(assigned))
   }
 
   const user = await getUserBySlug(username)
   if (user === null) {
-    throw json('user not found', 404)
+    throw json("user not found", 404)
   }
 
   const dates = await getFreeDates(user.id, onlyZoom)
@@ -80,22 +80,22 @@ export interface ActionData {
 
 export const action: ActionFunction = async ({ request, params }) => {
   const formData = await request.formData()
-  const name = formData.get('name')
-  const dateId = formData.get('dateId')
+  const name = formData.get("name")
+  const dateId = formData.get("dateId")
 
   if (
-    typeof name !== 'string' ||
-    typeof dateId !== 'string' ||
+    typeof name !== "string" ||
+    typeof dateId !== "string" ||
     isNaN(Number(dateId))
   ) {
     return badRequest<ActionData>({
-      formError: 'Fehlerhaftes Formular',
+      formError: "Fehlerhaftes Formular",
     })
   }
 
   const appointment = await dateExistsAndIsAvailable(Number(dateId))
   if (!appointment) {
-    throw json('appointment not found or already assigned', 403)
+    throw json("appointment not found or already assigned", 403)
   }
 
   await assignDate(Number(dateId), name)
@@ -115,19 +115,19 @@ export const meta: MetaFunction = ({
 }) => {
   if (data?.user) {
     const title = `${data.user.name}${
-      data.user.name.slice(-1) === 's' ? "'" : 's'
+      data.user.name.slice(-1) === "s" ? "'" : "s"
     } Diensttermine`
 
     return {
       title,
-      'og:title': `${title} | miny`,
-      'og:description': `${data.user.name} möchte einen Diensttermin mit dir ausmachen`,
+      "og:title": `${title} | miny`,
+      "og:description": `${data.user.name} möchte einen Diensttermin mit dir ausmachen`,
     }
   } else {
     return {
-      title: 'Fehler',
-      'og:title': 'Fehler',
-      'og:description': 'Benutzer nicht gefunden',
+      title: "Fehler",
+      "og:title": "Fehler",
+      "og:description": "Benutzer nicht gefunden",
     }
   }
 }
@@ -154,7 +154,7 @@ export default function UserPage() {
             </h1>
             <p className="mt-4">Dein Termin mit {user.name}:</p>
             <p className="font-medium text-amber-800">
-              {formatDate(assignedDate.date.toString())},{' '}
+              {formatDate(assignedDate.date.toString())},{" "}
               {assignedDate.startTime}
               {assignedDate.endTime && `–${assignedDate.endTime}`}
             </p>
@@ -185,9 +185,9 @@ export default function UserPage() {
                       name="onlyZoom"
                       defaultChecked={loaderData.onlyZoom}
                       className="mr-2 h-4 w-4 rounded border-slate-300 text-slate-600 focus:ring-slate-200 focus:ring-opacity-50"
-                    />{' '}
-                    Nur Zoom Termine zeigen{' '}
-                    {transition.state === 'submitting' && <LoadingSpinner />}
+                    />{" "}
+                    Nur Zoom Termine zeigen{" "}
+                    {transition.state === "submitting" && <LoadingSpinner />}
                   </label>
                 </Form>
               )}
@@ -219,10 +219,10 @@ export function CatchBoundary() {
   switch (caught.status) {
     case 403:
       errorMessage =
-        'Dieser Termin existiert nicht mehr oder es hat sich bereits jemand anderes eingetragen.'
+        "Dieser Termin existiert nicht mehr oder es hat sich bereits jemand anderes eingetragen."
       break
     case 404:
-      errorMessage = 'Benutzer konnte nicht gefunden werden.'
+      errorMessage = "Benutzer konnte nicht gefunden werden."
       break
   }
 

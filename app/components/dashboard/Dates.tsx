@@ -1,14 +1,14 @@
-import { Form, Link, useTransition } from '@remix-run/react'
-import type { DateWithParticipants } from '~/models/date.server'
+import { Form, Link, useTransition } from "@remix-run/react"
+import type { DateWithParticipants } from "~/models/date.server"
 import {
   PlusIcon,
   PencilIcon,
   TrashIcon,
   VideoCameraIcon,
-} from '@heroicons/react/20/solid'
-import Card from '../Card'
-import { headingStyles } from '../Heading'
-import { formatDate } from '~/utils'
+} from "@heroicons/react/20/solid"
+import Card from "../Card"
+import { headingStyles } from "../Heading"
+import { formatDate } from "~/utils"
 
 function DateSlot({ date }: { date: DateWithParticipants }) {
   const transition = useTransition()
@@ -18,7 +18,7 @@ function DateSlot({ date }: { date: DateWithParticipants }) {
       <div>
         <span
           className={`relative mb-0.5 flex items-start font-medium leading-snug sm:static sm:items-center ${
-            date.isAssigned ? 'text-red-700' : 'text-green-700'
+            date.isAssigned ? "text-red-700" : "text-green-700"
           }`}
         >
           {date.isZoom && (
@@ -54,7 +54,7 @@ function DateSlot({ date }: { date: DateWithParticipants }) {
         {date.note && (
           <span
             className={`block text-sm italic ${
-              date.isGroupDate && date.participants.length > 0 ? 'mt-2' : 'mt-1'
+              date.isGroupDate && date.participants.length > 0 ? "mt-2" : "mt-1"
             }`}
           >
             Notiz: {date.note}
@@ -76,7 +76,7 @@ function DateSlot({ date }: { date: DateWithParticipants }) {
             method="post"
             onSubmit={event => {
               if (
-                !window.confirm('Möchtest du diesen Termin wirklich löschen?')
+                !window.confirm("Möchtest du diesen Termin wirklich löschen?")
               ) {
                 event.preventDefault()
               }
@@ -89,7 +89,7 @@ function DateSlot({ date }: { date: DateWithParticipants }) {
               title="Löschen"
               aria-label="Termin löschen"
               type="submit"
-              disabled={transition.state !== 'idle'}
+              disabled={transition.state !== "idle"}
             >
               <TrashIcon className="h-5 sm:h-4" />
             </button>
@@ -111,7 +111,7 @@ export default function Dates({ dates }: { dates: DateWithParticipants[] }) {
           className="flex items-center rounded-md border border-transparent bg-slate-700 px-3 py-2 pl-3 text-xs font-medium uppercase tracking-widest text-white ring-slate-300 transition duration-75 ease-in-out hover:bg-slate-600 focus:border-slate-800 focus:outline-none focus:ring active:bg-slate-600 disabled:opacity-25"
           to="/new"
         >
-          <PlusIcon className="h-3.5 sm:mr-2" />{' '}
+          <PlusIcon className="h-3.5 sm:mr-2" />{" "}
           <span className="hidden sm:block">Neu</span>
         </Link>
       </div>

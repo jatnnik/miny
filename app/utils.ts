@@ -1,13 +1,13 @@
-import { json } from '@remix-run/node'
-import { format } from 'date-fns'
-import { de } from 'date-fns/locale'
+import { json } from "@remix-run/node"
+import { format } from "date-fns"
+import { de } from "date-fns/locale"
 
 export function badRequest<T>(data: T) {
   return json(data, { status: 400 })
 }
 
 export function validateEmail(email: unknown): email is string {
-  return typeof email === 'string' && email.length > 3 && email.includes('@')
+  return typeof email === "string" && email.length > 3 && email.includes("@")
 }
 
 export function validateStringLength(value: string, minLength: number) {
@@ -24,7 +24,7 @@ export function validateDate(dateStr: string) {
   const date = new Date(dateStr)
   const timestamp = date.getTime()
 
-  if (typeof timestamp !== 'number' || Number.isNaN(timestamp)) {
+  if (typeof timestamp !== "number" || Number.isNaN(timestamp)) {
     return false
   }
 
@@ -38,6 +38,6 @@ export function validateTime(timeStr: string) {
 export const isOnlySpaces = (str: string) => str.trim().length === 0
 
 export const formatDate = (date: string) =>
-  format(new Date(date), 'EE dd. MMMM', {
+  format(new Date(date), "EE dd. MMMM", {
     locale: de,
   })

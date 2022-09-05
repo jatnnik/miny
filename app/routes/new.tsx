@@ -4,28 +4,28 @@ import {
   useTransition,
   Link,
   Form,
-} from '@remix-run/react'
-import { useState } from 'react'
-import type { User } from '~/models/user.server'
+} from "@remix-run/react"
+import { useState } from "react"
+import type { User } from "~/models/user.server"
 import {
   json,
   type LoaderFunction,
   type MetaFunction,
   type ActionFunction,
   redirect,
-} from '@remix-run/node'
-import { requireUser, requireUserId } from '~/session.server'
-import { isPast, addDays, format } from 'date-fns'
+} from "@remix-run/node"
+import { requireUser, requireUserId } from "~/session.server"
+import { isPast, addDays, format } from "date-fns"
 
-import Container from '~/components/Container'
-import Header from '~/components/dashboard/Header'
-import Card from '~/components/Card'
-import { headingStyles } from '~/components/Heading'
-import Input from '~/components/Input'
-import { SubmitButton } from '~/components/Buttons'
-import { createDate } from '~/models/date.server'
-import { badRequest, isOnlySpaces, validateDate, validateTime } from '~/utils'
-import { ErrorBadge } from '~/components/Badges'
+import Container from "~/components/Container"
+import Header from "~/components/dashboard/Header"
+import Card from "~/components/Card"
+import { headingStyles } from "~/components/Heading"
+import Input from "~/components/Input"
+import { SubmitButton } from "~/components/Buttons"
+import { createDate } from "~/models/date.server"
+import { badRequest, isOnlySpaces, validateDate, validateTime } from "~/utils"
+import { ErrorBadge } from "~/components/Badges"
 
 type LoaderData = { user: User }
 
@@ -63,35 +63,35 @@ export const action: ActionFunction = async ({ request }) => {
   const userId = await requireUserId(request)
 
   const formData = await request.formData()
-  const date = formData.get('date')
-  const startTime = formData.get('startTime')
-  const endTime = formData.get('endTime')
-  const isGroupDate = formData.get('isGroupDate')
-  const maxParticipants = formData.get('maxParticipants')
-  const note = formData.get('note')
-  const flexible = formData.get('flexibleTime')
-  const selfAssigned = formData.get('selfAssignPartner')
-  const partner = formData.get('partner')
-  const isZoom = formData.get('isZoom')
+  const date = formData.get("date")
+  const startTime = formData.get("startTime")
+  const endTime = formData.get("endTime")
+  const isGroupDate = formData.get("isGroupDate")
+  const maxParticipants = formData.get("maxParticipants")
+  const note = formData.get("note")
+  const flexible = formData.get("flexibleTime")
+  const selfAssigned = formData.get("selfAssignPartner")
+  const partner = formData.get("partner")
+  const isZoom = formData.get("isZoom")
 
-  if (typeof date !== 'string' || typeof startTime !== 'string') {
+  if (typeof date !== "string" || typeof startTime !== "string") {
     return badRequest<ActionData>({
-      formError: 'Pflichtfelder wurden nicht ausgefüllt',
+      formError: "Pflichtfelder wurden nicht ausgefüllt",
     })
   }
 
   let fields = {
     date,
     startTime,
-    endTime: typeof endTime === 'string' ? endTime : null,
-    isGroupDate: isGroupDate === 'on',
+    endTime: typeof endTime === "string" ? endTime : null,
+    isGroupDate: isGroupDate === "on",
     maxParticipants:
-      typeof maxParticipants === 'string' ? parseInt(maxParticipants) : null,
-    note: typeof note === 'string' ? note : null,
-    isFlexible: flexible === 'on',
-    selfAssignPartner: selfAssigned === 'on',
-    partner: typeof partner === 'string' ? partner : null,
-    isZoom: isZoom === 'on',
+      typeof maxParticipants === "string" ? parseInt(maxParticipants) : null,
+    note: typeof note === "string" ? note : null,
+    isFlexible: flexible === "on",
+    selfAssignPartner: selfAssigned === "on",
+    partner: typeof partner === "string" ? partner : null,
+    isZoom: isZoom === "on",
   }
 
   // Validate date
@@ -99,7 +99,7 @@ export const action: ActionFunction = async ({ request }) => {
     return badRequest<ActionData>({
       fields,
       errors: {
-        date: 'Ungültiges Datum',
+        date: "Ungültiges Datum",
       },
     })
   }
@@ -108,7 +108,7 @@ export const action: ActionFunction = async ({ request }) => {
     return badRequest<ActionData>({
       fields,
       errors: {
-        date: 'Ungültiges Datum (zu früh)',
+        date: "Ungültiges Datum (zu früh)",
       },
     })
   }
@@ -120,7 +120,7 @@ export const action: ActionFunction = async ({ request }) => {
     return badRequest<ActionData>({
       fields,
       errors: {
-        startTime: 'Ungültige Uhrzeit',
+        startTime: "Ungültige Uhrzeit",
       },
     })
   }
@@ -129,7 +129,7 @@ export const action: ActionFunction = async ({ request }) => {
     return badRequest<ActionData>({
       fields,
       errors: {
-        startTime: 'Ungültiges Format',
+        startTime: "Ungültiges Format",
       },
     })
   } else {
@@ -141,7 +141,7 @@ export const action: ActionFunction = async ({ request }) => {
     return badRequest<ActionData>({
       fields,
       errors: {
-        endTime: 'Ungültige Uhrzeit',
+        endTime: "Ungültige Uhrzeit",
       },
     })
   }
@@ -150,7 +150,7 @@ export const action: ActionFunction = async ({ request }) => {
     return badRequest<ActionData>({
       fields,
       errors: {
-        endTime: 'Früher als Start',
+        endTime: "Früher als Start",
       },
     })
   }
@@ -161,7 +161,7 @@ export const action: ActionFunction = async ({ request }) => {
       return badRequest<ActionData>({
         fields,
         errors: {
-          maxParticipants: 'Keine gültige Zahl',
+          maxParticipants: "Keine gültige Zahl",
         },
       })
     }
@@ -169,19 +169,19 @@ export const action: ActionFunction = async ({ request }) => {
       return badRequest<ActionData>({
         fields,
         errors: {
-          maxParticipants: 'Max. 100 erlaubt',
+          maxParticipants: "Max. 100 erlaubt",
         },
       })
     }
   }
 
   await createDate(fields, userId)
-  return redirect('/')
+  return redirect("/")
 }
 
 export const meta: MetaFunction = () => {
   return {
-    title: 'Neuer Termin',
+    title: "Neuer Termin",
   }
 }
 
@@ -193,7 +193,7 @@ export default function CreateDate() {
   const [fixedStart, setFixedStart] = useState(true)
   const [selfAssignPartner, setSelfAssignPartner] = useState(false)
 
-  const tomorrow = format(addDays(new Date(), 1), 'yyyy-MM-dd')
+  const tomorrow = format(addDays(new Date(), 1), "yyyy-MM-dd")
 
   return (
     <div className="py-10">
@@ -205,7 +205,7 @@ export default function CreateDate() {
             {actionData?.formError ? (
               <ErrorBadge message={actionData.formError} />
             ) : null}
-            <fieldset disabled={transition.state === 'submitting'}>
+            <fieldset disabled={transition.state === "submitting"}>
               <div>
                 <Input
                   name="date"
@@ -257,9 +257,9 @@ export default function CreateDate() {
                   <Input
                     name="startTime"
                     id="startTime"
-                    label={fixedStart ? 'Von*' : 'Zeit (z.B. "Vormittags")*'}
-                    type={fixedStart ? 'time' : 'text'}
-                    placeholder={!fixedStart ? 'Vormittags' : ''}
+                    label={fixedStart ? "Von*" : 'Zeit (z.B. "Vormittags")*'}
+                    type={fixedStart ? "time" : "text"}
+                    placeholder={!fixedStart ? "Vormittags" : ""}
                     defaultValue={actionData?.fields?.startTime}
                     validationError={actionData?.errors?.startTime}
                     required
@@ -361,11 +361,11 @@ export default function CreateDate() {
               <SubmitButton
                 type="submit"
                 title="Speichern"
-                disabled={transition.state === 'submitting'}
+                disabled={transition.state === "submitting"}
                 label={
-                  transition.state === 'submitting'
-                    ? 'Speichert...'
-                    : 'Speichern'
+                  transition.state === "submitting"
+                    ? "Speichert..."
+                    : "Speichern"
                 }
               />
             </div>

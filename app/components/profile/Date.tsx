@@ -1,9 +1,9 @@
-import { useState } from 'react'
-import { Form, useTransition } from '@remix-run/react'
-import { type DateWithParticipants } from '~/models/date.server'
-import { formatDate } from '~/utils'
-import { labelStyles, inputStyles } from '../Input'
-import { CalendarIcon, VideoCameraIcon } from '@heroicons/react/20/solid'
+import { useState } from "react"
+import { Form, useTransition } from "@remix-run/react"
+import { type DateWithParticipants } from "~/models/date.server"
+import { formatDate } from "~/utils"
+import { labelStyles, inputStyles } from "../Input"
+import { CalendarIcon, VideoCameraIcon } from "@heroicons/react/20/solid"
 
 export default function DateSlot({ date }: { date: DateWithParticipants }) {
   const [showForm, setShowForm] = useState(false)
@@ -13,13 +13,13 @@ export default function DateSlot({ date }: { date: DateWithParticipants }) {
     <div>
       <div
         className={`flex justify-between pt-4 ${
-          !date.isGroupDate && !date.note ? 'items-center' : 'items-start'
+          !date.isGroupDate && !date.note ? "items-center" : "items-start"
         }`}
       >
         <div>
           <span className="mb-1 block font-medium text-amber-800 sm:hidden">
             <span className="flex items-center">
-              {date.isZoom && <VideoCameraIcon className="mr-1 h-4" />}{' '}
+              {date.isZoom && <VideoCameraIcon className="mr-1 h-4" />}{" "}
               {formatDate(date.date.toString())}
             </span>
             <span className="text-slate-700">
@@ -40,7 +40,7 @@ export default function DateSlot({ date }: { date: DateWithParticipants }) {
           {date.isGroupDate && (
             <>
               <span className="block text-sm italic">
-                Gruppentermin ({date.participants.length}/{date.maxParticipants}{' '}
+                Gruppentermin ({date.participants.length}/{date.maxParticipants}{" "}
                 Teilnehmer)
               </span>
               {date.participants.length > 0 && (
@@ -69,7 +69,7 @@ export default function DateSlot({ date }: { date: DateWithParticipants }) {
         <div>
           <button
             className={`rounded-md border border-transparent bg-slate-700 px-2.5 py-2 text-xs font-medium uppercase tracking-widest text-white ring-slate-300 transition duration-150 ease-in-out hover:bg-slate-600 focus:border-slate-800 focus:outline-none focus:ring active:bg-slate-800 disabled:opacity-25 ${
-              showForm ? 'opacity-50' : ''
+              showForm ? "opacity-50" : ""
             }`}
             onClick={() => setShowForm(!showForm)}
           >
@@ -85,7 +85,7 @@ export default function DateSlot({ date }: { date: DateWithParticipants }) {
           reloadDocument
         >
           <fieldset
-            disabled={transition.state === 'submitting'}
+            disabled={transition.state === "submitting"}
             className="flex-grow"
           >
             <label htmlFor="name" className={labelStyles}>
@@ -104,9 +104,9 @@ export default function DateSlot({ date }: { date: DateWithParticipants }) {
           <button
             className="mt-6 rounded-md border border-transparent bg-green-700 px-4 py-3 text-xs font-medium uppercase tracking-widest text-white ring-slate-300 transition duration-150 ease-in-out hover:bg-green-600 focus:border-green-800 focus:outline-none focus:ring active:bg-green-800 disabled:opacity-25"
             type="submit"
-            disabled={transition.state === 'submitting'}
+            disabled={transition.state === "submitting"}
           >
-            {transition.state === 'submitting' ? 'Sendet...' : 'Senden'}
+            {transition.state === "submitting" ? "Sendet..." : "Senden"}
           </button>
         </Form>
       )}

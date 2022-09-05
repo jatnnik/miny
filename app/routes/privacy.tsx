@@ -1,11 +1,11 @@
-import type { MetaFunction } from '@remix-run/node'
-import { Link } from '@remix-run/react'
-import Card from '~/components/Card'
-import Container from '~/components/Container'
+import type { MetaFunction } from "@remix-run/node"
+import { Link } from "@remix-run/react"
+import Card from "~/components/Card"
+import Container from "~/components/Container"
 
 export const meta: MetaFunction = () => {
   return {
-    title: 'Datenschutzerklärung',
+    title: "Datenschutzerklärung",
   }
 }
 
@@ -40,7 +40,7 @@ export default function Privacy() {
             <p>
               Jannik Baranczyk
               <br />
-              E-Mail:{' '}
+              E-Mail:{" "}
               <a href="mailto:my.miny.app@gmail.com" title="E-Mail">
                 my.miny.app@gmail.com
               </a>
@@ -48,28 +48,28 @@ export default function Privacy() {
 
             <h3>Verarbeitung</h3>
             <p>
-              Alle Anbieter außerhalb der EU sind durch das{' '}
+              Alle Anbieter außerhalb der EU sind durch das{" "}
               <a
                 href="https://www.privacyshield.gov/participant?id=a2zt0000000TTIbAAO"
                 target="_blank"
                 rel="noreferrer"
               >
                 EU-US Privacy Shield
-              </a>{' '}
+              </a>{" "}
               zertifiziert.
             </p>
 
             <h3>Hosting</h3>
             <p>
               Diese Webseite ist bei Vercel (Vercel Inc., 340 S Lemon Ave #4133,
-              Walnut, CA 91789, USA) gehostet. Vercel ist unter dem{' '}
+              Walnut, CA 91789, USA) gehostet. Vercel ist unter dem{" "}
               <a
                 href="https://www.privacyshield.gov/participant?id=a2zt0000000TTIbAAO"
                 target="_blank"
                 rel="noreferrer"
               >
                 EU-US Privacy Shield
-              </a>{' '}
+              </a>{" "}
               zertifiziert und damit verpflichtet, den EU-Datenschutzvorgaben
               nachzukommen.
             </p>

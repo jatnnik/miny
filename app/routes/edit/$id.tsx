@@ -4,33 +4,33 @@ import {
   useLoaderData,
   useTransition,
   useActionData,
-} from '@remix-run/react'
+} from "@remix-run/react"
 import {
   type LoaderFunction,
   type MetaFunction,
   type ActionFunction,
   redirect,
   json,
-} from '@remix-run/node'
-import { useState } from 'react'
-import { requireUser } from '~/session.server'
+} from "@remix-run/node"
+import { useState } from "react"
+import { requireUser } from "~/session.server"
 import {
   getDateById,
   removePartnerFromDate,
   updateDate,
-} from '~/models/date.server'
-import { isPast } from 'date-fns'
-import { badRequest, isOnlySpaces, validateDate, validateTime } from '~/utils'
-import { useTomorrow, useUpdatedAt } from '~/hooks'
-import type { Appointment } from '@prisma/client'
+} from "~/models/date.server"
+import { isPast } from "date-fns"
+import { badRequest, isOnlySpaces, validateDate, validateTime } from "~/utils"
+import { useTomorrow, useUpdatedAt } from "~/hooks"
+import type { Appointment } from "@prisma/client"
 
-import Container from '~/components/Container'
-import Card from '~/components/Card'
-import Header from '~/components/dashboard/Header'
-import { headingStyles } from '~/components/Heading'
-import { ErrorBadge } from '~/components/Badges'
-import { SubmitButton } from '~/components/Buttons'
-import Input from '~/components/Input'
+import Container from "~/components/Container"
+import Card from "~/components/Card"
+import Header from "~/components/dashboard/Header"
+import { headingStyles } from "~/components/Heading"
+import { ErrorBadge } from "~/components/Badges"
+import { SubmitButton } from "~/components/Buttons"
+import Input from "~/components/Input"
 
 type User = {
   id: number
@@ -48,14 +48,14 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const user = await requireUser(request)
   const id = params.id
 
-  if (typeof id !== 'string' || isNaN(Number(id))) {
-    return redirect('/')
+  if (typeof id !== "string" || isNaN(Number(id))) {
+    return redirect("/")
   }
 
   const date = await getDateById(Number(id))
 
   if (!date || date.userId !== user.id) {
-    return redirect('/')
+    return redirect("/")
   }
 
   return json<LoaderData>({ user, date })
@@ -89,26 +89,26 @@ export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData()
 
   // Action: save
-  if (formData.get('action') === 'save') {
-    const id = formData.get('id')
-    const date = formData.get('date')
-    const startTime = formData.get('startTime')
-    const endTime = formData.get('endTime')
-    const isGroupDate = formData.get('isGroupDate')
-    const maxParticipants = formData.get('maxParticipants')
-    const note = formData.get('note')
-    const flexible = formData.get('flexibleTime')
-    const partner = formData.get('partner')
-    const isZoom = formData.get('isZoom')
+  if (formData.get("action") === "save") {
+    const id = formData.get("id")
+    const date = formData.get("date")
+    const startTime = formData.get("startTime")
+    const endTime = formData.get("endTime")
+    const isGroupDate = formData.get("isGroupDate")
+    const maxParticipants = formData.get("maxParticipants")
+    const note = formData.get("note")
+    const flexible = formData.get("flexibleTime")
+    const partner = formData.get("partner")
+    const isZoom = formData.get("isZoom")
 
     if (
-      typeof date !== 'string' ||
-      typeof startTime !== 'string' ||
-      typeof id !== 'string' ||
+      typeof date !== "string" ||
+      typeof startTime !== "string" ||
+      typeof id !== "string" ||
       isNaN(Number(id))
     ) {
       return badRequest<ActionData>({
-        formError: 'Pflichtfelder wurden nicht ausgefüllt',
+        formError: "Pflichtfelder wurden nicht ausgefüllt",
       })
     }
 
@@ -116,14 +116,14 @@ export const action: ActionFunction = async ({ request }) => {
       id: Number(id),
       date,
       startTime,
-      endTime: typeof endTime === 'string' ? endTime : null,
-      isGroupDate: isGroupDate === 'on',
+      endTime: typeof endTime === "string" ? endTime : null,
+      isGroupDate: isGroupDate === "on",
       maxParticipants:
-        typeof maxParticipants === 'string' ? parseInt(maxParticipants) : null,
-      note: typeof note === 'string' ? note : null,
-      isFlexible: flexible === 'on',
-      partner: typeof partner === 'string' ? partner : null,
-      isZoom: isZoom === 'on',
+        typeof maxParticipants === "string" ? parseInt(maxParticipants) : null,
+      note: typeof note === "string" ? note : null,
+      isFlexible: flexible === "on",
+      partner: typeof partner === "string" ? partner : null,
+      isZoom: isZoom === "on",
     }
 
     // Validate date
@@ -131,7 +131,7 @@ export const action: ActionFunction = async ({ request }) => {
       return badRequest<ActionData>({
         fields,
         errors: {
-          date: 'Ungültiges Datum',
+          date: "Ungültiges Datum",
         },
       })
     }
@@ -140,7 +140,7 @@ export const action: ActionFunction = async ({ request }) => {
       return badRequest<ActionData>({
         fields,
         errors: {
-          date: 'Ungültiges Datum (zu früh)',
+          date: "Ungültiges Datum (zu früh)",
         },
       })
     }
@@ -152,7 +152,7 @@ export const action: ActionFunction = async ({ request }) => {
       return badRequest<ActionData>({
         fields,
         errors: {
-          startTime: 'Ungültige Uhrzeit',
+          startTime: "Ungültige Uhrzeit",
         },
       })
     }
@@ -161,7 +161,7 @@ export const action: ActionFunction = async ({ request }) => {
       return badRequest<ActionData>({
         fields,
         errors: {
-          startTime: 'Ungültiges Format',
+          startTime: "Ungültiges Format",
         },
       })
     } else {
@@ -172,7 +172,7 @@ export const action: ActionFunction = async ({ request }) => {
       return badRequest<ActionData>({
         fields,
         errors: {
-          endTime: 'Ungültige Uhrzeit',
+          endTime: "Ungültige Uhrzeit",
         },
       })
     }
@@ -181,7 +181,7 @@ export const action: ActionFunction = async ({ request }) => {
       return badRequest<ActionData>({
         fields,
         errors: {
-          endTime: 'Früher als Start',
+          endTime: "Früher als Start",
         },
       })
     }
@@ -192,7 +192,7 @@ export const action: ActionFunction = async ({ request }) => {
         return badRequest<ActionData>({
           fields,
           errors: {
-            maxParticipants: 'Keine gültige Zahl',
+            maxParticipants: "Keine gültige Zahl",
           },
         })
       }
@@ -200,33 +200,33 @@ export const action: ActionFunction = async ({ request }) => {
         return badRequest<ActionData>({
           fields,
           errors: {
-            maxParticipants: 'Max. 100 erlaubt',
+            maxParticipants: "Max. 100 erlaubt",
           },
         })
       }
     }
 
     await updateDate(fields)
-    return redirect('/')
+    return redirect("/")
   }
 
   // Action: Remove partner
-  if (formData.get('action') === 'remove-partner') {
-    const id = formData.get('id')
-    if (typeof id !== 'string' || isNaN(Number(id))) {
+  if (formData.get("action") === "remove-partner") {
+    const id = formData.get("id")
+    if (typeof id !== "string" || isNaN(Number(id))) {
       return badRequest<ActionData>({
-        formError: 'Ungültige ID',
+        formError: "Ungültige ID",
       })
     }
 
     await removePartnerFromDate(Number(id))
-    return redirect('/')
+    return redirect("/")
   }
 }
 
 export const meta: MetaFunction = () => {
   return {
-    title: 'Termin bearbeiten',
+    title: "Termin bearbeiten",
   }
 }
 
@@ -237,7 +237,7 @@ export default function EditDate() {
   const [isGroupDate, setIsGroupdate] = useState(date.isGroupDate)
   const [fixedStart, setFixedStart] = useState(!date.isFlexible)
   const [selfAssignPartner, setSelfAssignPartner] = useState(
-    typeof date.partnerName === 'string'
+    typeof date.partnerName === "string"
   )
 
   const tomorrow = useTomorrow()
@@ -258,7 +258,7 @@ export default function EditDate() {
             {actionData?.formError ? (
               <ErrorBadge message={actionData.formError} />
             ) : null}
-            <fieldset disabled={transition.state === 'submitting'}>
+            <fieldset disabled={transition.state === "submitting"}>
               <div>
                 <Input
                   name="date"
@@ -266,7 +266,7 @@ export default function EditDate() {
                   label="Datum*"
                   type="date"
                   min={tomorrow}
-                  defaultValue={new Date(date.date).toLocaleDateString('en-CA')}
+                  defaultValue={new Date(date.date).toLocaleDateString("en-CA")}
                   required
                   validationError={actionData?.errors?.date}
                 />
@@ -306,9 +306,9 @@ export default function EditDate() {
                   <Input
                     name="startTime"
                     id="startTime"
-                    label={fixedStart ? 'Von*' : 'Zeit (z.B. "Vormittags")*'}
-                    type={fixedStart ? 'time' : 'text'}
-                    placeholder={!fixedStart ? 'Vormittags' : ''}
+                    label={fixedStart ? "Von*" : 'Zeit (z.B. "Vormittags")*'}
+                    type={fixedStart ? "time" : "text"}
+                    placeholder={!fixedStart ? "Vormittags" : ""}
                     defaultValue={date.startTime}
                     validationError={actionData?.errors?.startTime}
                     required
@@ -425,11 +425,11 @@ export default function EditDate() {
                 name="action"
                 value="save"
                 title="Speichern"
-                disabled={transition.state === 'submitting'}
+                disabled={transition.state === "submitting"}
                 label={
-                  transition.state === 'submitting'
-                    ? 'Speichert...'
-                    : 'Speichern'
+                  transition.state === "submitting"
+                    ? "Speichert..."
+                    : "Speichern"
                 }
               />
             </div>

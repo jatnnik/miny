@@ -1,4 +1,4 @@
-import { Link, Form } from '@remix-run/react'
+import { Link, Form } from "@remix-run/react"
 
 export default function Header({ username }: { username: string }) {
   return (
@@ -15,7 +15,7 @@ export default function Header({ username }: { username: string }) {
         </div>
         <Link className="ml-2 block text-sm font-medium" to="/">
           {username}
-          {username.slice(-1) === 's' ? "'" : 's'} Diensttermine
+          {username.slice(-1) === "s" ? "'" : "s"} Diensttermine
         </Link>
       </div>
       <Form action="/logout" method="post">

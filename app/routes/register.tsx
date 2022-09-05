@@ -4,7 +4,7 @@ import {
   useActionData,
   useTransition,
   useSearchParams,
-} from '@remix-run/react'
+} from "@remix-run/react"
 import {
   redirect,
   json,
@@ -12,18 +12,18 @@ import {
   type ActionFunction,
   type MetaFunction,
   type HeadersFunction,
-} from '@remix-run/node'
-import { getUserId, createUserSession } from '~/session.server'
-import { createUser, getUserByEmail } from '~/models/user.server'
-import { validateEmail, validateStringLength, badRequest } from '~/utils'
+} from "@remix-run/node"
+import { getUserId, createUserSession } from "~/session.server"
+import { createUser, getUserByEmail } from "~/models/user.server"
+import { validateEmail, validateStringLength, badRequest } from "~/utils"
 
-import Input from '~/components/Input'
-import { SubmitButton } from '~/components/Buttons'
-import { ErrorBadge } from '~/components/Badges'
+import Input from "~/components/Input"
+import { SubmitButton } from "~/components/Buttons"
+import { ErrorBadge } from "~/components/Badges"
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await getUserId(request)
-  if (userId) return redirect('/')
+  if (userId) return redirect("/")
   return json({})
 }
 
@@ -46,21 +46,21 @@ interface ActionData {
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData()
 
-  const firstName = formData.get('firstName')
-  const email = formData.get('email')
-  const password = formData.get('password')
-  const confirmPassword = formData.get('confirmPassword')
-  const redirectTo = formData.get('redirectTo')
+  const firstName = formData.get("firstName")
+  const email = formData.get("email")
+  const password = formData.get("password")
+  const confirmPassword = formData.get("confirmPassword")
+  const redirectTo = formData.get("redirectTo")
 
   // Return early if one of the fields is undefined or not a string
   if (
-    typeof firstName !== 'string' ||
-    typeof email !== 'string' ||
-    typeof password !== 'string' ||
-    typeof confirmPassword !== 'string'
+    typeof firstName !== "string" ||
+    typeof email !== "string" ||
+    typeof password !== "string" ||
+    typeof confirmPassword !== "string"
   ) {
     return badRequest<ActionData>({
-      formError: 'Formular wurde nicht vollständig ausgefüllt',
+      formError: "Formular wurde nicht vollständig ausgefüllt",
     })
   }
 
@@ -74,11 +74,11 @@ export const action: ActionFunction = async ({ request }) => {
 
   const errors = {
     firstName: validateStringLength(firstName, 2),
-    email: !validateEmail(email) ? 'Ungültige E-Mail' : undefined,
+    email: !validateEmail(email) ? "Ungültige E-Mail" : undefined,
     password: validateStringLength(password, 6),
     confirmPassword:
       fields.confirmPassword !== fields.password
-        ? 'Passwörter stimmen nicht überein'
+        ? "Passwörter stimmen nicht überein"
         : undefined,
   }
 
@@ -90,7 +90,7 @@ export const action: ActionFunction = async ({ request }) => {
   if (existingUser) {
     return badRequest<ActionData>({
       errors: {
-        email: 'E-Mail wird schon verwendet',
+        email: "E-Mail wird schon verwendet",
       },
     })
   }
@@ -101,26 +101,26 @@ export const action: ActionFunction = async ({ request }) => {
     request,
     userId: user.id,
     remember: false,
-    redirectTo: typeof redirectTo === 'string' ? redirectTo : '/',
+    redirectTo: typeof redirectTo === "string" ? redirectTo : "/",
   })
 }
 
 export const headers: HeadersFunction = () => {
   return {
-    'Cache-Control': `s-maxage=${60 * 60 * 24 * 30}`,
+    "Cache-Control": `s-maxage=${60 * 60 * 24 * 30}`,
   }
 }
 
 export const meta: MetaFunction = () => {
   return {
-    title: 'Registrieren',
-    'og:title': 'Registrieren | miny',
+    title: "Registrieren",
+    "og:title": "Registrieren | miny",
   }
 }
 
 export default function Register() {
   const [searchParams] = useSearchParams()
-  const redirectTo = searchParams.get('redirectTo') || '/'
+  const redirectTo = searchParams.get("redirectTo") || "/"
   const actionData = useActionData<ActionData>()
   const transition = useTransition()
 
@@ -141,7 +141,7 @@ export default function Register() {
             <ErrorBadge message={actionData.formError} />
           ) : null}
 
-          <fieldset disabled={transition.state === 'submitting'}>
+          <fieldset disabled={transition.state === "submitting"}>
             <Input
               type="text"
               name="firstName"
@@ -205,13 +205,13 @@ export default function Register() {
                 htmlFor="agreeGdpr"
                 className="ml-2 block text-sm font-medium"
               >
-                Ich stimme der{' '}
+                Ich stimme der{" "}
                 <Link
                   to="/privacy"
                   className="font-medium underline underline-offset-1 hover:no-underline"
                 >
                   Datenschutzerklärung
-                </Link>{' '}
+                </Link>{" "}
                 zu
               </label>
             </div>
@@ -223,7 +223,7 @@ export default function Register() {
                 <Link
                   className="block text-sm underline hover:text-slate-900"
                   to={{
-                    pathname: '/login',
+                    pathname: "/login",
                     search: searchParams.toString(),
                   }}
                 >
@@ -234,7 +234,7 @@ export default function Register() {
               <SubmitButton
                 type="submit"
                 label={
-                  transition.state === 'submitting' ? 'Lade...' : 'Registrieren'
+                  transition.state === "submitting" ? "Lade..." : "Registrieren"
                 }
               />
             </div>
