@@ -1,8 +1,9 @@
 interface CardProps {
   withMarginTop?: boolean
+  children: React.ReactNode
 }
 
-const Card: React.FC<CardProps> = ({ children, withMarginTop = false }) => (
+const Card = ({ children, withMarginTop = false }: CardProps) => (
   <div
     className={`rounded-lg border border-slate-200 bg-white p-8 shadow-sm ${
       withMarginTop ? 'mt-4' : ''

@@ -3,7 +3,7 @@ import { Form, useTransition } from '@remix-run/react'
 import { type DateWithParticipants } from '~/models/date.server'
 import { formatDate } from '~/utils'
 import { labelStyles, inputStyles } from '../Input'
-import { CalendarIcon, VideoCameraIcon } from '@heroicons/react/outline'
+import { CalendarIcon, VideoCameraIcon } from '@heroicons/react/20/solid'
 
 export default function DateSlot({ date }: { date: DateWithParticipants }) {
   const [showForm, setShowForm] = useState(false)

@@ -5,7 +5,7 @@ import {
   PencilIcon,
   TrashIcon,
   VideoCameraIcon,
-} from '@heroicons/react/outline'
+} from '@heroicons/react/20/solid'
 import Card from '../Card'
 import { headingStyles } from '../Heading'
 import { formatDate } from '~/utils'

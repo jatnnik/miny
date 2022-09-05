@@ -1,4 +1,4 @@
-import { ExclamationCircleIcon } from '@heroicons/react/outline'
+import { ExclamationCircleIcon } from '@heroicons/react/20/solid'
 
 export function ErrorBadge({ message }: { message: string }) {
   return (
