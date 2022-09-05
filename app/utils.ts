@@ -1,4 +1,6 @@
 import { json } from '@remix-run/node'
+import { format } from 'date-fns'
+import { de } from 'date-fns/locale'
 
 export function badRequest<T>(data: T) {
   return json(data, { status: 400 })
@@ -36,8 +38,6 @@ export function validateTime(timeStr: string) {
 export const isOnlySpaces = (str: string) => str.trim().length === 0
 
 export const formatDate = (date: string) =>
-  new Date(date).toLocaleDateString('de-DE', {
-    day: '2-digit',
-    month: 'long',
-    weekday: 'short',
+  format(new Date(date), 'EE dd. MMMM', {
+    locale: de,
   })
