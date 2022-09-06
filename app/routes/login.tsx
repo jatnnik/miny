@@ -1,4 +1,4 @@
-import React from "react"
+import { useRef, useEffect } from "react"
 import {
   Form,
   Link,
@@ -6,91 +6,70 @@ import {
   useTransition,
   useSearchParams,
 } from "@remix-run/react"
-import {
-  type LoaderFunction,
-  type ActionFunction,
-  type MetaFunction,
-  json,
-  redirect,
-  type HeadersFunction,
+import type {
+  LoaderArgs,
+  ActionFunction,
+  MetaFunction,
+  HeadersFunction,
 } from "@remix-run/node"
+import { json, redirect } from "@remix-run/node"
 import { createUserSession, getUserId } from "~/session.server"
-import { badRequest, validateEmail } from "~/utils"
+import type { inferSafeParseErrors } from "~/utils"
+import { badRequest } from "~/utils"
+import { verifyLogin } from "~/models/user.server"
+import { z } from "zod"
+
 import { ErrorBadge } from "~/components/Badges"
 import { labelStyles, inputStyles, errorStyles } from "~/components/Input"
 import { SubmitButton } from "~/components/Buttons"
-import { verifyLogin } from "~/models/user.server"
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }: LoaderArgs) => {
   const userId = await getUserId(request)
   if (userId) return redirect("/")
   return json({})
 }
 
+const LoginSchema = z.object({
+  email: z.string().min(1).email("Ungültige E-Mail"),
+  password: z.string().min(6, "Passwort ist zu kurz"),
+  redirectTo: z.string().optional(),
+  remember: z.string(),
+})
+type LoginFields = z.infer<typeof LoginSchema>
+type LoginFieldsErrors = inferSafeParseErrors<typeof LoginSchema>
+
 interface ActionData {
+  fields: LoginFields
+  errors?: LoginFieldsErrors
   formError?: string
-  errors?: {
-    email?: string
-    password?: string
-  }
-  fields?: {
-    email: string
-    password: string
-  }
 }
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData()
 
-  const email = formData.get("email")
-  const password = formData.get("password")
-  const redirectTo = formData.get("redirectTo")
-  const remember = formData.get("remember")
+  const fields = Object.fromEntries(formData.entries()) as LoginFields
+  const result = LoginSchema.safeParse(fields)
 
-  if (!validateEmail(email)) {
-    return badRequest<ActionData>({
-      errors: {
-        email: "Ungültige E-Mail",
-      },
-    })
-  }
-
-  if (typeof password !== "string") {
-    return badRequest<ActionData>({
-      errors: {
-        password: "Passwort wird benötigt",
-      },
-    })
-  }
-
-  if (password.length < 6) {
-    return badRequest<ActionData>({
-      errors: {
-        password: "Passwort ist zu kurz",
-      },
-    })
-  }
-
-  const fields = {
-    email,
-    password,
-    remember,
-  }
-
-  const user = await verifyLogin(email, password)
-
-  if (!user) {
-    return badRequest<ActionData>({
-      formError: "E-Mail oder Passwort ist falsch",
+  if (!result.success) {
+    return badRequest({
       fields,
+      errors: result.error.flatten(),
+    })
+  }
+
+  const user = await verifyLogin(fields.email, fields.password)
+  if (!user) {
+    return badRequest({
+      fields,
+      formError: "E-Mail oder Passwort ist falsch",
     })
   }
 
   return createUserSession({
     request,
     userId: user.id,
-    remember: remember === "on" ? true : false,
-    redirectTo: typeof redirectTo === "string" ? redirectTo : "/",
+    remember: fields.remember === "on" ? true : false,
+    redirectTo: fields.redirectTo ? fields.redirectTo : "/",
   })
 }
 
@@ -109,13 +88,14 @@ export default function Login() {
   const redirectTo = searchParams.get("redirectTo") || "/"
   const actionData = useActionData<ActionData>()
   const transition = useTransition()
-  const emailRef = React.useRef<HTMLInputElement>(null)
-  const passwordRef = React.useRef<HTMLInputElement>(null)
 
-  React.useEffect(() => {
-    if (actionData?.errors?.email) {
+  const emailRef = useRef<HTMLInputElement>(null)
+  const passwordRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (actionData?.errors?.fieldErrors.email) {
       emailRef.current?.focus()
-    } else if (actionData?.errors?.password) {
+    } else if (actionData?.errors?.fieldErrors.password) {
       passwordRef.current?.focus()
     }
   }, [actionData])
@@ -153,12 +133,14 @@ export default function Login() {
                 autoFocus={true}
                 autoComplete="email"
                 defaultValue={actionData?.fields?.email}
-                aria-invalid={actionData?.errors?.email ? true : undefined}
+                aria-invalid={
+                  actionData?.errors?.fieldErrors.email ? true : undefined
+                }
                 aria-describedby="email-error"
               />
-              {actionData?.errors?.email && (
+              {actionData?.errors?.fieldErrors.email && (
                 <p className={errorStyles} role="alert" id="email-error">
-                  {actionData.errors.email}
+                  {actionData.errors.fieldErrors.email}
                 </p>
               )}
             </div>
@@ -176,12 +158,14 @@ export default function Login() {
                 required
                 autoComplete="current-password"
                 defaultValue={actionData?.fields?.password}
-                aria-invalid={actionData?.errors?.password ? true : undefined}
+                aria-invalid={
+                  actionData?.errors?.fieldErrors.password ? true : undefined
+                }
                 aria-describedby="password-error"
               />
-              {actionData?.errors?.password && (
+              {actionData?.errors?.fieldErrors.password && (
                 <p className={errorStyles} role="alert" id="password-error">
-                  {actionData.errors.password}
+                  {actionData.errors.fieldErrors.password}
                 </p>
               )}
             </div>
