@@ -5,14 +5,10 @@ import crypto from "crypto"
 import { prisma } from "~/db.server"
 
 export type { User } from "@prisma/client"
-
-export type PublicUser = {
-  id: number
-  name: string
-  email: string
-  slug: string | null
-  loginCount: number
-}
+export type PublicUser = Pick<
+  User,
+  "id" | "name" | "email" | "slug" | "loginCount"
+>
 
 export async function getUserById(id: User["id"]) {
   return prisma.user.findUnique({
@@ -75,17 +71,18 @@ export async function createUser(
   })
 }
 
-export async function verifyLogin(email: User["email"], password: string) {
+export async function verifyLogin(
+  email: User["email"],
+  password: User["password"]
+) {
   const user = await prisma.user.findUnique({
     where: { email },
   })
-
   if (!user || !user.password) {
     return null
   }
 
   const isValid = await bcrypt.compare(password, user.password)
-
   if (!isValid) {
     return null
   }
