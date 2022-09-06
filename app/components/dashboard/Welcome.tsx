@@ -1,9 +1,7 @@
 import { Link } from "@remix-run/react"
 import type { PublicUser } from "~/models/user.server"
-import { motion } from "framer-motion"
 import Card from "../Card"
 import { headingStyles } from "../Heading"
-import { useState } from "react"
 
 export default function Welcome({
   user,
@@ -12,8 +10,6 @@ export default function Welcome({
   user: PublicUser
   greeting: string
 }) {
-  const [open, setOpen] = useState(false)
-
   const firstLogin = user.loginCount === 0
 
   return (
@@ -42,31 +38,6 @@ export default function Welcome({
           https://dienst.vercel.app/u/{user.slug}
         </Link>
       </p>
-
-      <button
-        onClick={() => setOpen(!open)}
-        className="mt-4 text-sm font-medium underline"
-      >
-        Show {open ? "less" : "more"}
-      </button>
-
-      <motion.div
-        className="relative mt-4 overflow-hidden rounded-xl bg-neutral-100"
-        initial={false}
-        animate={{ height: open ? "auto" : 0 }}
-        transition={{
-          type: "spring",
-          duration: 0.3,
-          bounce: 0.1,
-        }}
-      >
-        <p className="p-4">
-          Lorem, ipsum dolor sit amet consectetur adipisicing elit. Expedita
-          cupiditate ipsam neque voluptatibus harum dolorum? Itaque, dicta
-          temporibus tempore quo accusamus repellendus id quibusdam quisquam
-          nesciunt cumque soluta sed iusto?
-        </p>
-      </motion.div>
     </Card>
   )
 }
