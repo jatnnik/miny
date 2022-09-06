@@ -1,6 +1,6 @@
 import { type LoaderArgs, type ActionArgs } from "@remix-run/node"
-import { Link } from "@remix-run/react"
 import type { TypedMetaFunction } from "remix-typedjson"
+import { Link } from "@remix-run/react"
 import { typedjson, useTypedLoaderData } from "remix-typedjson"
 import { requireUser } from "~/session.server"
 import { deleteDate, getDatesByUserId } from "~/models/date.server"
@@ -17,7 +17,7 @@ export const loader = async ({ request }: LoaderArgs) => {
   const dates = await getDatesByUserId(user.id)
   let greeting = "Hey"
 
-  const currentHour = Number(format(new Date(), "hh"))
+  const currentHour = Number(format(new Date(), "HH"))
   if (currentHour < 11 && currentHour > 4) {
     greeting = "Guten Morgen"
   } else if (currentHour > 18) {
@@ -45,18 +45,23 @@ export const action = async ({ request }: ActionArgs) => {
 }
 
 export const meta: TypedMetaFunction<typeof loader> = ({ data }) => {
-  const { user } = data
+  try {
+    const { user } = data
 
-  if (!user) {
-    return {
-      title: "Dashboard",
+    if (!user) {
+      return {
+        title: "Dashboard",
+      }
     }
-  }
 
-  return {
-    title: `${user.name}${
-      user.name.slice(-1) === "s" ? "'" : "s"
-    } Diensttermine`,
+    return {
+      title: `${user.name}${
+        user.name.slice(-1) === "s" ? "'" : "s"
+      } Diensttermine`,
+    }
+  } catch (error) {
+    console.error(error)
+    return {}
   }
 }
 

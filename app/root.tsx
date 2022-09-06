@@ -1,3 +1,4 @@
+import type { LoaderArgs, MetaFunction } from "@remix-run/node"
 import {
   Links,
   LiveReload,
@@ -7,43 +8,39 @@ import {
   ScrollRestoration,
   useCatch,
 } from "@remix-run/react"
-import {
-  type MetaFunction,
-  type ErrorBoundaryComponent,
-  type LoaderFunction,
-  json,
-} from "@remix-run/node"
+import { json } from "@remix-run/node"
 
 import tailwind from "./styles/tailwind-build.css"
+import React from "react"
 
-type LoaderData = {
-  url: string
-  host: string
-}
-export const loader: LoaderFunction = ({ request }) => {
-  return json<LoaderData>({
+export const loader = ({ request }: LoaderArgs) => {
+  return json({
     url: request.url,
-    host: request.headers.get("host") ?? "https://miny.vercel.app",
   })
 }
 
-export const meta: MetaFunction = ({ data }: { data: LoaderData }) => {
-  return {
-    charset: "utf-8",
-    viewport: "width=device-width,initial-scale=1",
-    title: "miny",
-    description: "Ganz einfach Diensttermine ausmachen.",
-    "og:title": "miny",
-    "og:description": "Ganz einfach Diensttermine ausmachen.",
-    "og:image": `https://${data.host}/og_image.png`,
-    "og:url": data.url,
-    "og:type": "website",
-    "theme-color": "#1e293b",
-    "mobile-web-app-capable": "yes",
-    "apple-mobile-web-app-title": "miny",
-    "apple-mobile-web-app-capable": "yes",
-    "apple-mobile-web-app-status-bar-style": "default",
-    robots: "noindex",
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  try {
+    return {
+      charset: "utf-8",
+      viewport: "width=device-width,initial-scale=1",
+      title: "miny",
+      description: "Ganz einfach Diensttermine ausmachen.",
+      "og:title": "miny",
+      "og:description": "Ganz einfach Diensttermine ausmachen.",
+      "og:image": `https://dienst.vercel.app/og_image.png`,
+      "og:url": data.url,
+      "og:type": "website",
+      "theme-color": "#1e293b",
+      "mobile-web-app-capable": "yes",
+      "apple-mobile-web-app-title": "miny",
+      "apple-mobile-web-app-capable": "yes",
+      "apple-mobile-web-app-status-bar-style": "default",
+      robots: "noindex",
+    }
+  } catch (error) {
+    console.error(error)
+    return {}
   }
 }
 
@@ -59,41 +56,35 @@ export const links = () => {
   ]
 }
 
-export default function App() {
+function Document({
+  children,
+  title,
+}: {
+  children: React.ReactNode
+  title?: string
+}) {
   return (
     <html lang="de" className="h-full">
       <head>
         <Meta />
+        <title>{title}</title>
         <Links />
       </head>
       <body className="h-full min-h-screen bg-slate-50 font-sans text-slate-600 antialiased">
-        <Outlet />
-        <ScrollRestoration />
-        <Scripts />
+        {children}
         <LiveReload />
       </body>
     </html>
   )
 }
 
-export const ErrorBoundary: ErrorBoundaryComponent = ({ error }) => {
-  console.error(error)
-
+export default function App() {
   return (
-    <html>
-      <head>
-        <title>Error!</title>
-        <Meta />
-        <Links />
-      </head>
-      <body className="p-4">
-        <h1>Oh no! Ein Fehler ist aufgetreten.</h1>
-        <pre className="mt-3 inline-block bg-gray-200">
-          {error.name}: {error.message}
-        </pre>
-        <Scripts />
-      </body>
-    </html>
+    <Document>
+      <Outlet />
+      <ScrollRestoration />
+      <Scripts />
+    </Document>
   )
 }
 
@@ -101,19 +92,26 @@ export const CatchBoundary = () => {
   const caught = useCatch()
 
   return (
-    <html>
-      <head>
-        <title>Whoopsie!</title>
-        <Meta />
-        <Links />
-      </head>
-      <body className="p-4">
-        <h1>Whoopsie! Da ging leider was schief...</h1>
-        <pre className="mt-3 inline-block bg-gray-200">
+    <Document title={`${caught.status} ${caught.statusText}`}>
+      <div className="p-4">
+        <h1 className="font-medium">
           {caught.status} {caught.statusText}
-        </pre>
-        <Scripts />
-      </body>
-    </html>
+        </h1>
+      </div>
+    </Document>
+  )
+}
+
+export const ErrorBoundary = ({ error }: { error: Error }) => {
+  return (
+    <Document title="Error">
+      <div className="p-4">
+        <h1 className="font-medium">App Error</h1>
+        <pre>{error.message}</pre>
+        <p className="mt-3">Stacktrace:</p>
+        <pre>{error.stack}</pre>
+      </div>
+      <Scripts />
+    </Document>
   )
 }
