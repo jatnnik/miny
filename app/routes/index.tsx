@@ -1,51 +1,33 @@
-import {
-  type LoaderFunction,
-  json,
-  type MetaFunction,
-  type ActionFunction,
-} from "@remix-run/node"
-import { Link, useLoaderData } from "@remix-run/react"
+import { type LoaderArgs, type ActionArgs } from "@remix-run/node"
+import { Link } from "@remix-run/react"
+import type { TypedMetaFunction } from "remix-typedjson"
+import { typedjson, useTypedLoaderData } from "remix-typedjson"
 import { requireUser } from "~/session.server"
-import {
-  deleteDate,
-  getDatesByUserId,
-  type DateWithParticipants,
-} from "~/models/date.server"
-import type { PublicUser } from "~/models/user.server"
-import { utcToZonedTime } from "date-fns-tz"
+import { deleteDate, getDatesByUserId } from "~/models/date.server"
+import { format } from "date-fns-tz"
+import { badRequest } from "~/utils"
 
 import Container from "~/components/Container"
 import Header from "~/components/dashboard/Header"
 import Welcome from "~/components/dashboard/Welcome"
 import Dates from "~/components/dashboard/Dates"
-import { badRequest } from "~/utils"
 
-type LoaderData = {
-  user: PublicUser
-  dates: DateWithParticipants[]
-  greeting: string
-}
-
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }: LoaderArgs) => {
   const user = await requireUser(request)
   const dates = await getDatesByUserId(user.id)
   let greeting = "Hey"
 
-  const currentHour = utcToZonedTime(new Date(), "Europe/Berlin").getHours()
+  const currentHour = Number(format(new Date(), "hh"))
   if (currentHour < 11 && currentHour > 4) {
     greeting = "Guten Morgen"
   } else if (currentHour > 18) {
     greeting = "Guten Abend"
   }
 
-  return json<LoaderData>({ user, dates, greeting })
+  return typedjson({ user, dates, greeting })
 }
 
-interface ActionData {
-  formError?: string
-}
-
-export const action: ActionFunction = async ({ request }) => {
+export const action = async ({ request }: ActionArgs) => {
   const formData = await request.formData()
   const method = formData.get("_method")
   const dateId = formData.get("id")
@@ -55,46 +37,38 @@ export const action: ActionFunction = async ({ request }) => {
     typeof dateId !== "string" ||
     method !== "delete"
   ) {
-    throw badRequest<ActionData>({ formError: "Ungültige Anfrage" })
+    throw badRequest({ formError: "Ungültige Anfrage" })
   }
 
   await deleteDate(Number(dateId))
   return null
 }
 
-export const meta: MetaFunction = ({ data }: { data: LoaderData }) => {
-  const user = data.user
+export const meta: TypedMetaFunction<typeof loader> = ({ data }) => {
+  const { user } = data
 
-  if (user) {
+  if (!user) {
     return {
-      title: `${user.name}${
-        user.name.slice(-1) === "s" ? "'" : "s"
-      } Diensttermine`,
+      title: "Dashboard",
     }
   }
 
   return {
-    title: "Dashboard",
+    title: `${user.name}${
+      user.name.slice(-1) === "s" ? "'" : "s"
+    } Diensttermine`,
   }
 }
 
 export default function Dashboard() {
-  const { user, dates, greeting } = useLoaderData<LoaderData>()
-
-  // TODO: Find a better way to do this
-  const newDates = dates.map(d => ({
-    ...d,
-    date: new Date(d.date),
-    createdAt: new Date(d.createdAt),
-    updatedAt: new Date(d.updatedAt),
-  }))
+  const { user, dates, greeting } = useTypedLoaderData<typeof loader>()
 
   return (
     <div className="py-10">
       <Container>
         <Header username={user.name} />
         <Welcome user={user} greeting={greeting} />
-        <Dates dates={newDates} />
+        <Dates dates={dates} />
         <div className="mt-4 text-center text-xs text-slate-500">
           <span className="block">
             v1.0 &middot; Danke für die Idee, Linda!

@@ -45,7 +45,7 @@ export default function Welcome({
 
       <button
         onClick={() => setOpen(!open)}
-        className="mt-4 font-medium underline"
+        className="mt-4 text-sm font-medium underline"
       >
         Show {open ? "less" : "more"}
       </button>
