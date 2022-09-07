@@ -148,6 +148,7 @@ export default function UserPage() {
                   {onlyZoom ? (
                     <Link
                       to="."
+                      reloadDocument
                       className="rounded-md bg-slate-200 px-4 py-2 text-sm font-medium ring-slate-100 transition duration-150 ease-in-out hover:bg-slate-300 focus:border-slate-100 focus:outline-none focus:ring active:bg-slate-300"
                     >
                       Alle Termine anzeigen
@@ -155,6 +156,7 @@ export default function UserPage() {
                   ) : (
                     <Link
                       to="?zoom=on"
+                      reloadDocument
                       className="rounded-md bg-slate-200 px-4 py-2 text-sm font-medium ring-slate-100 transition duration-150 ease-in-out hover:bg-slate-300 focus:border-slate-100 focus:outline-none focus:ring active:bg-slate-300"
                     >
                       Nur Zoom Termine anzeigen
