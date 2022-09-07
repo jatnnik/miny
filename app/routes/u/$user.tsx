@@ -4,12 +4,9 @@ import {
   Form,
   useSubmit,
   useTransition,
+  useSearchParams,
 } from "@remix-run/react"
-import type {
-  LoaderFunction,
-  ActionFunction,
-  MetaFunction,
-} from "@remix-run/node"
+import type { LoaderArgs, ActionFunction, MetaFunction } from "@remix-run/node"
 import { json, redirect } from "@remix-run/node"
 import { getUserBySlug } from "~/models/user.server"
 import invariant from "tiny-invariant"
@@ -21,7 +18,6 @@ import {
   getDateById,
   sendAssignmentEmail,
 } from "~/models/date.server"
-import type { Appointment } from "@prisma/client"
 import { badRequest, formatDate } from "~/utils"
 
 import Container from "~/components/Container"
@@ -30,29 +26,15 @@ import Header from "~/components/profile/Header"
 import DateSlot from "~/components/profile/Date"
 import LoadingSpinner from "~/components/Spinner"
 
-type LoaderData = {
-  user: {
-    id: number
-    name: string
-    email: string
-    slug: string | null
-  }
-  dates: DateWithParticipants[]
-  assignedDate: Appointment | null
-  onlyZoom: boolean
-  showZoomFilter: boolean
-}
-
-export const loader: LoaderFunction = async ({ request, params }) => {
+export const loader = async ({ request, params }: LoaderArgs) => {
   const username = params.user
-  invariant(username, "Invalid user slug")
+  invariant(username, "Expected params.user")
 
   const url = new URL(request.url)
   const assigned = url.searchParams.get("assigned")
-  const onlyZoom = url.searchParams.get("onlyZoom") === "on"
+  const onlyZoom = url.searchParams.get("zoom") === "on"
 
   let assignedDate = null
-
   if (typeof assigned === "string" && !isNaN(Number(assigned))) {
     assignedDate = await getDateById(Number(assigned))
   }
@@ -63,14 +45,11 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   }
 
   const dates = await getFreeDates(user.id, onlyZoom)
-  const showZoomFilter = dates.filter(date => date.isZoom).length > 0
 
-  return json<LoaderData>({
+  return json({
     user,
     dates,
     assignedDate,
-    onlyZoom,
-    showZoomFilter,
   })
 }
 
@@ -82,6 +61,18 @@ export const action: ActionFunction = async ({ request, params }) => {
   const formData = await request.formData()
   const name = formData.get("name")
   const dateId = formData.get("dateId")
+
+  const onlyZoom = formData.get("zoom")
+  if (onlyZoom === "on") {
+    return redirect(`/u/${params.user}?zoom=on`)
+  }
+  if (
+    onlyZoom === null &&
+    typeof name !== "string" &&
+    typeof dateId !== "string"
+  ) {
+    return redirect(`/u/${params.user}`)
+  }
 
   if (
     typeof name !== "string" ||
@@ -108,11 +99,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   return redirect(`/u/${params.user}?assigned=${dateId}`)
 }
 
-export const meta: MetaFunction = ({
-  data,
-}: {
-  data: LoaderData | undefined
-}) => {
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
   if (data?.user) {
     const title = `${data.user.name}${
       data.user.name.slice(-1) === "s" ? "'" : "s"
@@ -133,13 +120,16 @@ export const meta: MetaFunction = ({
 }
 
 export default function UserPage() {
-  const { user, assignedDate, ...loaderData } = useLoaderData<LoaderData>()
+  const { user, assignedDate, ...loaderData } = useLoaderData<typeof loader>()
   const transition = useTransition()
   const submit = useSubmit()
+  const [searchParams] = useSearchParams()
+  const showOnlyZoomDates = searchParams.get("zoom") === "on"
 
   const { dates } = loaderData
+  const showZoomFilter = dates.filter(date => date.isZoom).length > 0
 
-  const handleFilterChange = (event: React.ChangeEvent<HTMLFormElement>) => {
+  function handleChange(event: React.ChangeEvent<HTMLFormElement>) {
     submit(event.currentTarget, { replace: true })
   }
 
@@ -173,17 +163,13 @@ export default function UserPage() {
                 einzutragen. {user.name} bekommt dann automatisch eine
                 Nachricht.
               </p>
-              {loaderData.showZoomFilter && (
-                <Form
-                  method="get"
-                  className="my-4"
-                  onChange={handleFilterChange}
-                >
+              {showZoomFilter && (
+                <Form method="post" className="my-4" onChange={handleChange}>
                   <label className="flex items-center">
                     <input
                       type="checkbox"
-                      name="onlyZoom"
-                      defaultChecked={loaderData.onlyZoom}
+                      name="zoom"
+                      defaultChecked={showOnlyZoomDates}
                       className="mr-2 h-4 w-4 rounded border-slate-300 text-slate-600 focus:ring-slate-200 focus:ring-opacity-50"
                     />{" "}
                     Nur Zoom Termine zeigen{" "}
