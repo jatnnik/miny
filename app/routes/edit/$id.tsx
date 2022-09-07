@@ -6,7 +6,7 @@ import {
   useActionData,
 } from "@remix-run/react"
 import {
-  type LoaderFunction,
+  type LoaderArgs,
   type MetaFunction,
   type ActionFunction,
   redirect,
@@ -20,9 +20,9 @@ import {
   updateDate,
 } from "~/models/date.server"
 import { isPast } from "date-fns"
+import { typedjson, useTypedLoaderData } from "remix-typedjson"
 import { badRequest, isOnlySpaces, validateDate, validateTime } from "~/utils"
 import { useTomorrow, useUpdatedAt } from "~/hooks"
-import type { Appointment } from "@prisma/client"
 
 import Container from "~/components/Container"
 import Card from "~/components/Card"
@@ -32,19 +32,7 @@ import { ErrorBadge } from "~/components/Badges"
 import { SubmitButton } from "~/components/Buttons"
 import Input from "~/components/Input"
 
-type User = {
-  id: number
-  name: string
-  email: string
-  slug: string | null
-}
-
-type LoaderData = {
-  user: User
-  date: Appointment
-}
-
-export const loader: LoaderFunction = async ({ request, params }) => {
+export const loader = async ({ request, params }: LoaderArgs) => {
   const user = await requireUser(request)
   const id = params.id
 
@@ -58,7 +46,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     return redirect("/")
   }
 
-  return json<LoaderData>({ user, date })
+  return typedjson({ user, date })
 }
 
 interface ActionData {
@@ -231,7 +219,7 @@ export const meta: MetaFunction = () => {
 }
 
 export default function EditDate() {
-  const { user, date } = useLoaderData<LoaderData>()
+  const { user, date } = useTypedLoaderData<typeof loader>()
   const actionData = useActionData<ActionData>()
   const transition = useTransition()
   const [isGroupDate, setIsGroupdate] = useState(date.isGroupDate)

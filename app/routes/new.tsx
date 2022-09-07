@@ -6,14 +6,8 @@ import {
   Form,
 } from "@remix-run/react"
 import { useState } from "react"
-import type { User } from "~/models/user.server"
-import {
-  json,
-  type LoaderFunction,
-  type MetaFunction,
-  type ActionFunction,
-  redirect,
-} from "@remix-run/node"
+import type { LoaderArgs, MetaFunction, ActionFunction } from "@remix-run/node"
+import { json, redirect } from "@remix-run/node"
 import { requireUser, requireUserId } from "~/session.server"
 import { isPast, addDays, format } from "date-fns"
 
@@ -27,9 +21,7 @@ import { createDate } from "~/models/date.server"
 import { badRequest, isOnlySpaces, validateDate, validateTime } from "~/utils"
 import { ErrorBadge } from "~/components/Badges"
 
-type LoaderData = { user: User }
-
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }: LoaderArgs) => {
   const user = await requireUser(request)
   return json({ user })
 }
@@ -186,7 +178,7 @@ export const meta: MetaFunction = () => {
 }
 
 export default function CreateDate() {
-  const { user } = useLoaderData() as LoaderData
+  const { user } = useLoaderData<typeof loader>()
   const actionData = useActionData<ActionData>()
   const transition = useTransition()
   const [isGroupDate, setIsGroupDate] = useState(false)

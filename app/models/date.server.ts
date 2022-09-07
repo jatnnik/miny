@@ -231,9 +231,7 @@ export async function deleteDate(id: Appointment["id"]) {
 
 export async function dateExistsAndIsAvailable(id: Appointment["id"]) {
   const appointment = await getDateWithUserAndParticipants(id)
-
   if (!appointment || appointment.isAssigned) return null
-
   return appointment
 }
 

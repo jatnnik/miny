@@ -5,14 +5,13 @@ import {
   useTransition,
   useSearchParams,
 } from "@remix-run/react"
-import {
-  redirect,
-  json,
-  type LoaderFunction,
-  type ActionFunction,
-  type MetaFunction,
-  type HeadersFunction,
+import type {
+  LoaderArgs,
+  ActionFunction,
+  MetaFunction,
+  HeadersFunction,
 } from "@remix-run/node"
+import { redirect, json } from "@remix-run/node"
 import { getUserId, createUserSession } from "~/session.server"
 import { createUser, getUserByEmail } from "~/models/user.server"
 import { validateEmail, validateStringLength, badRequest } from "~/utils"
@@ -21,7 +20,7 @@ import Input from "~/components/Input"
 import { SubmitButton } from "~/components/Buttons"
 import { ErrorBadge } from "~/components/Badges"
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }: LoaderArgs) => {
   const userId = await getUserId(request)
   if (userId) return redirect("/")
   return json({})
