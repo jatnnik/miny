@@ -1,10 +1,8 @@
 import {
   useCatch,
   useLoaderData,
-  Form,
-  useSubmit,
-  useTransition,
   useSearchParams,
+  Link,
 } from "@remix-run/react"
 import type { LoaderArgs, ActionFunction, MetaFunction } from "@remix-run/node"
 import { json, redirect } from "@remix-run/node"
@@ -24,15 +22,14 @@ import Container from "~/components/Container"
 import Card from "~/components/Card"
 import Header from "~/components/profile/Header"
 import DateSlot from "~/components/profile/Date"
-import LoadingSpinner from "~/components/Spinner"
 
 export const loader = async ({ request, params }: LoaderArgs) => {
+  invariant(params.user, "Expected params.user")
   const username = params.user
-  invariant(username, "Expected params.user")
 
   const url = new URL(request.url)
   const assigned = url.searchParams.get("assigned")
-  const onlyZoom = url.searchParams.get("zoom") === "on"
+  const zoom = url.searchParams.get("zoom") === "on"
 
   let assignedDate = null
   if (typeof assigned === "string" && !isNaN(Number(assigned))) {
@@ -44,7 +41,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     throw json("user not found", 404)
   }
 
-  const dates = await getFreeDates(user.id, onlyZoom)
+  const dates = await getFreeDates(user.id, zoom)
 
   return json({
     user,
@@ -61,18 +58,6 @@ export const action: ActionFunction = async ({ request, params }) => {
   const formData = await request.formData()
   const name = formData.get("name")
   const dateId = formData.get("dateId")
-
-  const onlyZoom = formData.get("zoom")
-  if (onlyZoom === "on") {
-    return redirect(`/u/${params.user}?zoom=on`)
-  }
-  if (
-    onlyZoom === null &&
-    typeof name !== "string" &&
-    typeof dateId !== "string"
-  ) {
-    return redirect(`/u/${params.user}`)
-  }
 
   if (
     typeof name !== "string" ||
@@ -121,17 +106,12 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 
 export default function UserPage() {
   const { user, assignedDate, ...loaderData } = useLoaderData<typeof loader>()
-  const transition = useTransition()
-  const submit = useSubmit()
   const [searchParams] = useSearchParams()
-  const showOnlyZoomDates = searchParams.get("zoom") === "on"
+
+  const onlyZoom = searchParams.get("zoom") === "on"
 
   const { dates } = loaderData
   const showZoomFilter = dates.filter(date => date.isZoom).length > 0
-
-  function handleChange(event: React.ChangeEvent<HTMLFormElement>) {
-    submit(event.currentTarget, { replace: true })
-  }
 
   return (
     <div className="py-10">
@@ -164,20 +144,25 @@ export default function UserPage() {
                 Nachricht.
               </p>
               {showZoomFilter && (
-                <Form method="post" className="my-4" onChange={handleChange}>
-                  <label className="flex items-center">
-                    <input
-                      type="checkbox"
-                      name="zoom"
-                      defaultChecked={showOnlyZoomDates}
-                      className="mr-2 h-4 w-4 rounded border-slate-300 text-slate-600 focus:ring-slate-200 focus:ring-opacity-50"
-                    />{" "}
-                    Nur Zoom Termine zeigen{" "}
-                    {transition.state === "submitting" && <LoadingSpinner />}
-                  </label>
-                </Form>
+                <div className="mt-5">
+                  {onlyZoom ? (
+                    <Link
+                      to="."
+                      className="rounded-md bg-slate-200 px-4 py-2 text-sm font-medium ring-slate-100 transition duration-150 ease-in-out hover:bg-slate-300 focus:border-slate-100 focus:outline-none focus:ring active:bg-slate-300"
+                    >
+                      Alle Termine anzeigen
+                    </Link>
+                  ) : (
+                    <Link
+                      to="?zoom=on"
+                      className="rounded-md bg-slate-200 px-4 py-2 text-sm font-medium ring-slate-100 transition duration-150 ease-in-out hover:bg-slate-300 focus:border-slate-100 focus:outline-none focus:ring active:bg-slate-300"
+                    >
+                      Nur Zoom Termine anzeigen
+                    </Link>
+                  )}
+                </div>
               )}
-              <h2 className="mt-8 font-serif text-xl font-black text-slate-700">
+              <h2 className="mt-10 font-serif text-xl font-black text-slate-700">
                 Termine
               </h2>
               <div className="flex flex-col space-y-4 divide-y divide-dashed">
