@@ -106,9 +106,9 @@ export const ErrorBoundary = ({ error }: { error: Error }) => {
   return (
     <Document title="Error">
       <div className="p-4">
-        <h1 className="font-medium">App Error</h1>
+        <h1 className="font-bold text-red-700">App Error</h1>
         <pre>{error.message}</pre>
-        <p className="mt-3">Stacktrace:</p>
+        <p className="mt-4 mb-2 font-bold">Stacktrace:</p>
         <pre>{error.stack}</pre>
       </div>
       <Scripts />
