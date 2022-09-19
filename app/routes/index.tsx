@@ -4,7 +4,7 @@ import { Link } from "@remix-run/react"
 import { typedjson, useTypedLoaderData } from "remix-typedjson"
 import { requireUser } from "~/session.server"
 import { deleteDate, getDatesByUserId } from "~/models/date.server"
-import { format } from "date-fns-tz"
+import { formatInTimeZone } from "date-fns-tz"
 import { badRequest } from "~/utils"
 
 import Container from "~/components/Container"
@@ -16,8 +16,9 @@ export const loader = async ({ request }: LoaderArgs) => {
   const user = await requireUser(request)
   const dates = await getDatesByUserId(user.id)
   let greeting = "Hey"
-
-  const currentHour = Number(format(new Date(), "HH"))
+  
+  const currentHour = Number(formatInTimeZone(new Date(), "Europe/Berlin", "HH"))
+  
   if (currentHour < 11 && currentHour > 4) {
     greeting = "Guten Morgen"
   } else if (currentHour > 18) {

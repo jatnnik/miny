@@ -1,10 +1,5 @@
-import {
-  useCatch,
-  useLoaderData,
-  useSearchParams,
-  Link,
-} from "@remix-run/react"
 import type { LoaderArgs, ActionFunction, MetaFunction } from "@remix-run/node"
+import { useCatch, useSearchParams, Link } from "@remix-run/react"
 import { json, redirect } from "@remix-run/node"
 import { getUserBySlug } from "~/models/user.server"
 import invariant from "tiny-invariant"
@@ -17,6 +12,7 @@ import {
   sendAssignmentEmail,
 } from "~/models/date.server"
 import { badRequest, formatDate } from "~/utils"
+import { typedjson, useTypedLoaderData } from "remix-typedjson"
 
 import Container from "~/components/Container"
 import Card from "~/components/Card"
@@ -43,7 +39,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 
   const dates = await getFreeDates(user.id, zoom)
 
-  return json({
+  return typedjson({
     user,
     dates,
     assignedDate,
@@ -105,7 +101,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 }
 
 export default function UserPage() {
-  const { user, assignedDate, ...loaderData } = useLoaderData<typeof loader>()
+  const { user, assignedDate, ...loaderData } = useTypedLoaderData<typeof loader>()
   const [searchParams] = useSearchParams()
 
   const onlyZoom = searchParams.get("zoom") === "on"
@@ -148,6 +144,7 @@ export default function UserPage() {
                   {onlyZoom ? (
                     <Link
                       to="."
+                      key="all"
                       className="rounded-md bg-slate-200 px-4 py-2 text-sm font-medium ring-slate-100 transition duration-150 ease-in-out hover:bg-slate-300 focus:border-slate-100 focus:outline-none focus:ring active:bg-slate-300"
                     >
                       Alle Termine anzeigen
@@ -155,6 +152,7 @@ export default function UserPage() {
                   ) : (
                     <Link
                       to="?zoom=on"
+                      key="zoom"
                       className="rounded-md bg-slate-200 px-4 py-2 text-sm font-medium ring-slate-100 transition duration-150 ease-in-out hover:bg-slate-300 focus:border-slate-100 focus:outline-none focus:ring active:bg-slate-300"
                     >
                       Nur Zoom Termine anzeigen

@@ -163,6 +163,10 @@ export default function Register() {
                 validationError={actionData?.errors?.email}
                 autoComplete="email"
               />
+              <span className="mt-2 block text-sm italic leading-normal">
+                Deine E-Mail Adresse wird verwendet, um dir Bescheid zu sagen,
+                wenn sich jemand für einen deiner Termine einträgt.
+              </span>
             </div>
 
             <div className="mt-4">
