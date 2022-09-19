@@ -101,8 +101,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 }
 
 export default function UserPage() {
-  const { user, assignedDate, ...loaderData } =
-    useTypedLoaderData<typeof loader>()
+  const { user, assignedDate, ...loaderData } = useTypedLoaderData<typeof loader>()
   const [searchParams] = useSearchParams()
 
   const onlyZoom = searchParams.get("zoom") === "on"

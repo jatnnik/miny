@@ -16,11 +16,9 @@ export const loader = async ({ request }: LoaderArgs) => {
   const user = await requireUser(request)
   const dates = await getDatesByUserId(user.id)
   let greeting = "Hey"
-
-  const currentHour = Number(
-    formatInTimeZone(new Date(), "Europe/Berlin", "HH")
-  )
-
+  
+  const currentHour = Number(formatInTimeZone(new Date(), "Europe/Berlin", "HH"))
+  
   if (currentHour < 11 && currentHour > 4) {
     greeting = "Guten Morgen"
   } else if (currentHour > 18) {

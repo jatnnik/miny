@@ -1,4 +1,4 @@
-import type { LoaderFunction } from "@remix-run/node"
+import type { LoaderArgs } from "@remix-run/node"
 import { type EventAttributes, createEvents } from "ics"
 import type { Appointment } from "@prisma/client"
 
@@ -120,7 +120,7 @@ const appointmentToEvent = (appointment: Appointment) => {
   return event
 }
 
-export const loader: LoaderFunction = async ({ params }) => {
+export const loader = async ({ params }: LoaderArgs) => {
   const id = params.id
   const data = await getDatesByUserId(Number(id))
 

@@ -1,6 +1,17 @@
 import { json } from "@remix-run/node"
 import { format } from "date-fns"
 import { de } from "date-fns/locale"
+import type { z } from "zod"
+
+export type inferSafeParseErrors<
+  T extends z.ZodType<any, any, any>,
+  U = string
+> = {
+  formErrors: U[]
+  fieldErrors: {
+    [P in keyof z.infer<T>]?: U[]
+  }
+}
 
 export function badRequest<T>(data: T) {
   return json(data, { status: 400 })
