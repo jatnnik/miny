@@ -1,3 +1,4 @@
+import type { inferSafeParseErrors } from "~/utils"
 import {
   Form,
   Link,
@@ -7,16 +8,19 @@ import {
 } from "@remix-run/react"
 import type {
   LoaderArgs,
-  ActionFunction,
+  ActionArgs,
   MetaFunction,
   HeadersFunction,
 } from "@remix-run/node"
 import { redirect, json } from "@remix-run/node"
+import { z } from "zod"
+
 import { getUserId, createUserSession } from "~/session.server"
 import { createUser, getUserByEmail } from "~/models/user.server"
-import { validateEmail, validateStringLength, badRequest } from "~/utils"
+import { badRequest } from "~/utils"
 
 import Input from "~/components/Input"
+import Backpack from "~/components/Backpack"
 import { SubmitButton } from "~/components/Buttons"
 import { ErrorBadge } from "~/components/Badges"
 
@@ -26,70 +30,47 @@ export const loader = async ({ request }: LoaderArgs) => {
   return json({})
 }
 
+const validationSchema = z
+  .object({
+    firstName: z.string().min(2, "Mind. 2 Zeichen"),
+    email: z.string().email("Ungültige E-Mail"),
+    password: z.string().min(6, "Passwort muss mind. 6 Zeichen lang sein"),
+    confirmPassword: z.string().min(6),
+    redirectTo: z.string().default("/"),
+  })
+  .refine(data => data.password === data.confirmPassword, {
+    message: "Passwörter stimmen nicht überein",
+    path: ["confirmPassword"],
+  })
+type RegisterFields = z.infer<typeof validationSchema>
+type RegisterFieldsErrors = inferSafeParseErrors<typeof validationSchema>
+
 interface ActionData {
   formError?: string
-  errors?: {
-    firstName?: string
-    email?: string
-    password?: string
-    confirmPassword?: string
-  }
-  fields?: {
-    firstName: string
-    email: string
-    password: string
-    confirmPassword: string
-  }
+  errors?: RegisterFieldsErrors
+  fields?: RegisterFields
 }
 
-export const action: ActionFunction = async ({ request }) => {
-  const formData = await request.formData()
+export const action = async ({ request }: ActionArgs) => {
+  const fields = Object.fromEntries(await request.formData()) as RegisterFields
+  const result = validationSchema.safeParse(fields)
 
-  const firstName = formData.get("firstName")
-  const email = formData.get("email")
-  const password = formData.get("password")
-  const confirmPassword = formData.get("confirmPassword")
-  const redirectTo = formData.get("redirectTo")
-
-  // Return early if one of the fields is undefined or not a string
-  if (
-    typeof firstName !== "string" ||
-    typeof email !== "string" ||
-    typeof password !== "string" ||
-    typeof confirmPassword !== "string"
-  ) {
+  if (!result.success) {
     return badRequest<ActionData>({
-      formError: "Formular wurde nicht vollständig ausgefüllt",
+      fields,
+      errors: result.error.flatten(),
     })
   }
 
-  const fields = {
-    firstName,
-    email,
-    password,
-    confirmPassword,
-    redirectTo,
-  }
-
-  const errors = {
-    firstName: validateStringLength(firstName, 2),
-    email: !validateEmail(email) ? "Ungültige E-Mail" : undefined,
-    password: validateStringLength(password, 6),
-    confirmPassword:
-      fields.confirmPassword !== fields.password
-        ? "Passwörter stimmen nicht überein"
-        : undefined,
-  }
-
-  if (Object.values(errors).some(Boolean)) {
-    return badRequest<ActionData>({ errors, fields })
-  }
+  const { email, password, firstName, redirectTo } = result.data
 
   const existingUser = await getUserByEmail(email)
   if (existingUser) {
     return badRequest<ActionData>({
       errors: {
-        email: "E-Mail wird schon verwendet",
+        fieldErrors: {
+          email: ["E-Mail wird schon verwendet"],
+        },
       },
     })
   }
@@ -100,7 +81,7 @@ export const action: ActionFunction = async ({ request }) => {
     request,
     userId: user.id,
     remember: false,
-    redirectTo: typeof redirectTo === "string" ? redirectTo : "/",
+    redirectTo: redirectTo,
   })
 }
 
@@ -120,20 +101,12 @@ export const meta: MetaFunction = () => {
 export default function Register() {
   const [searchParams] = useSearchParams()
   const redirectTo = searchParams.get("redirectTo") || "/"
-  const actionData = useActionData<ActionData>()
+  const actionData = useActionData<typeof action>()
   const transition = useTransition()
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center">
-      <div className="block rounded-lg bg-red-400 bg-opacity-20 p-2">
-        <img
-          src="/backpack.png"
-          className="h-8"
-          alt="Rucksack Emoji"
-          height={32}
-          width={32}
-        />
-      </div>
+      <Backpack />
       <div className="mt-6 w-full max-w-xs rounded-lg bg-white px-6 py-4 shadow-md sm:max-w-md">
         <Form method="post">
           {actionData?.formError ? (
@@ -149,7 +122,9 @@ export default function Register() {
               autoFocus
               minLength={2}
               defaultValue={actionData?.fields?.firstName}
-              validationError={actionData?.errors?.firstName}
+              validationError={actionData?.errors?.fieldErrors.firstName?.join(
+                ", "
+              )}
               autoComplete="given-name"
             />
 
@@ -160,11 +135,13 @@ export default function Register() {
                 label="E-Mail"
                 required
                 defaultValue={actionData?.fields?.email}
-                validationError={actionData?.errors?.email}
+                validationError={actionData?.errors?.fieldErrors.email?.join(
+                  ", "
+                )}
                 autoComplete="email"
               />
               <span className="mt-2 block text-sm italic leading-normal">
-                Deine E-Mail Adresse wird verwendet, um dir Bescheid zu sagen,
+                Diese E-Mail Adresse wird verwendet, um dir Bescheid zu sagen,
                 wenn sich jemand für einen deiner Termine einträgt.
               </span>
             </div>
@@ -178,7 +155,9 @@ export default function Register() {
                 autoComplete="new-password"
                 minLength={6}
                 defaultValue={actionData?.fields?.password}
-                validationError={actionData?.errors?.password}
+                validationError={actionData?.errors?.fieldErrors.password?.join(
+                  ", "
+                )}
               />
             </div>
 
@@ -191,7 +170,9 @@ export default function Register() {
                 minLength={6}
                 autoComplete="new-password"
                 defaultValue={actionData?.fields?.confirmPassword}
-                validationError={actionData?.errors?.confirmPassword}
+                validationError={actionData?.errors?.fieldErrors.confirmPassword?.join(
+                  ", "
+                )}
               />
             </div>
 

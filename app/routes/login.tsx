@@ -1,3 +1,4 @@
+import type { inferSafeParseErrors } from "~/utils"
 import { useRef, useEffect } from "react"
 import {
   Form,
@@ -8,20 +9,21 @@ import {
 } from "@remix-run/react"
 import type {
   LoaderArgs,
-  ActionFunction,
+  ActionArgs,
   MetaFunction,
   HeadersFunction,
 } from "@remix-run/node"
 import { json, redirect } from "@remix-run/node"
+import { z } from "zod"
+
 import { createUserSession, getUserId } from "~/session.server"
-import type { inferSafeParseErrors } from "~/utils"
 import { badRequest } from "~/utils"
 import { verifyLogin } from "~/models/user.server"
-import { z } from "zod"
 
 import { ErrorBadge } from "~/components/Badges"
 import { labelStyles, inputStyles, errorStyles } from "~/components/Input"
 import { SubmitButton } from "~/components/Buttons"
+import Backpack from "~/components/Backpack"
 
 export const loader = async ({ request }: LoaderArgs) => {
   const userId = await getUserId(request)
@@ -29,38 +31,38 @@ export const loader = async ({ request }: LoaderArgs) => {
   return json({})
 }
 
-const LoginSchema = z.object({
+const validationSchema = z.object({
   email: z.string().min(1).email("Ungültige E-Mail"),
-  password: z.string().min(6, "Passwort ist zu kurz"),
-  redirectTo: z.string().optional(),
-  remember: z.string(),
+  password: z.string().min(6, "Passwort muss mind. 6 Zeichen lang sein"),
+  redirectTo: z.string().default("/"),
+  remember: z.enum(["on"]).optional(),
 })
-type LoginFields = z.infer<typeof LoginSchema>
-type LoginFieldsErrors = inferSafeParseErrors<typeof LoginSchema>
+type LoginFields = z.infer<typeof validationSchema>
+type LoginFieldErrors = inferSafeParseErrors<typeof validationSchema>
 
 interface ActionData {
   fields: LoginFields
-  errors?: LoginFieldsErrors
+  errors?: LoginFieldErrors
   formError?: string
 }
 
-export const action: ActionFunction = async ({ request }) => {
-  const formData = await request.formData()
-
-  const fields = Object.fromEntries(formData.entries()) as LoginFields
-  const result = LoginSchema.safeParse(fields)
+export const action = async ({ request }: ActionArgs) => {
+  const fields = Object.fromEntries(await request.formData()) as LoginFields
+  const result = validationSchema.safeParse(fields)
 
   if (!result.success) {
-    return badRequest({
+    return badRequest<ActionData>({
       fields,
       errors: result.error.flatten(),
     })
   }
 
-  const user = await verifyLogin(fields.email, fields.password)
+  const { email, password, remember, redirectTo } = result.data
+
+  const user = await verifyLogin(email, password)
   if (!user) {
-    return badRequest({
-      fields,
+    return badRequest<ActionData>({
+      fields: result.data,
       formError: "E-Mail oder Passwort ist falsch",
     })
   }
@@ -68,8 +70,8 @@ export const action: ActionFunction = async ({ request }) => {
   return createUserSession({
     request,
     userId: user.id,
-    remember: fields.remember === "on" ? true : false,
-    redirectTo: fields.redirectTo ? fields.redirectTo : "/",
+    remember: remember === "on",
+    redirectTo: redirectTo,
   })
 }
 
@@ -92,6 +94,8 @@ export default function Login() {
   const emailRef = useRef<HTMLInputElement>(null)
   const passwordRef = useRef<HTMLInputElement>(null)
 
+  const isSubmitting = Boolean(transition.submission)
+
   useEffect(() => {
     if (actionData?.errors?.fieldErrors.email) {
       emailRef.current?.focus()
@@ -102,22 +106,14 @@ export default function Login() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center">
-      <div className="block rounded-lg bg-red-400 bg-opacity-20 p-2">
-        <img
-          src="/backpack.png"
-          className="h-8"
-          alt="Rucksack Emoji"
-          height={32}
-          width={32}
-        />
-      </div>
+      <Backpack />
       <div className="mt-6 w-full max-w-xs rounded-lg bg-white px-6 py-4 shadow-md sm:max-w-md">
         <Form method="post">
           {actionData?.formError ? (
             <ErrorBadge message={actionData.formError} />
           ) : null}
 
-          <fieldset disabled={transition.state === "submitting"}>
+          <fieldset disabled={isSubmitting}>
             <div>
               <label htmlFor={"email"} className={labelStyles}>
                 E-Mail
@@ -203,9 +199,7 @@ export default function Login() {
 
               <SubmitButton
                 type="submit"
-                label={
-                  transition.state === "submitting" ? "Lade..." : "Anmelden"
-                }
+                label={isSubmitting ? "Lade..." : "Anmelden"}
               />
             </div>
           </fieldset>
