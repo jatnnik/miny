@@ -1,5 +1,6 @@
 import type { MetaFunction } from "@remix-run/node"
 import { Link } from "@remix-run/react"
+import Backpack from "~/components/Backpack"
 import Card from "~/components/Card"
 import Container from "~/components/Container"
 
@@ -14,15 +15,7 @@ export default function Privacy() {
     <div className="py-10">
       <Container>
         <div className="mb-8 flex items-center">
-          <div className="block rounded-lg bg-red-400 bg-opacity-20 p-2">
-            <img
-              src="/backpack.png"
-              className="h-5"
-              alt="Rucksack Emoji"
-              height={20}
-              width={20}
-            />
-          </div>
+          <Backpack size={20} />
           <Link className="ml-2 block text-sm font-medium" to="/">
             miny
           </Link>

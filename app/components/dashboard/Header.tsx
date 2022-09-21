@@ -1,18 +1,11 @@
 import { Link, Form } from "@remix-run/react"
+import Backpack from "../Backpack"
 
 export default function Header({ username }: { username: string }) {
   return (
     <div className="mb-8 flex items-center justify-between">
       <div className="flex items-center">
-        <div className="block rounded-lg bg-red-400 bg-opacity-20 p-2">
-          <img
-            src="/backpack.png"
-            className="h-5"
-            alt="Rucksack Emoji"
-            height={20}
-            width={20}
-          />
-        </div>
+        <Backpack size={20} />
         <Link className="ml-2 block text-sm font-medium" to="/">
           {username}
           {username.slice(-1) === "s" ? "'" : "s"} Diensttermine
