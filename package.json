@@ -10,7 +10,8 @@
     "dev": "run-p dev:*",
     "dev:css": "npm run generate:css -- --watch",
     "dev:remix": "node -r dotenv/config node_modules/.bin/remix dev",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "typecheck": "npx tsc -b ."
   },
   "dependencies": {
     "@heroicons/react": "^2.0.10",
