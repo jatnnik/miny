@@ -5,61 +5,26 @@ import crypto from "crypto"
 import { prisma } from "~/db.server"
 
 export type { User } from "@prisma/client"
-export type PublicUser = Pick<
-  User,
-  "id" | "name" | "email" | "slug" | "loginCount"
->
 
 export async function getUserById(id: User["id"]) {
-  return prisma.user.findUnique({
-    where: { id },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      slug: true,
-      loginCount: true,
-    },
-  })
+  return prisma.user.findUnique({ where: { id } })
 }
 
 export async function getUserByEmail(email: User["email"]) {
-  return prisma.user.findUnique({
-    where: { email },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      slug: true,
-    },
-  })
+  return prisma.user.findUnique({ where: { email } })
 }
 
 export async function getUserBySlug(slug: string) {
-  return prisma.user.findFirst({
-    where: { slug },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      slug: true,
-    },
-  })
+  return prisma.user.findFirst({ where: { slug } })
 }
 
 export async function createUser(
   email: User["email"],
-  password: string,
-  name: string
+  password: User["password"],
+  name: User["name"],
 ) {
   const hashedPassword = await bcrypt.hash(password, 10)
-
-  let slug = name.trim().replace(" ", "-").toLowerCase()
-  const existingSlug = await getUserBySlug(slug)
-  if (existingSlug) {
-    const randomSlug = crypto.randomBytes(5).toString("hex")
-    slug = `${slug}-${randomSlug}`
-  }
+  const slug = await slugify(name)
 
   return prisma.user.create({
     data: {
@@ -73,11 +38,9 @@ export async function createUser(
 
 export async function verifyLogin(
   email: User["email"],
-  password: User["password"]
+  password: User["password"],
 ) {
-  const user = await prisma.user.findUnique({
-    where: { email },
-  })
+  const user = await getUserByEmail(email)
   if (!user || !user.password) {
     return null
   }
@@ -99,4 +62,17 @@ export async function verifyLogin(
   const { password: _password, ...userWithoutPassword } = user
 
   return userWithoutPassword
+}
+
+async function slugify(username: string) {
+  let preferredSlug = username.trim().replace(" ", "-").toLowerCase()
+
+  const slugAlreadyExists = await getUserBySlug(preferredSlug)
+
+  if (slugAlreadyExists) {
+    const random = crypto.randomBytes(5).toString("hex")
+    return `${preferredSlug}-${random}`
+  }
+
+  return preferredSlug
 }
