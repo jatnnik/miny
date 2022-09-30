@@ -33,21 +33,19 @@ export async function getUserId(request: Request): Promise<string | undefined> {
 export async function getUser(request: Request) {
   const userId = await getUserId(request)
   if (userId === undefined) return null
-
-  const user = await getUserById(Number(userId))
-  if (user) return user
-
-  throw await logout(request)
+  return getUserById(Number(userId))
 }
 
 export async function requireUserId(
   request: Request,
-  redirectTo: string = new URL(request.url).pathname
+  redirectTo: string = new URL(request.url).pathname,
 ): Promise<string> {
   const userId = await getUserId(request)
   if (!userId) {
     const searchParams = new URLSearchParams([["redirectTo", redirectTo]])
-    throw redirect(`/login?${searchParams}`)
+    throw redirect(
+      redirectTo && redirectTo !== "/" ? `/login?${searchParams}` : "/login",
+    )
   }
   return userId
 }
@@ -85,11 +83,18 @@ export async function createUserSession({
   })
 }
 
-export async function logout(request: Request) {
+export async function logout(
+  request: Request,
+  redirectTo: string = request.url,
+) {
   const session = await getSession(request)
-  return redirect("/login", {
-    headers: {
-      "Set-Cookie": await sessionStorage.destroySession(session),
+  const searchParams = new URLSearchParams([["redirectTo", redirectTo]])
+  return redirect(
+    redirectTo && redirectTo !== "/" ? `/login?${searchParams}` : "/login",
+    {
+      headers: {
+        "Set-Cookie": await sessionStorage.destroySession(session),
+      },
     },
-  })
+  )
 }
