@@ -7,12 +7,7 @@ import {
   useTransition,
   useSearchParams,
 } from "@remix-run/react"
-import type {
-  LoaderArgs,
-  ActionArgs,
-  MetaFunction,
-  HeadersFunction,
-} from "@remix-run/node"
+import type { LoaderArgs, ActionArgs, MetaFunction } from "@remix-run/node"
 import { json, redirect } from "@remix-run/node"
 import { z } from "zod"
 
@@ -71,14 +66,8 @@ export const action = async ({ request }: ActionArgs) => {
     request,
     userId: user.id,
     remember: remember === "on",
-    redirectTo: redirectTo,
+    redirectTo,
   })
-}
-
-export const headers: HeadersFunction = () => {
-  return {
-    "Cache-Control": `s-maxage=${60 * 60 * 24 * 30}`,
-  }
 }
 
 export const meta: MetaFunction = () => {
@@ -107,14 +96,16 @@ export default function Login() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center">
       <Backpack />
-      <div className="mt-6 w-full max-w-xs rounded-lg bg-white px-6 py-4 shadow-md sm:max-w-md">
+      <div className="h-6"></div>
+      <div className="w-full max-w-xs rounded-lg bg-white px-6 py-4 shadow-md sm:max-w-md">
         <Form method="post">
           {actionData?.formError ? (
             <ErrorBadge message={actionData.formError} />
           ) : null}
 
-          <fieldset disabled={isSubmitting}>
+          <fieldset disabled={isSubmitting} className="space-y-4">
             <div>
+              {/* TODO: Refactor to <Input /> component */}
               <label htmlFor={"email"} className={labelStyles}>
                 E-Mail
               </label>
@@ -141,7 +132,7 @@ export default function Login() {
               )}
             </div>
 
-            <div className="mt-4">
+            <div>
               <label htmlFor={"password"} className={labelStyles}>
                 Passwort
               </label>
@@ -168,7 +159,7 @@ export default function Login() {
 
             <input type="hidden" name="redirectTo" value={redirectTo} />
 
-            <div className="mt-4 flex items-center">
+            <div className="flex items-center">
               <input
                 id="remember"
                 name="remember"
@@ -184,7 +175,7 @@ export default function Login() {
               </label>
             </div>
 
-            <div className="mt-4 flex items-center justify-between">
+            <div className="flex items-center justify-between">
               <div className="space-y-1">
                 <Link
                   className="block text-sm underline hover:text-slate-900"
@@ -205,9 +196,10 @@ export default function Login() {
           </fieldset>
         </Form>
       </div>
+      <div className="h-6"></div>
       <Link
         to="/privacy"
-        className="mt-4 text-center text-xs text-slate-500 underline"
+        className="text-center text-xs text-slate-500 underline"
       >
         Datenschutzerklärung
       </Link>

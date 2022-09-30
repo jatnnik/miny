@@ -6,12 +6,7 @@ import {
   useTransition,
   useSearchParams,
 } from "@remix-run/react"
-import type {
-  LoaderArgs,
-  ActionArgs,
-  MetaFunction,
-  HeadersFunction,
-} from "@remix-run/node"
+import type { LoaderArgs, ActionArgs, MetaFunction } from "@remix-run/node"
 import { redirect, json } from "@remix-run/node"
 import { z } from "zod"
 
@@ -64,8 +59,8 @@ export const action = async ({ request }: ActionArgs) => {
 
   const { email, password, firstName, redirectTo } = result.data
 
-  const existingUser = await getUserByEmail(email)
-  if (existingUser) {
+  const emailIsTaken = await getUserByEmail(email)
+  if (emailIsTaken) {
     return badRequest<ActionData>({
       errors: {
         fieldErrors: {
@@ -81,14 +76,8 @@ export const action = async ({ request }: ActionArgs) => {
     request,
     userId: user.id,
     remember: false,
-    redirectTo: redirectTo,
+    redirectTo,
   })
-}
-
-export const headers: HeadersFunction = () => {
-  return {
-    "Cache-Control": `s-maxage=${60 * 60 * 24 * 30}`,
-  }
 }
 
 export const meta: MetaFunction = () => {
@@ -123,7 +112,7 @@ export default function Register() {
               minLength={2}
               defaultValue={actionData?.fields?.firstName}
               validationError={actionData?.errors?.fieldErrors.firstName?.join(
-                ", "
+                ", ",
               )}
               autoComplete="given-name"
             />
@@ -136,14 +125,10 @@ export default function Register() {
                 required
                 defaultValue={actionData?.fields?.email}
                 validationError={actionData?.errors?.fieldErrors.email?.join(
-                  ", "
+                  ", ",
                 )}
                 autoComplete="email"
               />
-              <span className="mt-2 block text-sm italic leading-normal">
-                Diese E-Mail Adresse wird verwendet, um dir Bescheid zu sagen,
-                wenn sich jemand für einen deiner Termine einträgt.
-              </span>
             </div>
 
             <div className="mt-4">
@@ -156,7 +141,7 @@ export default function Register() {
                 minLength={6}
                 defaultValue={actionData?.fields?.password}
                 validationError={actionData?.errors?.fieldErrors.password?.join(
-                  ", "
+                  ", ",
                 )}
               />
             </div>
@@ -171,7 +156,7 @@ export default function Register() {
                 autoComplete="new-password"
                 defaultValue={actionData?.fields?.confirmPassword}
                 validationError={actionData?.errors?.fieldErrors.confirmPassword?.join(
-                  ", "
+                  ", ",
                 )}
               />
             </div>
