@@ -11,6 +11,7 @@
     "dev:css": "npm run generate:css -- --watch",
     "dev:remix": "node -r dotenv/config node_modules/.bin/remix dev",
     "format": "prettier --write .",
+    "generate:css": "tailwindcss -i app/styles/tailwind.css -o app/styles/tailwind-build.css",
     "typecheck": "npx tsc -b ."
   },
   "dependencies": {
