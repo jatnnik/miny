@@ -3,11 +3,28 @@ import { format } from "date-fns"
 import { de } from "date-fns/locale"
 import type { z } from "zod"
 
+const DEFAULT_REDIRECT = "/"
+
 export type inferSafeParseErrors<T extends z.ZodTypeAny, U = string> = {
   formErrors?: U[]
   fieldErrors: {
     [P in keyof z.infer<T>]?: U[]
   }
+}
+
+export function safeRedirect(
+  to: FormDataEntryValue | string | null | undefined,
+  defaultRedirect: string = DEFAULT_REDIRECT,
+) {
+  if (!to || typeof to !== "string") {
+    return defaultRedirect
+  }
+
+  if (!to.startsWith("/") || to.startsWith("//")) {
+    return defaultRedirect
+  }
+
+  return to
 }
 
 export function badRequest<T>(data: T) {

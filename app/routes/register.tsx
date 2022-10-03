@@ -6,9 +6,10 @@ import {
   useTransition,
   useSearchParams,
 } from "@remix-run/react"
-import type { LoaderArgs, ActionArgs, MetaFunction } from "@remix-run/node"
+import type { LoaderArgs, ActionArgs } from "@remix-run/node"
 import { redirect, json } from "@remix-run/node"
 import { z } from "zod"
+import { safeRedirect } from "~/utils"
 
 import { getUserId, createUserSession } from "~/session.server"
 import { createUser, getUserByEmail } from "~/models/user.server"
@@ -57,10 +58,11 @@ export const action = async ({ request }: ActionArgs) => {
     })
   }
 
-  const { email, password, firstName, redirectTo } = result.data
+  const { email, password, firstName } = result.data
+  const redirectTo = safeRedirect(result.data.redirectTo, "/")
 
-  const emailIsTaken = await getUserByEmail(email)
-  if (emailIsTaken) {
+  const existingUser = await getUserByEmail(email)
+  if (existingUser) {
     return badRequest<ActionData>({
       errors: {
         fieldErrors: {
@@ -80,16 +82,9 @@ export const action = async ({ request }: ActionArgs) => {
   })
 }
 
-export const meta: MetaFunction = () => {
-  return {
-    title: "Registrieren",
-    "og:title": "Registrieren | miny",
-  }
-}
-
 export default function Register() {
   const [searchParams] = useSearchParams()
-  const redirectTo = searchParams.get("redirectTo") || "/"
+  const redirectTo = searchParams.get("redirectTo") ?? ""
   const actionData = useActionData<typeof action>()
   const transition = useTransition()
 

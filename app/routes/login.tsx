@@ -7,9 +7,10 @@ import {
   useTransition,
   useSearchParams,
 } from "@remix-run/react"
-import type { LoaderArgs, ActionArgs, MetaFunction } from "@remix-run/node"
+import type { LoaderArgs, ActionArgs } from "@remix-run/node"
 import { json, redirect } from "@remix-run/node"
 import { z } from "zod"
+import { safeRedirect } from "~/utils"
 
 import { createUserSession, getUserId } from "~/session.server"
 import { badRequest } from "~/utils"
@@ -52,7 +53,8 @@ export const action = async ({ request }: ActionArgs) => {
     })
   }
 
-  const { email, password, remember, redirectTo } = result.data
+  const { email, password, remember } = result.data
+  const redirectTo = safeRedirect(result.data.redirectTo, "/")
 
   const user = await verifyLogin(email, password)
   if (!user) {
@@ -70,14 +72,10 @@ export const action = async ({ request }: ActionArgs) => {
   })
 }
 
-export const meta: MetaFunction = () => {
-  return { title: "Login" }
-}
-
 export default function Login() {
   const [searchParams] = useSearchParams()
-  const redirectTo = searchParams.get("redirectTo") || "/"
-  const actionData = useActionData<ActionData>()
+  const redirectTo = searchParams.get("redirectTo") ?? ""
+  const actionData = useActionData<typeof action>()
   const transition = useTransition()
 
   const emailRef = useRef<HTMLInputElement>(null)
