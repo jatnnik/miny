@@ -2,7 +2,7 @@ import { useState } from "react"
 import { Form, useTransition } from "@remix-run/react"
 import { type DateWithParticipants } from "~/models/date.server"
 import { formatDate } from "~/utils"
-import { labelStyles, inputStyles } from "../Input"
+import { labelClasses, inputClasses } from "../Input"
 import { CalendarIcon, VideoCameraIcon } from "@heroicons/react/20/solid"
 
 export default function DateSlot({ date }: { date: DateWithParticipants }) {
@@ -88,7 +88,7 @@ export default function DateSlot({ date }: { date: DateWithParticipants }) {
             disabled={transition.state === "submitting"}
             className="flex-grow"
           >
-            <label htmlFor="name" className={labelStyles}>
+            <label htmlFor="name" className={labelClasses}>
               Dein Name
             </label>
             <input
@@ -96,13 +96,13 @@ export default function DateSlot({ date }: { date: DateWithParticipants }) {
               name="name"
               id="name"
               autoComplete="given-name"
-              className={inputStyles}
+              className={inputClasses}
               required
             />
           </fieldset>
           <input type="hidden" name="dateId" value={date.id} />
           <button
-            className="mt-6 rounded-md border border-transparent bg-green-700 px-4 py-3 text-xs font-medium uppercase tracking-widest text-white ring-slate-300 transition duration-150 ease-in-out hover:bg-green-600 focus:border-green-800 focus:outline-none focus:ring active:bg-green-800 disabled:opacity-25"
+            className="mt-6 rounded-md border border-transparent bg-green-800 px-4 py-3 text-xs font-medium uppercase tracking-widest text-white ring-slate-300 transition duration-150 ease-in-out hover:bg-green-600 focus:border-green-800 focus:outline-none focus:ring active:bg-green-800 disabled:opacity-25"
             type="submit"
             disabled={transition.state === "submitting"}
           >

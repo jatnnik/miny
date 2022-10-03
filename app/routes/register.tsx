@@ -16,8 +16,8 @@ import { createUser, getUserByEmail } from "~/models/user.server"
 import { badRequest } from "~/utils"
 
 import Input from "~/components/Input"
-import { SubmitButton } from "~/components/Buttons"
-import { ErrorBadge } from "~/components/Badges"
+import { submitButtonClasses } from "~/components/shared/Buttons"
+import { loginWrapperClasses } from "~/components/login"
 
 export const loader = async ({ request }: LoaderArgs) => {
   const userId = await getUserId(request)
@@ -41,7 +41,6 @@ type RegisterFields = z.infer<typeof validationSchema>
 type RegisterFieldsErrors = inferSafeParseErrors<typeof validationSchema>
 
 interface ActionData {
-  formError?: string
   errors?: RegisterFieldsErrors
   fields?: RegisterFields
 }
@@ -88,30 +87,31 @@ export default function Register() {
   const transition = useTransition()
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center">
-      <img src="/backpack.png" className="w-12" alt="" />
-      <div className="mt-6 w-full max-w-xs rounded-lg bg-white px-6 py-4 shadow-md sm:max-w-md">
+    <div className={loginWrapperClasses}>
+      <img src="/backpack.png" className="w-10 sm:w-12" alt="" />
+      <div className="mt-6 w-full rounded-lg bg-white px-6 py-4 shadow-md sm:max-w-md">
         <Form method="post">
-          {actionData?.formError ? (
-            <ErrorBadge message={actionData.formError} />
-          ) : null}
+          <fieldset
+            disabled={transition.state === "submitting"}
+            className="space-y-4"
+          >
+            <div>
+              <Input
+                type="text"
+                name="firstName"
+                label="Vorname"
+                required
+                autoFocus
+                minLength={2}
+                defaultValue={actionData?.fields?.firstName}
+                validationError={actionData?.errors?.fieldErrors.firstName?.join(
+                  ", ",
+                )}
+                autoComplete="given-name"
+              />
+            </div>
 
-          <fieldset disabled={transition.state === "submitting"}>
-            <Input
-              type="text"
-              name="firstName"
-              label="Vorname"
-              required
-              autoFocus
-              minLength={2}
-              defaultValue={actionData?.fields?.firstName}
-              validationError={actionData?.errors?.fieldErrors.firstName?.join(
-                ", ",
-              )}
-              autoComplete="given-name"
-            />
-
-            <div className="mt-4">
+            <div>
               <Input
                 type="email"
                 name="email"
@@ -125,7 +125,7 @@ export default function Register() {
               />
             </div>
 
-            <div className="mt-4">
+            <div>
               <Input
                 type="password"
                 name="password"
@@ -140,7 +140,7 @@ export default function Register() {
               />
             </div>
 
-            <div className="mt-4">
+            <div>
               <Input
                 type="password"
                 name="confirmPassword"
@@ -155,7 +155,7 @@ export default function Register() {
               />
             </div>
 
-            <div className="mt-4 flex items-center">
+            <div className="flex items-center">
               <input
                 id="agreeGdpr"
                 name="agreeGdpr"
@@ -164,14 +164,11 @@ export default function Register() {
                 className="h-4 w-4 rounded border-slate-300 text-slate-600 focus:ring-slate-200 focus:ring-opacity-50"
                 required
               />
-              <label
-                htmlFor="agreeGdpr"
-                className="ml-2 block text-sm font-medium"
-              >
+              <label htmlFor="agreeGdpr" className="ml-2 block text-sm">
                 Ich stimme der{" "}
                 <Link
-                  to="/privacy"
-                  className="font-medium underline underline-offset-1 hover:no-underline"
+                  to="/datenschutz"
+                  className="underline underline-offset-1 hover:no-underline"
                 >
                   Datenschutzerklärung
                 </Link>{" "}
@@ -181,34 +178,30 @@ export default function Register() {
 
             <input type="hidden" name="redirectTo" value={redirectTo} />
 
-            <div className="h-6"></div>
-
             <div className="flex items-center justify-between">
               <div className="space-y-1">
                 <Link
-                  className="block text-sm underline hover:text-slate-900"
+                  className="block text-sm text-slate-600 underline hover:text-slate-900"
                   to={{
                     pathname: "/login",
                     search: searchParams.toString(),
                   }}
                 >
-                  Schon registriert?
+                  Login
                 </Link>
               </div>
 
-              <SubmitButton
-                type="submit"
-                label={
-                  transition.state === "submitting" ? "Lade..." : "Registrieren"
-                }
-              />
+              <button type="submit" className={submitButtonClasses}>
+                {transition.state === "submitting" ? "Lade..." : "Registrieren"}
+              </button>
             </div>
           </fieldset>
         </Form>
       </div>
+      <div className="h-6"></div>
       <Link
-        to="/privacy"
-        className="mt-4 text-center text-xs text-slate-500 underline"
+        to="/datenschutz"
+        className="text-center text-xs text-slate-600 underline"
       >
         Datenschutzerklärung
       </Link>

@@ -20,27 +20,23 @@ export const loader = ({ request }: LoaderArgs) => {
 }
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  try {
-    return {
-      charset: "utf-8",
-      viewport: "width=device-width,initial-scale=1",
-      title: "miny",
-      description: "Ganz einfach Diensttermine ausmachen.",
-      "og:title": "miny",
-      "og:description": "Ganz einfach Diensttermine ausmachen.",
-      "og:image": `https://dienst.vercel.app/og_image.png`,
-      "og:url": data.url,
-      "og:type": "website",
-      "theme-color": "#1e293b",
-      "mobile-web-app-capable": "yes",
-      "apple-mobile-web-app-title": "miny",
-      "apple-mobile-web-app-capable": "yes",
-      "apple-mobile-web-app-status-bar-style": "default",
-      robots: "noindex",
-    }
-  } catch (error) {
-    console.error(error)
-    return {}
+  return {
+    charset: "utf-8",
+    viewport:
+      "width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover, user-scalable=no",
+    title: "miny",
+    description: "Ganz einfach Diensttermine ausmachen.",
+    "og:title": "miny",
+    "og:description": "Ganz einfach Diensttermine ausmachen.",
+    "og:image": `https://dienst.vercel.app/og_image.png`,
+    "og:url": data.url,
+    "og:type": "website",
+    "theme-color": "#1e293b",
+    "mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-title": "miny",
+    "apple-mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-status-bar-style": "default",
+    robots: "noindex",
   }
 }
 
@@ -56,21 +52,14 @@ export const links = () => {
   ]
 }
 
-function Document({
-  children,
-  title,
-}: {
-  children: React.ReactNode
-  title?: string
-}) {
+function Document({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="de" className="h-full">
+    <html lang="de">
       <head>
         <Meta />
-        <title>{title}</title>
         <Links />
       </head>
-      <body className="h-full min-h-screen bg-slate-50 font-sans text-slate-600 antialiased">
+      <body className="bg-slate-100 font-sans text-slate-700 antialiased">
         {children}
         <LiveReload />
       </body>
@@ -84,6 +73,7 @@ export default function App() {
       <Outlet />
       <ScrollRestoration />
       <Scripts />
+      <LiveReload />
     </Document>
   )
 }
@@ -92,7 +82,7 @@ export const CatchBoundary = () => {
   const caught = useCatch()
 
   return (
-    <Document title={`${caught.status} ${caught.statusText}`}>
+    <Document>
       <div className="p-4">
         <h1 className="font-medium">
           {caught.status} {caught.statusText}
@@ -104,7 +94,7 @@ export const CatchBoundary = () => {
 
 export const ErrorBoundary = ({ error }: { error: Error }) => {
   return (
-    <Document title="Error">
+    <Document>
       <div className="p-4">
         <h1 className="font-bold text-red-700">App Error</h1>
         <pre>{error.message}</pre>

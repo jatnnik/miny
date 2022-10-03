@@ -16,7 +16,7 @@ export default function Header({ username }: { username: string }) {
       <Form action="/logout" method="post">
         <button
           type="submit"
-          className="text-xs font-normal text-red-700 underline underline-offset-1 hover:text-red-600"
+          className="text-xs font-normal text-rose-700 underline underline-offset-1 hover:text-red-600"
         >
           Abmelden
         </button>

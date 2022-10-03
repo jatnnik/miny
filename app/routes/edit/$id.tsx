@@ -225,7 +225,7 @@ export default function EditDate() {
   const [isGroupDate, setIsGroupdate] = useState(date.isGroupDate)
   const [fixedStart, setFixedStart] = useState(!date.isFlexible)
   const [selfAssignPartner, setSelfAssignPartner] = useState(
-    typeof date.partnerName === "string"
+    typeof date.partnerName === "string",
   )
 
   const tomorrow = useTomorrow()
@@ -235,7 +235,8 @@ export default function EditDate() {
     <div className="py-10">
       <Container>
         <Header username={user.name} />
-        <Card withMarginTop>
+        <div className="h-4"></div>
+        <Card>
           <h1 className={headingStyles}>Termin bearbeiten</h1>
 
           <p className="mt-6 text-sm italic text-slate-500">

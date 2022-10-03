@@ -6,29 +6,29 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   name: string
 }
 
-export const labelStyles = "mb-0.5 block text-sm font-medium"
-export const inputStyles =
+export const labelClasses = "mb-0.5 block text-sm font-medium"
+export const inputClasses =
   "mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-slate-400 focus:ring focus:ring-slate-200 focus:ring-opacity-50 text-left"
-export const errorStyles = "mt-1.5 text-sm font-medium text-red-700"
+export const errorClasses = "mt-1.5 text-sm font-medium text-rose-500"
 
 const Input = ({ name, label, validationError, ...props }: InputProps) => {
   return (
     <>
-      <label htmlFor={name} className={labelStyles}>
+      <label htmlFor={name} className={labelClasses}>
         {label}
       </label>
 
       <input
         id={name}
         name={name}
-        className={inputStyles}
+        className={inputClasses}
         aria-invalid={validationError ? true : undefined}
         aria-describedby={`${name}-error`}
         {...props}
       />
 
       {validationError ? (
-        <p className={errorStyles} role="alert" id={`${name}-error`}>
+        <p className={errorClasses} role="alert" id={`${name}-error`}>
           {validationError}
         </p>
       ) : null}

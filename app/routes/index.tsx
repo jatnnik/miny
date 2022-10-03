@@ -16,9 +16,11 @@ export const loader = async ({ request }: LoaderArgs) => {
   const user = await requireUser(request)
   const dates = await getDatesByUserId(user.id)
   let greeting = "Hey"
-  
-  const currentHour = Number(formatInTimeZone(new Date(), "Europe/Berlin", "HH"))
-  
+
+  const currentHour = Number(
+    formatInTimeZone(new Date(), "Europe/Berlin", "HH"),
+  )
+
   if (currentHour < 11 && currentHour > 4) {
     greeting = "Guten Morgen"
   } else if (currentHour > 18) {
@@ -46,23 +48,18 @@ export const action = async ({ request }: ActionArgs) => {
 }
 
 export const meta: TypedMetaFunction<typeof loader> = ({ data }) => {
-  try {
-    const { user } = data
+  const { user } = data
 
-    if (!user) {
-      return {
-        title: "Dashboard",
-      }
-    }
-
+  if (!user) {
     return {
-      title: `${user.name}${
-        user.name.slice(-1) === "s" ? "'" : "s"
-      } Diensttermine`,
+      title: "Dashboard",
     }
-  } catch (error) {
-    console.error(error)
-    return {}
+  }
+
+  return {
+    title: `${user.name}${
+      user.name.slice(-1) === "s" ? "'" : "s"
+    } Diensttermine`,
   }
 }
 
@@ -74,6 +71,7 @@ export default function Dashboard() {
       <Container>
         <Header username={user.name} />
         <Welcome user={user} greeting={greeting} />
+        <div className="h-6"></div>
         <Dates dates={dates} />
         <div className="mt-4 text-center text-xs text-slate-500">
           <span className="block">
@@ -89,7 +87,7 @@ export default function Dashboard() {
             Changelog
           </a>{" "}
           &middot;{" "}
-          <Link to="/privacy" className="underline underline-offset-1">
+          <Link to="/datenschutz" className="underline underline-offset-1">
             Datenschutzerklärung
           </Link>
         </div>

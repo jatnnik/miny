@@ -74,7 +74,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   await sendAssignmentEmail(
     { email: appointment.user.email, name: appointment.user.name },
     name,
-    appointment
+    appointment,
   )
 
   return redirect(`/u/${params.user}?assigned=${dateId}`)
@@ -92,16 +92,13 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
       "og:description": `${data.user.name} möchte einen Diensttermin mit dir ausmachen`,
     }
   } else {
-    return {
-      title: "Fehler",
-      "og:title": "Fehler",
-      "og:description": "Benutzer nicht gefunden",
-    }
+    return {}
   }
 }
 
 export default function UserPage() {
-  const { user, assignedDate, ...loaderData } = useTypedLoaderData<typeof loader>()
+  const { user, assignedDate, ...loaderData } =
+    useTypedLoaderData<typeof loader>()
   const [searchParams] = useSearchParams()
 
   const onlyZoom = searchParams.get("zoom") === "on"
@@ -114,19 +111,23 @@ export default function UserPage() {
       <Container>
         <Header />
         {assignedDate && (
-          <Card withMarginTop>
-            <h1 className="font-serif text-2xl font-black text-slate-700">
-              Viel Spaß im Dienst!
-            </h1>
-            <p className="mt-4">Dein Termin mit {user.name}:</p>
-            <p className="font-medium text-amber-800">
-              {formatDate(assignedDate.date.toString())},{" "}
-              {assignedDate.startTime}
-              {assignedDate.endTime && `–${assignedDate.endTime}`}
-            </p>
-          </Card>
+          <>
+            <div className="h-4"></div>
+            <Card>
+              <h1 className="font-serif text-2xl font-black text-slate-700">
+                Viel Spaß im Dienst!
+              </h1>
+              <p className="mt-4">Dein Termin mit {user.name}:</p>
+              <p className="font-medium text-amber-800">
+                {formatDate(assignedDate.date.toString())},{" "}
+                {assignedDate.startTime}
+                {assignedDate.endTime && `–${assignedDate.endTime}`}
+              </p>
+            </Card>
+          </>
         )}
-        <Card withMarginTop>
+        <div className="h-4"></div>
+        <Card>
           <h1 className="font-serif text-2xl font-black text-slate-700">
             {!assignedDate
               ? `${user.name} möchte einen Diensttermin mit dir ausmachen`
@@ -199,7 +200,8 @@ export function CatchBoundary() {
     <div className="py-10">
       <Container>
         <Header />
-        <Card withMarginTop>{errorMessage}</Card>
+        <div className="h-4"></div>
+        <Card>{errorMessage}</Card>
       </Container>
     </div>
   )
