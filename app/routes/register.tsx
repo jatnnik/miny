@@ -187,7 +187,9 @@ export default function Register() {
 
             <input type="hidden" name="redirectTo" value={redirectTo} />
 
-            <div className="mt-4 flex items-center justify-between">
+            <div className="h-6"></div>
+
+            <div className="flex items-center justify-between">
               <div className="space-y-1">
                 <Link
                   className="block text-sm underline hover:text-slate-900"
@@ -196,7 +198,7 @@ export default function Register() {
                     search: searchParams.toString(),
                   }}
                 >
-                  Login
+                  Schon registriert?
                 </Link>
               </div>
 

@@ -184,7 +184,7 @@ export default function Login() {
                     search: searchParams.toString(),
                   }}
                 >
-                  Registrieren
+                  Noch nicht registriert?
                 </Link>
               </div>
 
