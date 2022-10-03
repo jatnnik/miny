@@ -16,7 +16,6 @@ import { createUser, getUserByEmail } from "~/models/user.server"
 import { badRequest } from "~/utils"
 
 import Input from "~/components/Input"
-import Backpack from "~/components/Backpack"
 import { SubmitButton } from "~/components/Buttons"
 import { ErrorBadge } from "~/components/Badges"
 
@@ -90,7 +89,7 @@ export default function Register() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center">
-      <Backpack />
+      <img src="/backpack.png" className="w-12" alt="" />
       <div className="mt-6 w-full max-w-xs rounded-lg bg-white px-6 py-4 shadow-md sm:max-w-md">
         <Form method="post">
           {actionData?.formError ? (

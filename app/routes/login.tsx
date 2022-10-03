@@ -19,7 +19,6 @@ import { verifyLogin } from "~/models/user.server"
 import { ErrorBadge } from "~/components/Badges"
 import { labelStyles, inputStyles, errorStyles } from "~/components/Input"
 import { SubmitButton } from "~/components/Buttons"
-import Backpack from "~/components/Backpack"
 
 export const loader = async ({ request }: LoaderArgs) => {
   const userId = await getUserId(request)
@@ -93,7 +92,7 @@ export default function Login() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center">
-      <Backpack />
+      <img src="/backpack.png" className="w-12" alt="" />
       <div className="h-6"></div>
       <div className="w-full max-w-xs rounded-lg bg-white px-6 py-4 shadow-md sm:max-w-md">
         <Form method="post">
