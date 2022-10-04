@@ -2,15 +2,14 @@ import { Link, Form } from "@remix-run/react"
 
 export default function Header({ username }: { username: string }) {
   return (
-    <div className="mb-8 flex items-center justify-between">
+    <div className="flex items-center justify-between">
       <div>
         <Link
-          className="ml-2 flex items-center gap-2 text-sm font-medium"
+          className="ml-2 flex items-center gap-2 text-sm font-semibold"
           to="/"
         >
           <img src="/backpack.png" className="w-6" alt="" />
           {username}
-          {username.slice(-1) === "s" ? "'" : "s"} Diensttermine
         </Link>
       </div>
       <Form action="/logout" method="post">

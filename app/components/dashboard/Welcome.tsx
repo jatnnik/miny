@@ -1,22 +1,15 @@
+import type { User } from "~/models/user.server"
 import { Link } from "@remix-run/react"
-import type { PublicUser } from "~/models/user.server"
-import Card from "../Card"
-import { headingStyles } from "../Heading"
 
-export default function Welcome({
-  user,
-  greeting,
-}: {
-  user: PublicUser
-  greeting: string
-}) {
+import Card from "../shared/Card"
+import { headlineClasses } from "../shared/Headline"
+
+export default function Welcome({ user }: { user: User }) {
   const firstLogin = user.loginCount === 0
 
   return (
     <Card>
-      <h1 className={headingStyles}>
-        {greeting} {user.name}!
-      </h1>
+      <h1 className={headlineClasses}>Hey {user.name}!</h1>
       {firstLogin && (
         <div className="mt-4">
           <h3 className="mb-0.5 font-medium text-amber-800">

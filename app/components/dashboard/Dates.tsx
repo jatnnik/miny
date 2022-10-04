@@ -6,9 +6,11 @@ import {
   TrashIcon,
   VideoCameraIcon,
 } from "@heroicons/react/20/solid"
-import Card from "../Card"
-import { headingStyles } from "../Heading"
+import Card from "../shared/Card"
 import { formatDate } from "~/utils"
+import { headlineClasses } from "../shared/Headline"
+import { subtleButtonClasses } from "../shared/Buttons"
+import clsx from "clsx"
 
 function DateSlot({ date }: { date: DateWithParticipants }) {
   const transition = useTransition()
@@ -104,15 +106,18 @@ export default function Dates({ dates }: { dates: DateWithParticipants[] }) {
   const hasDates = dates.length > 0
 
   return (
-    <Card withMarginTop>
+    <Card>
       <div className="flex items-center justify-between">
-        <h2 className={headingStyles}>Deine Termine</h2>
+        <h2 className={headlineClasses}>Termine</h2>
         <Link
-          className="flex items-center rounded-md border border-transparent bg-slate-700 px-3 py-2 pl-3 text-xs font-medium uppercase tracking-widest text-white ring-slate-300 transition duration-75 ease-in-out hover:bg-slate-600 focus:border-slate-800 focus:outline-none focus:ring active:bg-slate-600 disabled:opacity-25"
+          className={clsx(
+            subtleButtonClasses,
+            "flex items-center gap-1 text-xs",
+          )}
           to="/new"
         >
-          <PlusIcon className="h-3.5 sm:mr-2" />{" "}
-          <span className="hidden sm:block">Neu</span>
+          <span>Neuer Termin</span>
+          <PlusIcon className="h-3.5" />
         </Link>
       </div>
       {!hasDates && (

@@ -4,7 +4,6 @@ import { Link } from "@remix-run/react"
 import { typedjson, useTypedLoaderData } from "remix-typedjson"
 import { requireUser } from "~/session.server"
 import { deleteDate, getDatesByUserId } from "~/models/date.server"
-import { formatInTimeZone } from "date-fns-tz"
 import { badRequest } from "~/utils"
 
 import Container from "~/components/Container"
@@ -15,19 +14,8 @@ import Dates from "~/components/dashboard/Dates"
 export const loader = async ({ request }: LoaderArgs) => {
   const user = await requireUser(request)
   const dates = await getDatesByUserId(user.id)
-  let greeting = "Hey"
 
-  const currentHour = Number(
-    formatInTimeZone(new Date(), "Europe/Berlin", "HH"),
-  )
-
-  if (currentHour < 11 && currentHour > 4) {
-    greeting = "Guten Morgen"
-  } else if (currentHour > 18) {
-    greeting = "Guten Abend"
-  }
-
-  return typedjson({ user, dates, greeting })
+  return typedjson({ user, dates })
 }
 
 export const action = async ({ request }: ActionArgs) => {
@@ -48,29 +36,22 @@ export const action = async ({ request }: ActionArgs) => {
 }
 
 export const meta: TypedMetaFunction<typeof loader> = ({ data }) => {
-  const { user } = data
-
-  if (!user) {
-    return {
-      title: "Dashboard",
-    }
-  }
-
   return {
-    title: `${user.name}${
-      user.name.slice(-1) === "s" ? "'" : "s"
+    title: `${data.user.name}${
+      data.user.name.slice(-1) === "s" ? "'" : "s"
     } Diensttermine`,
   }
 }
 
 export default function Dashboard() {
-  const { user, dates, greeting } = useTypedLoaderData<typeof loader>()
+  const { user, dates } = useTypedLoaderData<typeof loader>()
 
   return (
     <div className="py-10">
       <Container>
         <Header username={user.name} />
-        <Welcome user={user} greeting={greeting} />
+        <div className="h-6"></div>
+        <Welcome user={user} />
         <div className="h-6"></div>
         <Dates dates={dates} />
         <div className="mt-4 text-center text-xs text-slate-500">

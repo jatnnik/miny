@@ -18,7 +18,7 @@ import { verifyLogin } from "~/models/user.server"
 
 import Input from "~/components/Input"
 import { submitButtonClasses } from "~/components/shared/Buttons"
-import { loginWrapperClasses } from "~/components/login"
+import { loginCardClasses, loginWrapperClasses } from "~/components/login"
 
 export const loader = async ({ request }: LoaderArgs) => {
   const userId = await getUserId(request)
@@ -97,7 +97,7 @@ export default function Login() {
     <div className={loginWrapperClasses}>
       <img src="/backpack.png" className="w-10 sm:w-12" alt="" />
       <div className="h-6"></div>
-      <div className="w-full rounded-lg bg-white px-6 py-4 shadow-md sm:max-w-md">
+      <div className={loginCardClasses}>
         <Form method="post">
           <fieldset disabled={isSubmitting} className="space-y-4">
             <div>

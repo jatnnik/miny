@@ -15,9 +15,10 @@ import { badRequest, formatDate } from "~/utils"
 import { typedjson, useTypedLoaderData } from "remix-typedjson"
 
 import Container from "~/components/Container"
-import Card from "~/components/Card"
+import Card from "~/components/shared/Card"
 import Header from "~/components/profile/Header"
 import DateSlot from "~/components/profile/Date"
+import { subtleButtonClasses } from "~/components/shared/Buttons"
 
 export const loader = async ({ request, params }: LoaderArgs) => {
   invariant(params.user, "Expected params.user")
@@ -143,18 +144,14 @@ export default function UserPage() {
               {showZoomFilter && (
                 <div className="mt-5">
                   {onlyZoom ? (
-                    <Link
-                      to="."
-                      key="all"
-                      className="rounded-md bg-slate-200 px-4 py-2 text-sm font-medium ring-slate-100 transition duration-150 ease-in-out hover:bg-slate-300 focus:border-slate-100 focus:outline-none focus:ring active:bg-slate-300"
-                    >
+                    <Link to="." key="all" className={subtleButtonClasses}>
                       Alle Termine anzeigen
                     </Link>
                   ) : (
                     <Link
                       to="?zoom=on"
                       key="zoom"
-                      className="rounded-md bg-slate-200 px-4 py-2 text-sm font-medium ring-slate-100 transition duration-150 ease-in-out hover:bg-slate-300 focus:border-slate-100 focus:outline-none focus:ring active:bg-slate-300"
+                      className={subtleButtonClasses}
                     >
                       Nur Zoom Termine anzeigen
                     </Link>

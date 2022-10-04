@@ -17,7 +17,7 @@ import { badRequest } from "~/utils"
 
 import Input from "~/components/Input"
 import { submitButtonClasses } from "~/components/shared/Buttons"
-import { loginWrapperClasses } from "~/components/login"
+import { loginCardClasses, loginWrapperClasses } from "~/components/login"
 
 export const loader = async ({ request }: LoaderArgs) => {
   const userId = await getUserId(request)
@@ -89,7 +89,8 @@ export default function Register() {
   return (
     <div className={loginWrapperClasses}>
       <img src="/backpack.png" className="w-10 sm:w-12" alt="" />
-      <div className="mt-6 w-full rounded-lg bg-white px-6 py-4 shadow-md sm:max-w-md">
+      <div className="h-6"></div>
+      <div className={loginCardClasses}>
         <Form method="post">
           <fieldset
             disabled={transition.state === "submitting"}
