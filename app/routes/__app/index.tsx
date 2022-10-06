@@ -1,5 +1,4 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node"
-import { redirect } from "@remix-run/node"
 import { json } from "@remix-run/node"
 import { useLoaderData } from "@remix-run/react"
 
@@ -22,7 +21,7 @@ export async function action({ request }: ActionArgs) {
   switch (action) {
     case "hideWelcomeText":
       await increaseLoginCount(user)
-      return redirect("/")
+      break
   }
 
   return new Response(`Unsupported intent: ${action}`, { status: 400 })

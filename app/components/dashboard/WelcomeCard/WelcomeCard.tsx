@@ -1,8 +1,9 @@
 import { Form, Link } from "@remix-run/react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import clsx from "clsx"
-import { DocumentDuplicateIcon } from "@heroicons/react/20/solid"
+import { DocumentDuplicateIcon, CheckIcon } from "@heroicons/react/20/solid"
+import { prodUrl } from "~/config"
 
 import Card from "~/components/shared/Card"
 import { subtleButtonClasses } from "~/components/shared/Buttons"
@@ -21,12 +22,33 @@ export default function WelcomeCard({
   slug,
 }: WelcomeCardProps) {
   const [showFirstLogin, setShowFirstLogin] = useState(isFirstLogin)
-  const userLink = `dienst.vercel.app/u/${slug}`
+  const [copied, setCopied] = useState(false)
+
+  const userLink = `${prodUrl}/u/${slug}`
+
+  useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout>
+
+    if (copied) {
+      timeout = setTimeout(() => {
+        setCopied(false)
+      }, 1000)
+    }
+
+    return () => {
+      clearTimeout(timeout)
+    }
+  }, [copied])
+
+  function copyUserLink() {
+    navigator.clipboard.writeText(userLink)
+    setCopied(true)
+  }
 
   return (
     <Card>
       <h2 className={headlineClasses}>Hey {username}!</h2>
-      <div className="h-4"></div>
+      <div className="h-6"></div>
       <FirstLoginText
         show={showFirstLogin}
         onHide={() => setShowFirstLogin(false)}
@@ -51,12 +73,20 @@ export default function WelcomeCard({
             readOnly
             className={clsx(
               inputClasses,
-              "mt-0 overflow-x-scroll bg-neutral-50 text-sm sm:max-w-xs",
+              "mt-0 cursor-pointer overflow-x-scroll bg-neutral-50 text-sm sm:max-w-sm",
             )}
             value={userLink}
+            onClick={() => (window.location.href = `/u/${slug}`)}
           />
-          <button className="rounded-md border border-slate-300 bg-neutral-50 p-2 shadow-sm">
-            <DocumentDuplicateIcon className="h-5 w-5" />
+          <button
+            className="rounded-md border border-slate-300 bg-neutral-100 p-2 shadow-sm"
+            onClick={copyUserLink}
+          >
+            {copied ? (
+              <CheckIcon className="h-5 w-5" />
+            ) : (
+              <DocumentDuplicateIcon className="h-5 w-5" />
+            )}
           </button>
         </div>
       </motion.div>
