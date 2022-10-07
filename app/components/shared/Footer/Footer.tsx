@@ -3,7 +3,7 @@ import { version } from "~/config"
 
 export default function Footer() {
   return (
-    <div className="text-center text-xs text-slate-500">
+    <footer className="text-center text-xs text-slate-500">
       <span>v{version}</span> &middot;{" "}
       <a
         href="https://github.com/wh1zk1d/miny/blob/main/CHANGELOG.md"
@@ -18,6 +18,6 @@ export default function Footer() {
       <Link to="/datenschutz" className="underline underline-offset-1">
         Datenschutzerklärung
       </Link>
-    </div>
+    </footer>
   )
 }

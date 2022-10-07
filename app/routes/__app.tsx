@@ -24,6 +24,7 @@ export default function AppRoute() {
       <Outlet />
       <div className="h-6"></div>
       <Footer />
+      <div className="h-6"></div>
     </Container>
   )
 }

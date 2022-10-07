@@ -2,6 +2,7 @@ import { Form, Link } from "@remix-run/react"
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import clsx from "clsx"
+import copy from "copy-to-clipboard"
 import { DocumentDuplicateIcon, CheckIcon } from "@heroicons/react/20/solid"
 import { prodUrl } from "~/config"
 
@@ -41,14 +42,14 @@ export default function WelcomeCard({
   }, [copied])
 
   function copyUserLink() {
-    navigator.clipboard.writeText(userLink)
+    copy(userLink)
     setCopied(true)
   }
 
   return (
     <Card>
       <h2 className={headlineClasses}>Hey {username}!</h2>
-      <div className="h-6"></div>
+      <div className="h-4"></div>
       <FirstLoginText
         show={showFirstLogin}
         onHide={() => setShowFirstLogin(false)}

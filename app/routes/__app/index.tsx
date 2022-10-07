@@ -1,16 +1,25 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node"
-import { json } from "@remix-run/node"
-import { useLoaderData } from "@remix-run/react"
+import { typedjson, useTypedLoaderData } from "remix-typedjson"
 
 import { requireUser } from "~/session.server"
 import { increaseLoginCount } from "~/models/user.server"
 
 import WelcomeCard from "~/components/dashboard/WelcomeCard"
+import Dates from "~/components/dashboard/Dates"
+import { getDatesByUserId } from "~/models/date.server"
 
 export async function loader({ request }: LoaderArgs) {
   const user = await requireUser(request)
   const isFirstLogin = user.loginCount === 0
-  return json({ username: user.name, isFirstLogin, slug: user.slug })
+
+  const dates = await getDatesByUserId(user.id)
+
+  return typedjson({
+    username: user.name,
+    isFirstLogin,
+    slug: user.slug,
+    dates,
+  })
 }
 
 export async function action({ request }: ActionArgs) {
@@ -28,15 +37,17 @@ export async function action({ request }: ActionArgs) {
 }
 
 export default function IndexRoute() {
-  const { username, isFirstLogin, slug } = useLoaderData<typeof loader>()
+  const { username, isFirstLogin, slug, dates } =
+    useTypedLoaderData<typeof loader>()
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <WelcomeCard
         username={username}
         isFirstLogin={isFirstLogin}
         slug={slug as string}
       />
+      <Dates dates={dates} />
     </div>
   )
 }
