@@ -3,8 +3,7 @@ import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import clsx from "clsx"
 import copy from "copy-to-clipboard"
-import { DocumentDuplicateIcon, CheckIcon } from "@heroicons/react/20/solid"
-import { prodUrl } from "~/config"
+import { DocumentDuplicateIcon, CheckIcon } from "@heroicons/react/24/outline"
 
 import Card from "~/components/shared/Card"
 import { subtleButtonClasses } from "~/components/shared/Buttons"
@@ -25,7 +24,7 @@ export default function WelcomeCard({
   const [showFirstLogin, setShowFirstLogin] = useState(isFirstLogin)
   const [copied, setCopied] = useState(false)
 
-  const userLink = `${prodUrl}/u/${slug}`
+  const userLink = `dienst.vercel.app/u/${slug}`
 
   useEffect(() => {
     let timeout: ReturnType<typeof setTimeout>
@@ -42,7 +41,7 @@ export default function WelcomeCard({
   }, [copied])
 
   function copyUserLink() {
-    copy(userLink)
+    copy("https://" + userLink)
     setCopied(true)
   }
 

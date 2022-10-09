@@ -21,7 +21,7 @@ export type DateWithParticipants = Prisma.AppointmentGetPayload<
 
 export async function isOwner(
   ownerId: Appointment["userId"],
-  userId: User["id"]
+  userId: User["id"],
 ) {
   return ownerId === userId
 }
@@ -229,6 +229,27 @@ export async function deleteDate(id: Appointment["id"]) {
   })
 }
 
+export async function safeDeleteDate(
+  id: Appointment["id"],
+  userId: User["id"],
+) {
+  const date = await getDateById(id)
+  if (!date) return null
+
+  const hasPermissionToDelete = await isOwner(date.userId, userId)
+  if (!hasPermissionToDelete) {
+    throw new Response("You are not allowed to delete this entity.", {
+      status: 401,
+    })
+  }
+
+  return await prisma.appointment.delete({
+    where: {
+      id,
+    },
+  })
+}
+
 export async function dateExistsAndIsAvailable(id: Appointment["id"]) {
   const appointment = await getDateWithUserAndParticipants(id)
   if (!appointment || appointment.isAssigned) return null
@@ -283,7 +304,7 @@ interface Recipient {
 export async function sendAssignmentEmail(
   recipient: Recipient,
   partnerName: string,
-  appointment: AppointmentWithUserAndParticipants
+  appointment: AppointmentWithUserAndParticipants,
 ) {
   const transporter = nodemailer.createTransport({
     service: "gmail",

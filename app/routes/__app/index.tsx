@@ -6,7 +6,7 @@ import { increaseLoginCount } from "~/models/user.server"
 
 import WelcomeCard from "~/components/dashboard/WelcomeCard"
 import Dates from "~/components/dashboard/Dates"
-import { getDatesByUserId } from "~/models/date.server"
+import { getDatesByUserId, safeDeleteDate } from "~/models/date.server"
 
 export async function loader({ request }: LoaderArgs) {
   const user = await requireUser(request)
@@ -30,7 +30,11 @@ export async function action({ request }: ActionArgs) {
   switch (action) {
     case "hideWelcomeText":
       await increaseLoginCount(user)
-      break
+      return null
+    case "deleteDate":
+      const id = formData.get("id")
+      await safeDeleteDate(Number(id), user.id)
+      return null
   }
 
   return new Response(`Unsupported intent: ${action}`, { status: 400 })

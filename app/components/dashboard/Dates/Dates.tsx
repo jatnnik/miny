@@ -13,6 +13,8 @@ interface DatesProps {
 }
 
 export default function Dates({ dates }: DatesProps) {
+  const hasDates = dates.length > 0
+
   return (
     <Card>
       <div className="flex items-center justify-between">
@@ -26,11 +28,15 @@ export default function Dates({ dates }: DatesProps) {
         </Link>
       </div>
       <div className="h-4"></div>
-      <div className="divide-y">
-        {dates.map(entry => (
-          <Date key={entry.id} data={entry} />
-        ))}
-      </div>
+      {hasDates ? (
+        <div className="divide-y">
+          {dates.map(entry => (
+            <Date key={entry.id} data={entry} />
+          ))}
+        </div>
+      ) : (
+        <i className="text-sm">Du hast aktuell keine Termine eingetragen.</i>
+      )}
     </Card>
   )
 }
