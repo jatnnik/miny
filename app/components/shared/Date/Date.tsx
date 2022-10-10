@@ -6,7 +6,7 @@ import {
   UserIcon,
   UsersIcon,
   VideoCameraIcon,
-  DocumentTextIcon,
+  ChatBubbleOvalLeftEllipsisIcon,
 } from "@heroicons/react/24/outline"
 import { Form, Link, useTransition } from "@remix-run/react"
 import clsx from "clsx"
@@ -130,7 +130,7 @@ export default function Date({ data }: DateProps) {
       )}
       {data.note && (
         <div className="flex items-center">
-          <DocumentTextIcon className="mr-1 h-3.5 w-3.5" />
+          <ChatBubbleOvalLeftEllipsisIcon className="mr-1 h-3.5 w-3.5" />
           {data.note}
         </div>
       )}
