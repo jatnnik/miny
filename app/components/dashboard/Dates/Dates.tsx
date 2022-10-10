@@ -23,7 +23,7 @@ export default function Dates({ dates }: DatesProps) {
           to="new"
           className={clsx(subtleButtonClasses, "inline-flex items-center")}
         >
-          <PlusIcon className="mr-2 h-5 w-5" />
+          <PlusIcon className="mr-1.5 h-4 w-4" />
           <span>Neu</span>
         </Link>
       </div>
