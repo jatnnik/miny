@@ -1,6 +1,5 @@
 import { Form, Link } from "@remix-run/react"
 import { useEffect, useState } from "react"
-import { motion } from "framer-motion"
 import clsx from "clsx"
 import copy from "copy-to-clipboard"
 import { DocumentDuplicateIcon, CheckIcon } from "@heroicons/react/24/outline"
@@ -21,7 +20,6 @@ export default function WelcomeCard({
   isFirstLogin,
   slug,
 }: WelcomeCardProps) {
-  const [showFirstLogin, setShowFirstLogin] = useState(isFirstLogin)
   const [copied, setCopied] = useState(false)
 
   const userLink = `dienst.vercel.app/u/${slug}`
@@ -49,76 +47,53 @@ export default function WelcomeCard({
     <Card>
       <h2 className={headlineClasses}>Hey {username}!</h2>
       <div className="h-4"></div>
-      <FirstLoginText
-        show={showFirstLogin}
-        onHide={() => setShowFirstLogin(false)}
-      />
-      <motion.div
-        className="space-y-2 overflow-hidden"
-        initial={false}
-        animate={{ height: showFirstLogin ? 0 : "auto" }}
-        transition={{
-          type: "spring",
-          duration: 0.3,
-          delay: 0.45,
-          bounce: 0.1,
-        }}
-      >
-        <label htmlFor="link" className={labelClasses}>
-          Dein Link zum Teilen:
-        </label>
-        <div className="flex items-center gap-2">
-          <input
-            type="text"
-            readOnly
-            className={clsx(
-              inputClasses,
-              "mt-0 cursor-pointer overflow-x-scroll bg-neutral-50 text-sm sm:max-w-sm",
-            )}
-            value={userLink}
-            onClick={() => (window.location.href = `/u/${slug}`)}
-          />
-          <button
-            className="rounded-md border border-slate-300 bg-neutral-100 p-2 shadow-sm"
-            onClick={copyUserLink}
-          >
-            {copied ? (
-              <CheckIcon className="h-5 w-5" />
-            ) : (
-              <DocumentDuplicateIcon className="h-5 w-5" />
-            )}
-          </button>
+
+      {isFirstLogin ? (
+        <FirstLoginText />
+      ) : (
+        <div className="space-y-2">
+          <label htmlFor="link" className={labelClasses}>
+            Dein Link zum Teilen:
+          </label>
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              readOnly
+              className={clsx(
+                inputClasses,
+                "mt-0 cursor-pointer overflow-x-scroll text-ellipsis bg-neutral-50 text-sm sm:max-w-sm",
+              )}
+              value={userLink}
+              onClick={() => (window.location.href = `/u/${slug}`)}
+            />
+            <button
+              className="rounded-md border border-slate-300 bg-neutral-100 p-2 shadow-sm"
+              onClick={copyUserLink}
+            >
+              {copied ? (
+                <CheckIcon className="h-5 w-5" />
+              ) : (
+                <DocumentDuplicateIcon className="h-5 w-5" />
+              )}
+            </button>
+          </div>
         </div>
-      </motion.div>
+      )}
     </Card>
   )
 }
 
-interface FirstLoginTextProps {
-  show: boolean
-  onHide: () => void
-}
-
-function FirstLoginText({ show, onHide }: FirstLoginTextProps) {
+function FirstLoginText() {
   return (
-    <motion.div
-      className="space-y-2 overflow-hidden"
-      initial={false}
-      animate={{ height: show ? "auto" : 0 }}
-      transition={{
-        type: "spring",
-        duration: 0.3,
-        bounce: 0.1,
-      }}
-    >
+    <div className="space-y-2">
       <p className="flex items-center font-semibold">
         Willkommen bei miny
         <img src="https://emojicdn.elk.sh/👋" alt="" className="ml-1 h-5 w-5" />
       </p>
       <p>
         Hier kannst du ganz einfach deine freien Termine eintragen und sie dann
-        per Link verschicken. Wenn sich jemand für einen deiner Termine
-        einträgt, bekommst du automatisch eine E-Mail.
+        per Link teilen. Wenn sich jemand für einen deiner Termine einträgt,
+        bekommst du automatisch eine E-Mail.
       </p>
       <p>
         Tipp: In den{" "}
@@ -132,7 +107,7 @@ function FirstLoginText({ show, onHide }: FirstLoginTextProps) {
         <img src="https://emojicdn.elk.sh/🎉" alt="" className="ml-1 h-5 w-5" />
       </p>
       <div className="h-2"></div>
-      <Form action="." method="post" onSubmit={onHide}>
+      <Form action="." method="post">
         <button
           type="submit"
           name="action"
@@ -142,6 +117,6 @@ function FirstLoginText({ show, onHide }: FirstLoginTextProps) {
           Ausblenden
         </button>
       </Form>
-    </motion.div>
+    </div>
   )
 }
