@@ -53,7 +53,7 @@ export function validateTime(timeStr: string) {
 export const isOnlySpaces = (str: string) => str.trim().length === 0
 
 export function formatDate(date: string | Date) {
-  const dateFormat = "EE dd. MMMM"
+  const dateFormat = "EE, dd. MMMM"
   let dateValue = date
 
   if (typeof dateValue === "string") {
