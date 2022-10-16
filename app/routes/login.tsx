@@ -41,7 +41,8 @@ interface ActionData {
 }
 
 export const action = async ({ request }: ActionArgs) => {
-  const fields = Object.fromEntries(await request.formData()) as LoginFields
+  const formData = await request.formData()
+  const fields = Object.fromEntries(formData.entries()) as LoginFields
   const result = validationSchema.safeParse(fields)
 
   if (!result.success) {
@@ -109,7 +110,7 @@ export default function Login() {
                 autoFocus={true}
                 defaultValue={actionData?.fields?.email}
                 validationError={actionData?.errors?.fieldErrors.email?.join(
-                  ", ",
+                  ", "
                 )}
               />
             </div>
@@ -123,7 +124,7 @@ export default function Login() {
                 minLength={6}
                 defaultValue={actionData?.fields?.password}
                 validationError={actionData?.errors?.fieldErrors.password?.join(
-                  ", ",
+                  ", "
                 )}
               />
             </div>

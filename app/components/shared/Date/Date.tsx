@@ -137,6 +137,7 @@ export default function Date({ data, disableMenu = false }: DateProps) {
   return (
     <AnimatePresence>
       {isVisible && (
+        // TODO: Can I do this with Headless UIs <Transition>, too?
         <motion.div
           key={data.id}
           className="space-y-1 py-3 text-sm text-slate-600"

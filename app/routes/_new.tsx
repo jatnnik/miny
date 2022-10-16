@@ -191,7 +191,8 @@ export default function CreateDate() {
     <div className="py-10">
       <Container>
         <Header username={user.name} />
-        <Card withMarginTop>
+        <div className="h-6"></div>
+        <Card>
           <h1 className={headingStyles}>Neuer Termin</h1>
           <Form className="mt-4" method="post">
             {actionData?.formError ? (

@@ -46,7 +46,8 @@ interface ActionData {
 }
 
 export const action = async ({ request }: ActionArgs) => {
-  const fields = Object.fromEntries(await request.formData()) as RegisterFields
+  const formData = await request.formData()
+  const fields = Object.fromEntries(formData.entries()) as RegisterFields
   const result = validationSchema.safeParse(fields)
 
   if (!result.success) {
@@ -106,7 +107,7 @@ export default function Register() {
                 minLength={2}
                 defaultValue={actionData?.fields?.firstName}
                 validationError={actionData?.errors?.fieldErrors.firstName?.join(
-                  ", ",
+                  ", "
                 )}
                 autoComplete="given-name"
               />
@@ -120,7 +121,7 @@ export default function Register() {
                 required
                 defaultValue={actionData?.fields?.email}
                 validationError={actionData?.errors?.fieldErrors.email?.join(
-                  ", ",
+                  ", "
                 )}
                 autoComplete="email"
               />
@@ -136,7 +137,7 @@ export default function Register() {
                 minLength={6}
                 defaultValue={actionData?.fields?.password}
                 validationError={actionData?.errors?.fieldErrors.password?.join(
-                  ", ",
+                  ", "
                 )}
               />
             </div>
@@ -151,7 +152,7 @@ export default function Register() {
                 autoComplete="new-password"
                 defaultValue={actionData?.fields?.confirmPassword}
                 validationError={actionData?.errors?.fieldErrors.confirmPassword?.join(
-                  ", ",
+                  ", "
                 )}
               />
             </div>
