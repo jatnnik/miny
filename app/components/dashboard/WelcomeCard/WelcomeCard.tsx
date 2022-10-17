@@ -2,7 +2,8 @@ import { Form, Link } from "@remix-run/react"
 import { useEffect, useState } from "react"
 import clsx from "clsx"
 import copy from "copy-to-clipboard"
-import { DocumentDuplicateIcon, CheckIcon } from "@heroicons/react/24/outline"
+import { DocumentDuplicateIcon } from "@heroicons/react/24/outline"
+import { CheckIcon } from "@heroicons/react/20/solid"
 
 import Card from "~/components/shared/Card"
 import { subtleButtonClasses } from "~/components/shared/Buttons"
@@ -61,7 +62,7 @@ export default function WelcomeCard({
               readOnly
               className={clsx(
                 inputClasses,
-                "mt-0 cursor-pointer overflow-x-scroll text-ellipsis bg-neutral-50 text-sm sm:max-w-sm",
+                "mt-0 cursor-pointer overflow-x-scroll text-ellipsis bg-neutral-50 text-sm sm:max-w-sm"
               )}
               value={userLink}
               onClick={() => (window.location.href = `/u/${slug}`)}

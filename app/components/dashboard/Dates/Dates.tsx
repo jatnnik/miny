@@ -27,7 +27,7 @@ export default function Dates({ dates }: DatesProps) {
           <span>Neu</span>
         </Link>
       </div>
-      <div className="h-4"></div>
+      <div className="h-2"></div>
       {hasDates ? (
         <div className="divide-y">
           {dates.map(entry => (
