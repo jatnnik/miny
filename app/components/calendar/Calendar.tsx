@@ -20,17 +20,32 @@ import { de } from "date-fns/locale"
 import clsx from "clsx"
 import { subtleButtonClasses } from "../shared/Buttons"
 
+interface CalendarProps {
+  value: Date[]
+  max?: number
+  onSelect: (day: Date) => void
+  onReset: () => void
+}
+
 const monthFormat = "MMM yyyy"
 
-export function Calendar() {
+export const dayIsSelected = (days: Date[], day: Date) =>
+  days.map(day => day.toString()).includes(day.toString())
+
+export function Calendar({
+  value,
+  onSelect,
+  onReset,
+  max = 30,
+}: CalendarProps) {
+  const selectedDays = value
   const today = startOfToday()
   const initialMonth = format(today, monthFormat)
-  const [selectedDays, setSelectedDays] = useState<Array<Date>>([])
   const [currentMonth, setCurrentMonth] = useState(initialMonth)
-  const [isDisabled, setIsDisabled] = useState(false)
   const firstDayCurrentMonth = parse(currentMonth, monthFormat, new Date())
 
   const isCurrentMonth = currentMonth === format(today, monthFormat)
+  const isDisabled = selectedDays.length === max
 
   const days = eachDayOfInterval({
     start: firstDayCurrentMonth,
@@ -48,26 +63,11 @@ export function Calendar() {
   }
 
   function handleSelectDay(day: Date) {
-    const selectedDaysAsString = selectedDays.map(day => day.toString())
-    const dayAsString = day.toString()
-
-    const reachedMaxLength = selectedDays.length === 3
-
-    if (reachedMaxLength && !isDisabled) setIsDisabled(true)
-
-    if (selectedDaysAsString.includes(dayAsString)) {
-      setSelectedDays(
-        selectedDays.filter(val => val.toString() !== day.toString())
-      )
-      setIsDisabled(false)
-    } else if (!reachedMaxLength) {
-      setSelectedDays([...selectedDays, day])
-    }
+    onSelect(day)
   }
 
   function handleReset() {
-    setSelectedDays([])
-    setIsDisabled(false)
+    onReset()
     goToInitialMonth()
   }
 
@@ -80,15 +80,14 @@ export function Calendar() {
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-0">
         <div>
           <p className="text-sm">Wähle einen oder mehrere Termine aus.</p>
-          {isDisabled && (
-            <p className="text-sm font-medium text-rose-500">
-              Du kannst maximal 30 Termine auf einmal anlegen.
-            </p>
-          )}
+          <p className="mt-1 text-xs text-slate-500">
+            {selectedDays.length}/{max}
+          </p>
         </div>
         <div className="flex space-x-4">
           <button
             onClick={goToInitialMonth}
+            disabled={isCurrentMonth}
             className={clsx(subtleButtonClasses, "flex items-center")}
           >
             <CalendarIcon className="mr-1.5 h-4 w-4" />
@@ -150,7 +149,10 @@ export function Calendar() {
               <button
                 type="button"
                 onClick={() => handleSelectDay(day)}
-                disabled={isPast(day)}
+                disabled={
+                  isPast(day) ||
+                  (isDisabled && !dayIsSelected(selectedDays, day))
+                }
                 className={clsx(
                   isPast(day) && !isToday(day) && "text-slate-400",
                   isToday(day) && "font-semibold text-rose-500",
