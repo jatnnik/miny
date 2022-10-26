@@ -110,7 +110,7 @@ function DateMenu({ id, date, onDelete }: DateMenuProps) {
                     onClick={() => setShowModal(true)}
                     className={clsx(
                       itemClasses,
-                      "text-rose-500 hover:bg-rose-100",
+                      "text-rose-500 hover:bg-rose-100"
                     )}
                   >
                     Löschen
@@ -137,7 +137,6 @@ export default function Date({ data, disableMenu = false }: DateProps) {
   return (
     <AnimatePresence>
       {isVisible && (
-        // TODO: Can I do this with Headless UIs <Transition>, too?
         <motion.div
           key={data.id}
           className="space-y-1 py-3 text-sm text-slate-600"

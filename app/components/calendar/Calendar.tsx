@@ -79,7 +79,7 @@ export function Calendar({
     <>
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-0">
         <div>
-          <p className="text-sm">Wähle einen oder mehrere Termine aus.</p>
+          <p className="text-sm">Wähle einen oder mehrere Tage aus.</p>
           <p className="mt-1 text-xs text-slate-500">
             {selectedDays.length}/{max}
           </p>
@@ -158,6 +158,7 @@ export function Calendar({
                   isToday(day) && "font-semibold text-rose-500",
                   !isToday(day) && "disabled:opacity-70",
                   !isToday(day) &&
+                    !isPast(day) &&
                     !selectedDays
                       .map(day => day.toString())
                       .includes(day.toString()) &&
