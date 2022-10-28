@@ -16,7 +16,7 @@ import { createUserSession, getUserId } from "~/session.server"
 import { badRequest } from "~/utils"
 import { verifyLogin } from "~/models/user.server"
 
-import Input from "~/components/Input"
+import Input from "~/components/shared/Input"
 import { submitButtonClasses } from "~/components/shared/Buttons"
 import { loginCardClasses, loginWrapperClasses } from "~/components/login"
 

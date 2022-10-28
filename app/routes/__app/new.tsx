@@ -1,9 +1,14 @@
-import type { MetaFunction } from "@remix-run/node"
-import React, { useState } from "react"
-import { Form } from "@remix-run/react"
+import type { ActionArgs, LoaderArgs, MetaFunction } from "@remix-run/node"
+import { useState } from "react"
+import { Form, useActionData } from "@remix-run/react"
 import { format } from "date-fns"
 import { Switch } from "@headlessui/react"
 import { motion } from "framer-motion"
+import { z } from "zod"
+
+import { requireUser } from "~/session.server"
+import type { inferSafeParseErrors } from "~/utils"
+import { badRequest } from "~/utils"
 
 import Card from "~/components/shared/Card"
 import Input from "~/components/shared/Input"
@@ -24,7 +29,69 @@ export const meta: MetaFunction = () => {
   }
 }
 
+export async function loader({ request }: LoaderArgs) {
+  await requireUser(request)
+  return null
+}
+
+const validationSchema = z
+  .object({
+    days: z.string().array().min(1),
+    isFlexible: z.enum(["on"]).optional(),
+    start: z.string().optional(),
+    end: z.string().optional(),
+    flexibleStart: z.string().optional(),
+    isZoom: z.enum(["on"]).optional(),
+    isGroup: z.enum(["on"]).optional(),
+    maxParticipants: z.string().regex(/^\d+$/).transform(Number).optional(),
+    manualPartner: z.enum(["on"]).optional(),
+    partner: z.string().optional(),
+    note: z.string().optional(),
+  })
+  .refine(data => (data.isFlexible !== "on" ? !!data.start : true), {
+    message: "Bitte gib eine Startzeit an",
+    path: ["start"],
+  })
+  .refine(data => (data.isFlexible === "on" ? !!data.flexibleStart : true), {
+    message: "Bitte gib eine Startzeit an",
+    path: ["flexibleStart"],
+  })
+  .refine(data => (data.isGroup === "on" ? !!data.maxParticipants : true), {
+    message: "Bitte gib eine gültige Zahl an",
+    path: ["maxParticipants"],
+  })
+  .refine(data => (data.manualPartner === "on" ? !!data.partner : true), {
+    message: "Bitte gib einen Namen ein",
+    path: ["partner"],
+  })
+type Fields = z.infer<typeof validationSchema>
+type FieldErrors = inferSafeParseErrors<typeof validationSchema>
+
+interface ActionData {
+  fields: Fields
+  errors?: FieldErrors
+}
+
+export async function action({ request }: ActionArgs) {
+  const formData = await request.formData()
+  const days = formData.getAll("selectedDay")
+  const { selectedDay, ...formFields } = Object.fromEntries(formData.entries())
+  const fields = { ...formFields, days } as Fields
+  const result = validationSchema.safeParse(fields)
+
+  if (!result.success) {
+    return badRequest<ActionData>({
+      fields,
+      errors: result.error.flatten(),
+    })
+  }
+
+  return null
+}
+
 export default function AddDateRoute() {
+  const actionData = useActionData<ActionData>()
+
   const [selectedDays, setSelectedDays] = useState<Date[]>([])
   const [formState, setFormState] = useState(initialFormState)
 
@@ -42,15 +109,6 @@ export default function AddDateRoute() {
     setSelectedDays([])
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    const formData = new FormData(event.currentTarget)
-    const days = formData.getAll("selectedDay")
-    const { selectedDay, ...fields } = Object.fromEntries(formData)
-    const data = { ...fields, days }
-    console.log(data)
-  }
-
   return (
     <Card>
       <h1 className={headlineClasses}>Neuer Termin</h1>
@@ -62,7 +120,7 @@ export default function AddDateRoute() {
         max={10}
       />
       <div className="h-8"></div>
-      <Form method="post" onSubmit={handleSubmit}>
+      <Form method="post">
         {/* Map the selected days to hidden inputs */}
         {selectedDays.length > 0 &&
           selectedDays.map((day, i) => (
@@ -108,15 +166,36 @@ export default function AddDateRoute() {
                   label='Zeit (z.B. "Vormittags")'
                   type="text"
                   required
+                  defaultValue={actionData?.fields?.flexibleStart}
+                  validationError={actionData?.errors?.fieldErrors.flexibleStart?.join(
+                    ", "
+                  )}
                 />
               </div>
             ) : (
               <div className="flex items-center justify-between gap-6">
                 <div className="flex-1">
-                  <Input name="start" label="Von" type="time" required />
+                  <Input
+                    name="start"
+                    label="Von"
+                    type="time"
+                    required
+                    defaultValue={actionData?.fields.start}
+                    validationError={actionData?.errors?.fieldErrors.start?.join(
+                      ", "
+                    )}
+                  />
                 </div>
                 <div className="flex-1">
-                  <Input name="end" label="Bis" type="time" required />
+                  <Input
+                    name="end"
+                    label="Bis"
+                    type="time"
+                    defaultValue={actionData?.fields.end}
+                    validationError={actionData?.errors?.fieldErrors.end?.join(
+                      ", "
+                    )}
+                  />
                 </div>
               </div>
             )}
@@ -186,8 +265,11 @@ export default function AddDateRoute() {
               min="2"
               maxLength={2}
               pattern="[0-9]"
-              defaultValue={2}
               required={formState.isGroup}
+              defaultValue={actionData?.fields.maxParticipants}
+              validationError={actionData?.errors?.fieldErrors.maxParticipants?.join(
+                ", "
+              )}
             />
           </motion.div>
           {/* Partner */}
@@ -233,11 +315,21 @@ export default function AddDateRoute() {
               name="partner"
               type="text"
               required={formState.manualPartner}
+              defaultValue={actionData?.fields.manualPartner}
+              validationError={actionData?.errors?.fieldErrors.manualPartner?.join(
+                ", "
+              )}
             />
           </motion.div>
           {/* Note */}
           <div className="h-6"></div>
-          <Input label="Notiz" name="note" type="text" />
+          <Input
+            label="Notiz"
+            name="note"
+            type="text"
+            defaultValue={actionData?.fields.note}
+            validationError={actionData?.errors?.fieldErrors.note?.join(", ")}
+          />
           {/* Submit */}
           <div className="h-10"></div>
           <button
