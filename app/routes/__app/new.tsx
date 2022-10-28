@@ -1,20 +1,25 @@
 import type { ActionArgs, LoaderArgs, MetaFunction } from "@remix-run/node"
+import { redirect } from "@remix-run/node"
 import { useState } from "react"
-import { Form, useActionData } from "@remix-run/react"
+import { Form, useActionData, useTransition } from "@remix-run/react"
 import { format } from "date-fns"
 import { Switch } from "@headlessui/react"
 import { motion } from "framer-motion"
 import { z } from "zod"
 
-import { requireUser } from "~/session.server"
 import type { inferSafeParseErrors } from "~/utils"
+import type { CreateFields } from "~/models/date.server"
+import { requireUser, requireUserId } from "~/session.server"
 import { badRequest } from "~/utils"
+import { createDates } from "~/models/date.server"
 
 import Card from "~/components/shared/Card"
 import Input from "~/components/shared/Input"
 import { Calendar, dayIsSelected } from "~/components/calendar"
 import { headlineClasses } from "~/components/shared/Headline"
 import { subtleButtonClasses } from "~/components/shared/Buttons"
+import LoadingSpinner from "~/components/shared/LoadingSpinner"
+import clsx from "clsx"
 
 const initialFormState = {
   isZoom: false,
@@ -43,7 +48,7 @@ const validationSchema = z
     flexibleStart: z.string().optional(),
     isZoom: z.enum(["on"]).optional(),
     isGroup: z.enum(["on"]).optional(),
-    maxParticipants: z.string().regex(/^\d+$/).transform(Number).optional(),
+    maxParticipants: z.string().transform(Number).optional(),
     manualPartner: z.enum(["on"]).optional(),
     partner: z.string().optional(),
     note: z.string().optional(),
@@ -73,6 +78,8 @@ interface ActionData {
 }
 
 export async function action({ request }: ActionArgs) {
+  const userId = await requireUserId(request)
+
   const formData = await request.formData()
   const days = formData.getAll("selectedDay")
   const { selectedDay, ...formFields } = Object.fromEntries(formData.entries())
@@ -86,16 +93,34 @@ export async function action({ request }: ActionArgs) {
     })
   }
 
-  return null
+  const data: CreateFields = {
+    days: fields.days,
+    isFlexible: fields.isFlexible === "on",
+    start: fields.isFlexible !== "on" ? fields.start : null,
+    end: fields.isFlexible !== "on" ? fields.end : null,
+    flexibleStart: fields.isFlexible === "on" ? fields.flexibleStart : null,
+    isZoom: fields.isZoom === "on",
+    isGroup: fields.isGroup === "on",
+    maxParticipants:
+      fields.isGroup === "on" ? Number(fields.maxParticipants) : null,
+    partner: fields.manualPartner === "on" ? fields.partner : null,
+    note: fields.note,
+  }
+
+  await createDates(data, Number(userId))
+
+  return redirect("/")
 }
 
 export default function AddDateRoute() {
   const actionData = useActionData<ActionData>()
+  const transition = useTransition()
 
   const [selectedDays, setSelectedDays] = useState<Date[]>([])
   const [formState, setFormState] = useState(initialFormState)
 
-  const submitIsDisabled = selectedDays.length === 0
+  const submitIsDisabled =
+    selectedDays.length === 0 || transition.state === "submitting"
 
   function onSelect(day: Date) {
     if (dayIsSelected(selectedDays, day)) {
@@ -131,7 +156,10 @@ export default function AddDateRoute() {
               value={format(day, "yyyy-MM-dd")}
             />
           ))}
-        <fieldset className="text-sm disabled:opacity-60">
+        <fieldset
+          className="text-sm transition-opacity disabled:opacity-60"
+          disabled={transition.state === "submitting"}
+        >
           <div className="space-y-6">
             {/* Flexible */}
             <Switch.Group>
@@ -334,10 +362,10 @@ export default function AddDateRoute() {
           <div className="h-10"></div>
           <button
             type="submit"
-            className={subtleButtonClasses}
+            className={clsx(subtleButtonClasses, "inline-flex items-center")}
             disabled={submitIsDisabled}
           >
-            Speichern
+            Speichern {submitIsDisabled && <LoadingSpinner />}
           </button>
         </fieldset>
       </Form>

@@ -21,7 +21,7 @@ export type DateWithParticipants = Prisma.AppointmentGetPayload<
 
 export async function isOwner(
   ownerId: Appointment["userId"],
-  userId: User["id"],
+  userId: User["id"]
 ) {
   return ownerId === userId
 }
@@ -152,33 +152,68 @@ export async function getFreeDates(userId: User["id"], onlyZoom = false) {
   }
 }
 
-interface CreateFields {
-  date: string
-  startTime: string
-  endTime?: string | null
-  isGroupDate?: boolean
-  maxParticipants?: number | null
-  note?: string | null
+// interface CreateFields {
+//   date: string
+//   startTime: string
+//   endTime?: string | null
+//   isGroupDate?: boolean
+//   maxParticipants?: number | null
+//   note?: string | null
+//   isFlexible: boolean
+//   partner?: string | null
+//   isZoom: boolean
+// }
+
+// export async function createDate(fields: CreateFields, userId: string) {
+//   return await prisma.appointment.create({
+//     data: {
+//       date: fields.date,
+//       startTime: fields.startTime,
+//       endTime: fields.endTime,
+//       isGroupDate: fields.isGroupDate,
+//       maxParticipants: fields.maxParticipants,
+//       note: fields.note,
+//       userId: Number(userId),
+//       isFlexible: fields.isFlexible,
+//       partnerName: fields.partner,
+//       isAssigned: typeof fields.partner === "string",
+//       isZoom: fields.isZoom,
+//     },
+//   })
+// }
+
+export interface CreateFields {
+  days: string[]
   isFlexible: boolean
-  partner?: string | null
+  start?: string | null
+  end?: string | null
+  flexibleStart?: string | null
   isZoom: boolean
+  isGroup: boolean
+  maxParticipants?: number | null
+  partner?: string | null
+  note?: string | null
 }
 
-export async function createDate(fields: CreateFields, userId: string) {
-  return await prisma.appointment.create({
-    data: {
-      date: fields.date,
-      startTime: fields.startTime,
-      endTime: fields.endTime,
-      isGroupDate: fields.isGroupDate,
-      maxParticipants: fields.maxParticipants,
-      note: fields.note,
-      userId: Number(userId),
-      isFlexible: fields.isFlexible,
-      partnerName: fields.partner,
-      isAssigned: typeof fields.partner === "string",
-      isZoom: fields.isZoom,
-    },
+export async function createDates(fields: CreateFields, userId: User["id"]) {
+  const data = fields.days.map(day => ({
+    date: new Date(day),
+    startTime: fields.isFlexible
+      ? (fields.flexibleStart as string)
+      : (fields.start as string),
+    endTime: fields.end,
+    isAssigned: !!fields.partner,
+    isFlexible: fields.isFlexible,
+    partnerName: fields.partner,
+    isGroupDate: fields.isGroup,
+    maxParticipants: fields.maxParticipants,
+    note: fields.note,
+    isZoom: fields.isZoom,
+    userId,
+  }))
+
+  return await prisma.appointment.createMany({
+    data,
   })
 }
 
@@ -231,7 +266,7 @@ export async function deleteDate(id: Appointment["id"]) {
 
 export async function safeDeleteDate(
   id: Appointment["id"],
-  userId: User["id"],
+  userId: User["id"]
 ) {
   const date = await getDateById(id)
   if (!date) return null
@@ -304,7 +339,7 @@ interface Recipient {
 export async function sendAssignmentEmail(
   recipient: Recipient,
   partnerName: string,
-  appointment: AppointmentWithUserAndParticipants,
+  appointment: AppointmentWithUserAndParticipants
 ) {
   const transporter = nodemailer.createTransport({
     service: "gmail",

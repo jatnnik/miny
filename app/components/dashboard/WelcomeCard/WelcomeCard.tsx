@@ -26,7 +26,7 @@ export default function WelcomeCard({
   const userLink = `dienst.vercel.app/u/${slug}`
 
   useEffect(() => {
-    let timeout: ReturnType<typeof setTimeout>
+    let timeout: any
 
     if (copied) {
       timeout = setTimeout(() => {
@@ -62,13 +62,13 @@ export default function WelcomeCard({
               readOnly
               className={clsx(
                 inputClasses,
-                "mt-0 cursor-pointer overflow-x-scroll text-ellipsis bg-neutral-50 text-sm sm:max-w-sm"
+                "mt-0 cursor-pointer overflow-x-scroll text-ellipsis bg-slate-50 text-sm sm:max-w-sm"
               )}
               value={userLink}
               onClick={() => (window.location.href = `/u/${slug}`)}
             />
             <button
-              className="rounded-md border border-slate-300 bg-neutral-100 p-2 shadow-sm"
+              className="rounded-md border border-slate-300 bg-slate-100 p-2 shadow-sm"
               onClick={copyUserLink}
             >
               {copied ? (
