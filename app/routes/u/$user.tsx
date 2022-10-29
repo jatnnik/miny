@@ -18,7 +18,7 @@ import Container from "~/components/Container"
 import Card from "~/components/shared/Card"
 import Header from "~/components/profile/Header"
 import DateSlot from "~/components/profile/Date"
-import { subtleButtonClasses } from "~/components/shared/Buttons"
+import { button } from "~/components/shared/Buttons"
 
 export const loader = async ({ request, params }: LoaderArgs) => {
   invariant(params.user, "Expected params.user")
@@ -75,7 +75,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   await sendAssignmentEmail(
     { email: appointment.user.email, name: appointment.user.name },
     name,
-    appointment,
+    appointment
   )
 
   return redirect(`/u/${params.user}?assigned=${dateId}`)
@@ -144,14 +144,18 @@ export default function UserPage() {
               {showZoomFilter && (
                 <div className="mt-5">
                   {onlyZoom ? (
-                    <Link to="." key="all" className={subtleButtonClasses}>
+                    <Link
+                      to="."
+                      key="all"
+                      className={button({ intent: "primary", size: "medium" })}
+                    >
                       Alle Termine anzeigen
                     </Link>
                   ) : (
                     <Link
                       to="?zoom=on"
                       key="zoom"
-                      className={subtleButtonClasses}
+                      className={button({ intent: "primary", size: "medium" })}
                     >
                       Nur Zoom Termine anzeigen
                     </Link>

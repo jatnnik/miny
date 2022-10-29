@@ -6,7 +6,7 @@ import { DocumentDuplicateIcon } from "@heroicons/react/24/outline"
 import { CheckIcon } from "@heroicons/react/20/solid"
 
 import Card from "~/components/shared/Card"
-import { subtleButtonClasses } from "~/components/shared/Buttons"
+import Button from "~/components/shared/Buttons"
 import { headlineClasses } from "~/components/shared/Headline"
 import { inputClasses, labelClasses } from "~/components/Input"
 
@@ -109,14 +109,9 @@ function FirstLoginText() {
       </p>
       <div className="h-2"></div>
       <Form action="." method="post">
-        <button
-          type="submit"
-          name="action"
-          value="hideWelcomeText"
-          className={subtleButtonClasses}
-        >
+        <Button type="submit" name="action" value="hideWelcomeText">
           Ausblenden
-        </button>
+        </Button>
       </Form>
     </div>
   )
