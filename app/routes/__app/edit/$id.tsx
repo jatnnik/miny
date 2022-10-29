@@ -31,8 +31,11 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   }
 
   const date = await getDateById(dateIdIsValid.data)
-  if (!date || date.userId !== user.id) {
-    return redirect("/")
+  if (!date) {
+    throw new Response("Not found", { status: 404 })
+  }
+  if (date.userId !== user.id) {
+    throw new Response("No permission", { status: 403 })
   }
 
   return typedjson({ date })
