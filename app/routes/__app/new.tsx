@@ -17,9 +17,8 @@ import Card from "~/components/shared/Card"
 import Input from "~/components/shared/Input"
 import { Calendar, dayIsSelected } from "~/components/calendar"
 import { headlineClasses } from "~/components/shared/Headline"
-import { subtleButtonClasses } from "~/components/shared/Buttons"
+import Button from "~/components/shared/Buttons"
 import LoadingSpinner from "~/components/shared/LoadingSpinner"
-import clsx from "clsx"
 
 const initialFormState = {
   isZoom: false,
@@ -145,7 +144,7 @@ export default function AddDateRoute() {
         max={10}
       />
       <div className="h-8"></div>
-      <Form method="post">
+      <Form method="post" autoComplete="off">
         {/* Map the selected days to hidden inputs */}
         {selectedDays.length > 0 &&
           selectedDays.map((day, i) => (
@@ -360,13 +359,15 @@ export default function AddDateRoute() {
           />
           {/* Submit */}
           <div className="h-10"></div>
-          <button
+          <Button
             type="submit"
-            className={clsx(subtleButtonClasses, "inline-flex items-center")}
             disabled={submitIsDisabled}
+            intent="submit"
+            variant="icon"
+            size="small"
           >
-            Speichern {submitIsDisabled && <LoadingSpinner />}
-          </button>
+            Speichern {transition.state === "submitting" && <LoadingSpinner />}
+          </Button>
         </fieldset>
       </Form>
     </Card>

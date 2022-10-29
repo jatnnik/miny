@@ -17,7 +17,7 @@ import { badRequest } from "~/utils"
 import { verifyLogin } from "~/models/user.server"
 
 import Input from "~/components/shared/Input"
-import { submitButtonClasses } from "~/components/shared/Buttons"
+import Button from "~/components/shared/Buttons"
 import { loginCardClasses, loginWrapperClasses } from "~/components/login"
 
 export const loader = async ({ request }: LoaderArgs) => {
@@ -157,9 +157,9 @@ export default function Login() {
                 </Link>
               </div>
 
-              <button type="submit" className={submitButtonClasses}>
+              <Button type="submit" intent="submit" size="small">
                 Anmelden
-              </button>
+              </Button>
             </div>
           </fieldset>
         </Form>

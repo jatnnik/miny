@@ -18,7 +18,8 @@ import {
 } from "date-fns"
 import { de } from "date-fns/locale"
 import clsx from "clsx"
-import { subtleButtonClasses } from "../shared/Buttons"
+
+import Button from "../shared/Buttons"
 
 interface CalendarProps {
   value: Date[]
@@ -85,22 +86,22 @@ export function Calendar({
           </p>
         </div>
         <div className="flex space-x-4">
-          <button
+          <Button
             onClick={goToInitialMonth}
             disabled={isCurrentMonth}
-            className={clsx(subtleButtonClasses, "flex items-center")}
+            variant="icon"
           >
             <CalendarIcon className="mr-1.5 h-4 w-4" />
             Heute
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={handleReset}
             disabled={selectedDays.length === 0}
-            className={clsx(subtleButtonClasses, "flex items-center")}
+            variant="icon"
           >
             <XMarkIcon className="mr-1.5 h-4 w-4" />
             Zurücksetzen
-          </button>
+          </Button>
         </div>
       </div>
       <div className="mt-4 rounded-md bg-white p-2 text-sm shadow-md ring-1 ring-slate-200">

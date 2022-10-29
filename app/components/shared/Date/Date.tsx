@@ -5,8 +5,8 @@ import {
   EllipsisHorizontalIcon,
   UserIcon,
   UsersIcon,
-  VideoCameraIcon,
   ChatBubbleOvalLeftEllipsisIcon,
+  VideoCameraIcon,
 } from "@heroicons/react/24/outline"
 import { Form, Link, useTransition } from "@remix-run/react"
 import clsx from "clsx"
@@ -15,7 +15,7 @@ import { Menu, Transition, Dialog } from "@headlessui/react"
 import { AnimatePresence, motion } from "framer-motion"
 
 import { itemClasses } from "../Menu/Menu"
-import { subtleButtonClasses, warningButtonClasses } from "../Buttons"
+import Button from "../Buttons"
 
 interface DateProps {
   data: DateWithParticipants
@@ -56,24 +56,20 @@ function DateMenu({ id, date, onDelete }: DateMenuProps) {
             </p>
             <div className="h-2"></div>
             <div className="flex space-x-4">
-              <button
-                onClick={() => setShowModal(false)}
-                className={subtleButtonClasses}
-              >
-                Doch nicht
-              </button>
+              <Button onClick={() => setShowModal(false)}>Doch nicht</Button>
               <Form method="post" onSubmit={onDelete}>
                 <input type="hidden" name="id" value={id} />
-                <button
+                <Button
                   type="submit"
                   name="action"
                   value="deleteDate"
-                  className={warningButtonClasses}
+                  intent="warning"
+                  size="medium"
                   ref={deleteButtonRef}
                   disabled={transition.state === "submitting"}
                 >
                   Ja
-                </button>
+                </Button>
               </Form>
             </div>
           </Dialog.Panel>
@@ -153,9 +149,7 @@ export default function Date({ data, disableMenu = false }: DateProps) {
             <div>
               <div className="flex items-center text-base font-medium">
                 {formattedDate}
-                {data.isZoom && (
-                  <VideoCameraIcon className="ml-1.5 h-3.5 w-3.5" />
-                )}
+                {data.isZoom && <VideoCameraIcon className="ml-1.5 h-4 w-4" />}
               </div>
             </div>
             {!disableMenu && (

@@ -16,7 +16,7 @@ import { createUser, getUserByEmail } from "~/models/user.server"
 import { badRequest } from "~/utils"
 
 import Input from "~/components/Input"
-import { submitButtonClasses } from "~/components/shared/Buttons"
+import Button from "~/components/shared/Buttons"
 import { loginCardClasses, loginWrapperClasses } from "~/components/login"
 
 export const loader = async ({ request }: LoaderArgs) => {
@@ -193,9 +193,9 @@ export default function Register() {
                 </Link>
               </div>
 
-              <button type="submit" className={submitButtonClasses}>
+              <Button type="submit" intent="submit" size="small">
                 {transition.state === "submitting" ? "Lade..." : "Registrieren"}
-              </button>
+              </Button>
             </div>
           </fieldset>
         </Form>
