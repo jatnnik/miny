@@ -164,7 +164,7 @@ export default function Date({ data, disableMenu = false }: DateProps) {
             <div className="flex items-center">
               <ClockIcon className="mr-1 h-3.5 w-3.5" />
               {data.startTime}
-              {data.endTime && `-${data.endTime}`}
+              {!data.isFlexible && data.endTime && `-${data.endTime}`}
             </div>
             {data.isGroupDate && (
               <div className="flex items-center">

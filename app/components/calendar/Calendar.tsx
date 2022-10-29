@@ -26,22 +26,28 @@ interface CalendarProps {
   max?: number
   onSelect: (day: Date) => void
   onReset: () => void
+  editMode?: boolean
 }
 
 const monthFormat = "MMM yyyy"
 
-export const dayIsSelected = (days: Date[], day: Date) =>
-  days.map(day => day.toString()).includes(day.toString())
+export const dayIsSelected = (days: Date[], day: Date) => {
+  const dateStrings = days.map(day => format(day, "yyyy-MM-dd"))
+  const formattedDay = format(day, "yyyy-MM-dd")
+
+  return dateStrings.includes(formattedDay)
+}
 
 export function Calendar({
   value,
   onSelect,
   onReset,
   max = 30,
+  editMode = false,
 }: CalendarProps) {
   const selectedDays = value
   const today = startOfToday()
-  const initialMonth = format(today, monthFormat)
+  const initialMonth = format(editMode ? selectedDays[0] : today, monthFormat)
   const [currentMonth, setCurrentMonth] = useState(initialMonth)
   const firstDayCurrentMonth = parse(currentMonth, monthFormat, new Date())
 
@@ -80,10 +86,19 @@ export function Calendar({
     <>
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-0">
         <div>
-          <p className="text-sm">Wähle einen oder mehrere Tage aus.</p>
-          <p className="mt-1 text-xs text-slate-500">
-            {selectedDays.length}/{max}
-          </p>
+          {!editMode && (
+            <>
+              <p className="text-sm">Wähle einen oder mehrere Tage aus.</p>
+              <p
+                className={clsx("mt-1 text-xs", {
+                  "text-slate-500": !isDisabled,
+                  "text-rose-500": isDisabled,
+                })}
+              >
+                {selectedDays.length}/{max}
+              </p>
+            </>
+          )}
         </div>
         <div className="flex space-x-4">
           <Button
@@ -160,14 +175,10 @@ export function Calendar({
                   !isToday(day) && "disabled:opacity-70",
                   !isToday(day) &&
                     !isPast(day) &&
-                    !selectedDays
-                      .map(day => day.toString())
-                      .includes(day.toString()) &&
+                    !dayIsSelected(selectedDays, day) &&
                     "hover:bg-slate-200",
                   !isToday(day) &&
-                    selectedDays
-                      .map(day => day.toString())
-                      .includes(day.toString()) &&
+                    dayIsSelected(selectedDays, day) &&
                     "bg-slate-700 text-white",
                   "mx-auto flex h-8 w-8 items-center justify-center rounded-full transition-colors"
                 )}
