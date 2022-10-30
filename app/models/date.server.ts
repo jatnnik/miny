@@ -152,36 +152,6 @@ export async function getFreeDates(userId: User["id"], onlyZoom = false) {
   }
 }
 
-// interface CreateFields {
-//   date: string
-//   startTime: string
-//   endTime?: string | null
-//   isGroupDate?: boolean
-//   maxParticipants?: number | null
-//   note?: string | null
-//   isFlexible: boolean
-//   partner?: string | null
-//   isZoom: boolean
-// }
-
-// export async function createDate(fields: CreateFields, userId: string) {
-//   return await prisma.appointment.create({
-//     data: {
-//       date: fields.date,
-//       startTime: fields.startTime,
-//       endTime: fields.endTime,
-//       isGroupDate: fields.isGroupDate,
-//       maxParticipants: fields.maxParticipants,
-//       note: fields.note,
-//       userId: Number(userId),
-//       isFlexible: fields.isFlexible,
-//       partnerName: fields.partner,
-//       isAssigned: typeof fields.partner === "string",
-//       isZoom: fields.isZoom,
-//     },
-//   })
-// }
-
 export interface CreateFields {
   days: string[]
   isFlexible: boolean
@@ -201,7 +171,7 @@ export async function createDates(fields: CreateFields, userId: User["id"]) {
     startTime: fields.isFlexible
       ? (fields.flexibleStart as string)
       : (fields.start as string),
-    endTime: fields.end,
+    endTime: fields.isFlexible ? null : fields.end,
     isAssigned: !!fields.partner,
     isFlexible: fields.isFlexible,
     partnerName: fields.partner,
@@ -217,8 +187,10 @@ export async function createDates(fields: CreateFields, userId: User["id"]) {
   })
 }
 
-interface UpdateFields extends CreateFields {
+type CreateFieldsWithoutDays = Omit<CreateFields, "days">
+export interface UpdateFields extends CreateFieldsWithoutDays {
   id: number
+  day: string
 }
 
 export async function updateDate(fields: UpdateFields) {
@@ -227,15 +199,17 @@ export async function updateDate(fields: UpdateFields) {
       id: fields.id,
     },
     data: {
-      date: fields.date,
-      startTime: fields.startTime,
-      endTime: fields.endTime,
-      isGroupDate: fields.isGroupDate,
+      date: new Date(fields.day),
+      startTime: fields.isFlexible
+        ? (fields.flexibleStart as string)
+        : (fields.start as string),
+      endTime: fields.end,
+      isGroupDate: fields.isGroup,
       maxParticipants: fields.maxParticipants,
       note: fields.note,
       isFlexible: fields.isFlexible,
       partnerName: fields.partner,
-      isAssigned: typeof fields.partner === "string",
+      isAssigned: !!fields.partner,
       isZoom: fields.isZoom,
     },
   })

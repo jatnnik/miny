@@ -75,33 +75,36 @@ export function Calendar({
 
   function handleReset() {
     onReset()
-    goToInitialMonth()
+    if (editMode) {
+      setCurrentMonth(format(selectedDays[0], monthFormat))
+    } else {
+      goToInitialMonth()
+    }
   }
 
   function goToInitialMonth() {
-    setCurrentMonth(initialMonth)
+    setCurrentMonth(format(today, monthFormat))
   }
 
   return (
     <>
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-0">
-        <div>
-          {!editMode && (
-            <>
-              <p className="text-sm">Wähle einen oder mehrere Tage aus.</p>
-              <p
-                className={clsx("mt-1 text-xs", {
-                  "text-slate-500": !isDisabled,
-                  "text-rose-500": isDisabled,
-                })}
-              >
-                {selectedDays.length}/{max}
-              </p>
-            </>
-          )}
-        </div>
+        {!editMode && (
+          <div>
+            <p className="text-sm">Wähle einen oder mehrere Tage aus.</p>
+            <p
+              className={clsx("mt-1 text-xs", {
+                "text-slate-500": !isDisabled,
+                "text-rose-500": isDisabled,
+              })}
+            >
+              {selectedDays.length}/{max}
+            </p>
+          </div>
+        )}
         <div className="flex space-x-4">
           <Button
+            type="button"
             onClick={goToInitialMonth}
             disabled={isCurrentMonth}
             variant="icon"
@@ -110,6 +113,7 @@ export function Calendar({
             Heute
           </Button>
           <Button
+            type="button"
             onClick={handleReset}
             disabled={selectedDays.length === 0}
             variant="icon"

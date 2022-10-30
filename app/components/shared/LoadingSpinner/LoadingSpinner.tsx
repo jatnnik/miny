@@ -1,7 +1,7 @@
 export default function LoadingSpinner() {
   return (
     <svg
-      className="ml-3 h-4 w-4 animate-spin text-white"
+      className="ml-3 h-4 w-4 animate-spin text-inherit"
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"

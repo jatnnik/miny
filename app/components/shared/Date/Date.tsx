@@ -1,4 +1,4 @@
-import { Fragment, useRef, useState } from "react"
+import { Fragment, useState } from "react"
 import type { DateWithParticipants } from "~/models/date.server"
 import {
   ClockIcon,
@@ -30,7 +30,6 @@ interface DateMenuProps {
 
 function DateMenu({ id, date, onDelete }: DateMenuProps) {
   const [showModal, setShowModal] = useState(false)
-  const deleteButtonRef = useRef<HTMLButtonElement>(null)
   const transition = useTransition()
 
   return (
@@ -38,7 +37,6 @@ function DateMenu({ id, date, onDelete }: DateMenuProps) {
       <Dialog
         open={showModal}
         onClose={() => setShowModal(false)}
-        initialFocus={deleteButtonRef}
         className="relative z-50"
       >
         {/* Backdrop */}
@@ -65,7 +63,6 @@ function DateMenu({ id, date, onDelete }: DateMenuProps) {
                   value="deleteDate"
                   intent="warning"
                   size="medium"
-                  ref={deleteButtonRef}
                   disabled={transition.state === "submitting"}
                 >
                   Ja
@@ -172,19 +169,19 @@ export default function Date({ data, disableMenu = false }: DateProps) {
                 {data.participants.length}/{data.maxParticipants}
               </div>
             )}
+            {data.isAssigned && !data.isGroupDate && (
+              <div className="flex items-center">
+                <UserIcon className="mr-1 h-3.5 w-3.5" />
+                {data.partnerName}
+              </div>
+            )}
+            {data.note && (
+              <div className="flex items-center">
+                <ChatBubbleOvalLeftEllipsisIcon className="mr-1 h-3.5 w-3.5" />
+                {data.note}
+              </div>
+            )}
           </div>
-          {data.isAssigned && !data.isGroupDate && (
-            <div className="flex items-center">
-              <UserIcon className="mr-1 h-3.5 w-3.5" />
-              {data.partnerName}
-            </div>
-          )}
-          {data.note && (
-            <div className="flex items-center">
-              <ChatBubbleOvalLeftEllipsisIcon className="mr-1 h-3.5 w-3.5" />
-              {data.note}
-            </div>
-          )}
         </motion.div>
       )}
     </AnimatePresence>

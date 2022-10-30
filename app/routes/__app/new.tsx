@@ -1,7 +1,7 @@
 import type { ActionArgs, LoaderArgs, MetaFunction } from "@remix-run/node"
 import { redirect } from "@remix-run/node"
 import { useState } from "react"
-import { Form, useActionData, useTransition } from "@remix-run/react"
+import { Form, Link, useActionData, useTransition } from "@remix-run/react"
 import { format } from "date-fns"
 import { Switch } from "@headlessui/react"
 import { motion } from "framer-motion"
@@ -38,20 +38,21 @@ export async function loader({ request }: LoaderArgs) {
   return null
 }
 
-const validationSchema = z
-  .object({
-    days: z.string().array().min(1),
-    isFlexible: z.enum(["on"]).optional(),
-    start: z.string().optional(),
-    end: z.string().optional(),
-    flexibleStart: z.string().optional(),
-    isZoom: z.enum(["on"]).optional(),
-    isGroup: z.enum(["on"]).optional(),
-    maxParticipants: z.string().transform(Number).optional(),
-    manualPartner: z.enum(["on"]).optional(),
-    partner: z.string().optional(),
-    note: z.string().optional(),
-  })
+export const baseDateSchema = z.object({
+  days: z.string().array().min(1),
+  isFlexible: z.enum(["on"]).optional(),
+  start: z.string().optional(),
+  end: z.string().optional(),
+  flexibleStart: z.string().optional(),
+  isZoom: z.enum(["on"]).optional(),
+  isGroup: z.enum(["on"]).optional(),
+  maxParticipants: z.string().transform(Number).optional(),
+  manualPartner: z.enum(["on"]).optional(),
+  partner: z.string().optional(),
+  note: z.string().optional(),
+})
+
+const validationSchema = baseDateSchema
   .refine(data => (data.isFlexible !== "on" ? !!data.start : true), {
     message: "Bitte gib eine Startzeit an",
     path: ["start"],
@@ -93,6 +94,7 @@ export async function action({ request }: ActionArgs) {
   }
 
   const data: CreateFields = {
+    // TODO: Use validated Zod data
     days: fields.days,
     isFlexible: fields.isFlexible === "on",
     start: fields.isFlexible !== "on" ? fields.start : null,
@@ -359,15 +361,21 @@ export default function AddDateRoute() {
           />
           {/* Submit */}
           <div className="h-10"></div>
-          <Button
-            type="submit"
-            disabled={submitIsDisabled}
-            intent="submit"
-            variant="icon"
-            size="small"
-          >
-            Speichern {transition.state === "submitting" && <LoadingSpinner />}
-          </Button>
+          <div className="flex items-center justify-between">
+            <Link to="/" className="text-xs underline underline-offset-1">
+              Zurück
+            </Link>
+            <Button
+              type="submit"
+              disabled={submitIsDisabled}
+              intent="submit"
+              variant="icon"
+              size="small"
+            >
+              Speichern{" "}
+              {transition.state === "submitting" && <LoadingSpinner />}
+            </Button>
+          </div>
         </fieldset>
       </Form>
     </Card>
