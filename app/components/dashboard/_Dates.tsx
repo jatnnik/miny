@@ -112,9 +112,9 @@ export default function Dates({ dates }: { dates: DateWithParticipants[] }) {
         <Link
           className={clsx(
             subtleButtonClasses,
-            "flex items-center gap-1 text-xs",
+            "flex items-center gap-1 text-xs"
           )}
-          to="/new"
+          to="/add"
         >
           <span>Neuer Termin</span>
           <PlusIcon className="h-3.5" />

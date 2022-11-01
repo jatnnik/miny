@@ -14,7 +14,7 @@ export type inferSafeParseErrors<T extends z.ZodTypeAny, U = string> = {
 
 export function safeRedirect(
   to: FormDataEntryValue | string | null | undefined,
-  defaultRedirect: string = DEFAULT_REDIRECT,
+  defaultRedirect: string = DEFAULT_REDIRECT
 ) {
   if (!to || typeof to !== "string") {
     return defaultRedirect
@@ -63,4 +63,8 @@ export function formatDate(date: string | Date) {
   return format(dateValue, dateFormat, {
     locale: de,
   })
+}
+
+export function getUserPageTitle(username: string) {
+  return `${username}${username.slice(-1) === "s" ? "" : "s"} Diensttermine`
 }

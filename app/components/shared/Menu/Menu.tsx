@@ -37,7 +37,7 @@ export default function Example() {
               <Menu.Item>
                 {({ active }) => (
                   <Link
-                    to="/new"
+                    to="/add"
                     className={clsx(itemClasses, { "bg-slate-100": active })}
                   >
                     <PlusIcon className={iconClasses} aria-hidden="true" />

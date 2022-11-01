@@ -9,6 +9,7 @@ const dateWithParticipants = Prisma.validator<Prisma.AppointmentArgs>()({
   include: {
     participants: {
       select: {
+        id: true,
         name: true,
       },
     },
@@ -29,6 +30,14 @@ export async function isOwner(
 export async function getDateById(id: Appointment["id"]) {
   return prisma.appointment.findUnique({
     where: { id },
+    include: {
+      participants: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
   })
 }
 

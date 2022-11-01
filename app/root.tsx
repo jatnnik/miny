@@ -85,7 +85,7 @@ export const CatchBoundary = () => {
     <Document>
       <div className="p-4">
         <h1 className="font-medium">
-          {caught.status} {caught.data}
+          {caught.status} – {caught.data}
         </h1>
       </div>
     </Document>

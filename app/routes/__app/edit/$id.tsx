@@ -1,5 +1,4 @@
 import type { ActionArgs, LoaderArgs, MetaFunction } from "@remix-run/node"
-import type { Appointment } from "@prisma/client"
 import { redirect } from "@remix-run/node"
 import { typedjson, useTypedLoaderData } from "remix-typedjson"
 import { Form, Link, useTransition } from "@remix-run/react"
@@ -9,12 +8,12 @@ import { useState } from "react"
 import { motion } from "framer-motion"
 
 import type { inferSafeParseErrors } from "~/utils"
+import type { DateWithParticipants, UpdateFields } from "~/models/date.server"
 import { badRequest } from "~/utils"
-import type { UpdateFields } from "~/models/date.server"
 import { removePartnerFromDate } from "~/models/date.server"
 import { getDateById, updateDate } from "~/models/date.server"
 import { requireUser, requireUserId } from "~/session.server"
-import { baseDateSchema } from "../new"
+import { baseDateSchema } from "../add"
 
 import Card from "~/components/shared/Card"
 import { headlineClasses } from "~/components/shared/Headline"
@@ -24,11 +23,12 @@ import Input from "~/components/shared/Input"
 import Button from "~/components/shared/Buttons"
 import LoadingSpinner from "~/components/shared/LoadingSpinner"
 import { format } from "date-fns"
+import { MinusCircleIcon } from "@heroicons/react/24/outline"
 
 const numeric = z.string().regex(/^\d+$/).transform(Number)
 
 interface LoaderData {
-  date: Appointment
+  date: DateWithParticipants
 }
 
 export const loader = async ({ request, params }: LoaderArgs) => {
@@ -68,6 +68,8 @@ interface ActionData {
   errors?: FieldErrors
 }
 
+type Actions = "remove-participant" | "remove-partner" | null
+
 export async function action({ request, params }: ActionArgs) {
   const userId = await requireUserId(request)
   const dateId = params.id
@@ -88,10 +90,14 @@ export async function action({ request, params }: ActionArgs) {
   }
 
   const formData = await request.formData()
-  const action = formData.get("action")
+  const action = formData.get("action") as Actions
 
   if (action === "remove-partner") {
     await removePartnerFromDate(validDateId)
+    return redirect("/")
+  }
+
+  if (action === "remove-participant") {
     return redirect("/")
   }
 
@@ -136,7 +142,9 @@ export default function Edit() {
     isFlexible: date.isFlexible,
     isGroup: date.isGroupDate,
     manualPartner: date.isAssigned && !!date.partnerName,
+    showParticipants: false,
   }
+
   const [formState, setFormState] = useState(initialFormState)
   const [selectedDay, setSelectedDay] = useState([date.date])
 
@@ -174,7 +182,7 @@ export default function Edit() {
             value={selectedDay}
             onSelect={onCalendarSelect}
             onReset={onCalendarReset}
-            editMode={true}
+            editMode
           />
           <div className="h-8"></div>
           <div className="space-y-6">
@@ -304,6 +312,58 @@ export default function Edit() {
               required={formState.isGroup}
               defaultValue={date.maxParticipants as number}
             />
+            {date.participants.length > 0 ? (
+              <>
+                <div className="h-2"></div>
+                <button
+                  className="underline underline-offset-1"
+                  type="button"
+                  onClick={() =>
+                    setFormState({
+                      ...formState,
+                      showParticipants: !formState.showParticipants,
+                    })
+                  }
+                >
+                  Teilnehmer{" "}
+                  {formState.showParticipants ? "ausblenden" : "anzeigen"}
+                </button>
+                <motion.div
+                  initial={false}
+                  animate={{ height: formState.showParticipants ? "auto" : 0 }}
+                  className="relative overflow-hidden"
+                  transition={{
+                    type: "spring",
+                    duration: 0.3,
+                    bounce: 0.1,
+                  }}
+                >
+                  <div className="h-1"></div>
+                  <ul className="space-y-2 divide-y">
+                    {date.participants.map(participant => (
+                      <li
+                        key={participant.id}
+                        className="flex items-center justify-between pt-2"
+                      >
+                        <span>{participant.name}</span>
+                        <button
+                          type="button"
+                          className="text-rose-500 transition-colors hover:text-rose-600"
+                          onClick={() =>
+                            alert(
+                              `Möchtest du ${participant.name} wirklich entfernen?`
+                            )
+                          }
+                        >
+                          <span className="sr-only">Entfernen</span>
+                          <MinusCircleIcon className="h-4 w-4" />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </motion.div>
+              </>
+            ) : null}
           </motion.div>
           {/* Partner */}
           <div className="h-6"></div>

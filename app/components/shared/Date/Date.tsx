@@ -132,7 +132,7 @@ export default function Date({ data, disableMenu = false }: DateProps) {
       {isVisible && (
         <motion.div
           key={data.id}
-          className="space-y-1 py-3 text-sm text-slate-600"
+          className="space-y-2 py-3 text-sm text-slate-600"
           initial={false}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -157,7 +157,7 @@ export default function Date({ data, disableMenu = false }: DateProps) {
               />
             )}
           </div>
-          <div className="flex gap-4 text-slate-600">
+          <div className="flex flex-col gap-1 text-slate-600 sm:flex-row sm:gap-4">
             <div className="flex items-center">
               <ClockIcon className="mr-1 h-3.5 w-3.5" />
               {data.startTime}
