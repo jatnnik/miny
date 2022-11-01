@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import {
   CalendarIcon,
   ChevronLeftIcon,
@@ -54,6 +54,11 @@ export function Calendar({
   const isCurrentMonth = currentMonth === format(today, monthFormat)
   const isDisabled = selectedDays.length === max
 
+  const initialDate = useRef(editMode ? selectedDays[0] : null)
+  const dateHasChanged = editMode
+    ? selectedDays[0].toString() !== initialDate.current?.toString()
+    : true
+
   const days = eachDayOfInterval({
     start: firstDayCurrentMonth,
     end: endOfMonth(firstDayCurrentMonth),
@@ -75,9 +80,7 @@ export function Calendar({
 
   function handleReset() {
     onReset()
-    if (editMode) {
-      setCurrentMonth(format(selectedDays[0], monthFormat))
-    } else {
+    if (!editMode) {
       goToInitialMonth()
     }
   }
@@ -85,6 +88,12 @@ export function Calendar({
   function goToInitialMonth() {
     setCurrentMonth(format(today, monthFormat))
   }
+
+  useEffect(() => {
+    if (editMode) {
+      setCurrentMonth(format(selectedDays[0], monthFormat))
+    }
+  }, [editMode, selectedDays])
 
   return (
     <>
@@ -115,7 +124,7 @@ export function Calendar({
           <Button
             type="button"
             onClick={handleReset}
-            disabled={selectedDays.length === 0}
+            disabled={selectedDays.length === 0 || !dateHasChanged}
             variant="icon"
           >
             <XMarkIcon className="mr-1.5 h-4 w-4" />
