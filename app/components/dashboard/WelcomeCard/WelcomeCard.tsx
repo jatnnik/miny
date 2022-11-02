@@ -65,7 +65,6 @@ export default function WelcomeCard({
                 "mt-0 cursor-pointer overflow-x-scroll text-ellipsis bg-slate-50 text-sm sm:max-w-sm"
               )}
               value={userLink}
-              onClick={() => (window.location.href = `/u/${slug}`)}
             />
             <button
               className="rounded-md border border-slate-300 bg-slate-100 p-2 shadow-sm"
@@ -78,6 +77,13 @@ export default function WelcomeCard({
               )}
             </button>
           </div>
+          <div className="h-1"></div>
+          <Link
+            to={`/u/${slug}`}
+            className="text-sm text-amber-800 underline underline-offset-1 transition-colors hover:text-amber-900"
+          >
+            Termine anschauen &rarr;
+          </Link>
         </div>
       )}
     </Card>
