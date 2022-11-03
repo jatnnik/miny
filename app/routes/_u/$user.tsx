@@ -16,8 +16,8 @@ import { typedjson, useTypedLoaderData } from "remix-typedjson"
 
 import Container from "~/components/Container"
 import Card from "~/components/shared/Card"
-import Header from "~/components/profile/Header"
-import DateSlot from "~/components/profile/Date"
+import Header from "~/components/_profile/Header"
+import DateSlot from "~/components/_profile/Date"
 import { button } from "~/components/shared/Buttons"
 
 export const loader = async ({ request, params }: LoaderArgs) => {

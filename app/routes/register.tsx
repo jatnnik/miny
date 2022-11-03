@@ -18,6 +18,7 @@ import { badRequest } from "~/utils"
 import Input from "~/components/Input"
 import Button from "~/components/shared/Buttons"
 import { loginCardClasses, loginWrapperClasses } from "~/components/login"
+import LoadingSpinner from "~/components/shared/LoadingSpinner"
 
 export const loader = async ({ request }: LoaderArgs) => {
   const userId = await getUserId(request)
@@ -85,7 +86,9 @@ export default function Register() {
   const [searchParams] = useSearchParams()
   const redirectTo = searchParams.get("redirectTo") ?? ""
   const actionData = useActionData<typeof action>()
+
   const transition = useTransition()
+  const isBusy = transition.state !== "idle"
 
   return (
     <div className={loginWrapperClasses}>
@@ -93,10 +96,7 @@ export default function Register() {
       <div className="h-6"></div>
       <div className={loginCardClasses}>
         <Form method="post">
-          <fieldset
-            disabled={transition.state === "submitting"}
-            className="space-y-4"
-          >
+          <fieldset disabled={isBusy} className="space-y-4">
             <div>
               <Input
                 type="text"
@@ -193,8 +193,8 @@ export default function Register() {
                 </Link>
               </div>
 
-              <Button type="submit" intent="submit" size="small">
-                {transition.state === "submitting" ? "Lade..." : "Registrieren"}
+              <Button type="submit" intent="submit" size="small" variant="icon">
+                Registrieren {isBusy && <LoadingSpinner />}
               </Button>
             </div>
           </fieldset>

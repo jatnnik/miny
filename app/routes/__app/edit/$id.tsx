@@ -8,6 +8,7 @@ import { useState } from "react"
 import { motion } from "framer-motion"
 
 import type { inferSafeParseErrors } from "~/utils"
+import { numeric } from "~/utils"
 import type { DateWithParticipants, UpdateFields } from "~/models/date.server"
 import { badRequest } from "~/utils"
 import { removePartnerFromDate } from "~/models/date.server"
@@ -24,8 +25,6 @@ import Button from "~/components/shared/Buttons"
 import LoadingSpinner from "~/components/shared/LoadingSpinner"
 import { format } from "date-fns"
 import { MinusCircleIcon } from "@heroicons/react/24/outline"
-
-const numeric = z.string().regex(/^\d+$/).transform(Number)
 
 interface LoaderData {
   date: DateWithParticipants
@@ -149,7 +148,7 @@ export default function Edit() {
   const [selectedDay, setSelectedDay] = useState([date.date])
 
   const updatedAt = useUpdatedAt(date.updatedAt)
-  const isSubmitting = transition.state === "submitting"
+  const isSubmitting = transition.state !== "idle"
 
   function onCalendarSelect(day: Date) {
     setSelectedDay([day])

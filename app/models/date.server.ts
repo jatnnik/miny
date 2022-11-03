@@ -131,6 +131,7 @@ export async function getFreeDates(userId: User["id"], onlyZoom = false) {
       include: {
         participants: {
           select: {
+            id: true,
             name: true,
           },
         },
@@ -153,6 +154,7 @@ export async function getFreeDates(userId: User["id"], onlyZoom = false) {
       include: {
         participants: {
           select: {
+            id: true,
             name: true,
           },
         },
@@ -274,25 +276,22 @@ export async function dateExistsAndIsAvailable(id: Appointment["id"]) {
   return appointment
 }
 
-export async function assignDate(dateId: Appointment["id"], name: string) {
-  const appointment = await getDateById(dateId)
-  if (!appointment) return null
-
-  if (appointment.isGroupDate) {
+export async function assignDate(date: Appointment, name: string) {
+  if (date.isGroupDate) {
     await prisma.participant.create({
       data: {
         name: name.trim(),
-        dateId,
+        dateId: date.id,
       },
     })
 
-    const participants = await getParticipateCount(dateId)
+    const participants = await getParticipateCount(date.id)
 
-    const reachedMaxParticipants = participants === appointment.maxParticipants
+    const reachedMaxParticipants = participants === date.maxParticipants
     if (reachedMaxParticipants) {
       return await prisma.appointment.update({
         where: {
-          id: dateId,
+          id: date.id,
         },
         data: {
           isAssigned: true,
@@ -304,7 +303,7 @@ export async function assignDate(dateId: Appointment["id"], name: string) {
   } else {
     return await prisma.appointment.update({
       where: {
-        id: dateId,
+        id: date.id,
       },
       data: {
         isAssigned: true,
@@ -314,7 +313,7 @@ export async function assignDate(dateId: Appointment["id"], name: string) {
   }
 }
 
-interface Recipient {
+export interface Recipient {
   email: User["email"]
   name: User["name"]
 }
@@ -322,7 +321,8 @@ interface Recipient {
 export async function sendAssignmentEmail(
   recipient: Recipient,
   partnerName: string,
-  appointment: AppointmentWithUserAndParticipants
+  appointment: AppointmentWithUserAndParticipants,
+  message?: string
 ) {
   const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -345,12 +345,17 @@ export async function sendAssignmentEmail(
     text += `${partnerName} hat sich für einen Diensttermin mit dir eingetragen.`
   }
 
+  if (message) {
+    text += `\n\nNachricht:\n`
+    text += `${message}`
+  }
+
   text += `\n\nEuer Termin:\n`
-  text += `${formatDate(appointment.date.toString())}, ${appointment.startTime}`
+  text += `${formatDate(appointment.date)}, ${appointment.startTime}`
   if (appointment.endTime && !appointment.isFlexible) {
     text += `–${appointment.endTime}`
   }
-  text += "\n\nViel Spaß im Dienst!\nminy\n\n"
+  text += "\n\nViel Spaß im Dienst!\n\n"
   text += "Hier kommst du zu deinen Terminen: https://dienst.vercel.app/"
 
   await transporter.sendMail({

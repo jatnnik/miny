@@ -19,6 +19,7 @@ import { verifyLogin } from "~/models/user.server"
 import Input from "~/components/shared/Input"
 import Button from "~/components/shared/Buttons"
 import { loginCardClasses, loginWrapperClasses } from "~/components/login"
+import LoadingSpinner from "~/components/shared/LoadingSpinner"
 
 export const loader = async ({ request }: LoaderArgs) => {
   const userId = await getUserId(request)
@@ -84,7 +85,7 @@ export default function Login() {
   const emailRef = useRef<HTMLInputElement>(null)
   const passwordRef = useRef<HTMLInputElement>(null)
 
-  const isSubmitting = Boolean(transition.submission)
+  const isSubmitting = transition.state !== "idle"
 
   useEffect(() => {
     if (actionData?.errors?.fieldErrors.email) {
@@ -157,8 +158,8 @@ export default function Login() {
                 </Link>
               </div>
 
-              <Button type="submit" intent="submit" size="small">
-                Anmelden
+              <Button type="submit" intent="submit" size="small" variant="icon">
+                Anmelden {isSubmitting && <LoadingSpinner />}
               </Button>
             </div>
           </fieldset>

@@ -1,7 +1,7 @@
 import { json } from "@remix-run/node"
 import { format } from "date-fns"
 import { de } from "date-fns/locale"
-import type { z } from "zod"
+import { z } from "zod"
 
 const DEFAULT_REDIRECT = "/"
 
@@ -68,3 +68,5 @@ export function formatDate(date: string | Date) {
 export function getUserPageTitle(username: string) {
   return `${username}${username.slice(-1) === "s" ? "" : "s"} Diensttermine`
 }
+
+export const numeric = z.string().regex(/^\d+$/).transform(Number)

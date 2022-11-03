@@ -372,8 +372,8 @@ export default function AddDateRoute() {
               variant="icon"
               size="small"
             >
-              Speichern{" "}
-              {transition.state === "submitting" && <LoadingSpinner />}
+              Speichern
+              {transition.state !== "idle" && <LoadingSpinner />}
             </Button>
           </div>
         </fieldset>
