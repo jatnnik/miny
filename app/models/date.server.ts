@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client"
-import type { User, Appointment } from "@prisma/client"
+import type { User, Appointment, Participant } from "@prisma/client"
 import { prisma } from "~/db.server"
 import nodemailer from "nodemailer"
 import { formatDate } from "~/utils"
@@ -202,6 +202,7 @@ type CreateFieldsWithoutDays = Omit<CreateFields, "days">
 export interface UpdateFields extends CreateFieldsWithoutDays {
   id: number
   day: string
+  partner?: string | null
 }
 
 export async function updateDate(fields: UpdateFields) {
@@ -234,6 +235,14 @@ export async function removePartnerFromDate(id: Appointment["id"]) {
     data: {
       isAssigned: false,
       partnerName: null,
+    },
+  })
+}
+
+export async function removeGroupParticipant(id: Participant["id"]) {
+  return await prisma.participant.delete({
+    where: {
+      id,
     },
   })
 }

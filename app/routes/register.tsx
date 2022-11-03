@@ -88,7 +88,7 @@ export default function Register() {
   const actionData = useActionData<typeof action>()
 
   const transition = useTransition()
-  const isBusy = transition.state !== "idle"
+  const isBusy = transition.state === "submitting"
 
   return (
     <div className={loginWrapperClasses}>

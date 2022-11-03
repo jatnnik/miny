@@ -47,8 +47,6 @@ export const baseDateSchema = z.object({
   isZoom: z.enum(["on"]).optional(),
   isGroup: z.enum(["on"]).optional(),
   maxParticipants: z.string().transform(Number).optional(),
-  manualPartner: z.enum(["on"]).optional(),
-  partner: z.string().optional(),
   note: z.string().optional(),
 })
 
@@ -64,10 +62,6 @@ const validationSchema = baseDateSchema
   .refine(data => (data.isGroup === "on" ? !!data.maxParticipants : true), {
     message: "Bitte gib eine gültige Zahl an",
     path: ["maxParticipants"],
-  })
-  .refine(data => (data.manualPartner === "on" ? !!data.partner : true), {
-    message: "Bitte gib einen Namen ein",
-    path: ["partner"],
   })
 type Fields = z.infer<typeof validationSchema>
 type FieldErrors = inferSafeParseErrors<typeof validationSchema>
@@ -93,19 +87,20 @@ export async function action({ request }: ActionArgs) {
     })
   }
 
+  const validData = result.data
   const data: CreateFields = {
-    // TODO: Use validated Zod data
-    days: fields.days,
-    isFlexible: fields.isFlexible === "on",
-    start: fields.isFlexible !== "on" ? fields.start : null,
-    end: fields.isFlexible !== "on" ? fields.end : null,
-    flexibleStart: fields.isFlexible === "on" ? fields.flexibleStart : null,
-    isZoom: fields.isZoom === "on",
-    isGroup: fields.isGroup === "on",
+    days: validData.days,
+    isFlexible: validData.isFlexible === "on",
+    start: validData.isFlexible !== "on" ? validData.start : null,
+    end: validData.isFlexible !== "on" ? validData.end : null,
+    flexibleStart:
+      validData.isFlexible === "on" ? validData.flexibleStart : null,
+    isZoom: validData.isZoom === "on",
+    isGroup: validData.isGroup === "on",
     maxParticipants:
-      fields.isGroup === "on" ? Number(fields.maxParticipants) : null,
-    partner: fields.manualPartner === "on" ? fields.partner : null,
-    note: fields.note,
+      validData.isGroup === "on" ? Number(validData.maxParticipants) : null,
+    partner: null,
+    note: validData.note,
   }
 
   await createDates(data, Number(userId))
@@ -287,65 +282,16 @@ export default function AddDateRoute() {
           >
             <div className="h-6"></div>
             <Input
-              label="Maximale Teilnehmer (max. 50)"
+              label="Maximale Teilnehmer"
               name="maxParticipants"
               type="number"
               max="50"
-              min="2"
+              min="1"
               maxLength={2}
               pattern="[0-9]"
               required={formState.isGroup}
               defaultValue={actionData?.fields.maxParticipants}
               validationError={actionData?.errors?.fieldErrors.maxParticipants?.join(
-                ", "
-              )}
-            />
-          </motion.div>
-          {/* Partner */}
-          <div className="h-6"></div>
-          <Switch.Group>
-            <div className="flex items-center justify-between">
-              <Switch.Label>Partner eintragen</Switch.Label>
-              <Switch
-                checked={formState.manualPartner}
-                onChange={() =>
-                  setFormState({
-                    ...formState,
-                    manualPartner: !formState.manualPartner,
-                  })
-                }
-                disabled={formState.isGroup}
-                name="manualPartner"
-                className={`${
-                  formState.manualPartner ? "bg-slate-700" : "bg-slate-300"
-                } relative inline-flex h-6 w-11 items-center rounded-full disabled:opacity-60`}
-              >
-                <span
-                  className={`${
-                    formState.manualPartner ? "translate-x-6" : "translate-x-1"
-                  } inline-block h-4 w-4 transform rounded-full bg-white transition`}
-                />
-              </Switch>
-            </div>
-          </Switch.Group>
-          <motion.div
-            initial={false}
-            animate={{ height: formState.manualPartner ? "auto" : 0 }}
-            className="relative overflow-hidden"
-            transition={{
-              type: "spring",
-              duration: 0.3,
-              bounce: 0.1,
-            }}
-          >
-            <div className="h-6"></div>
-            <Input
-              label="Partner"
-              name="partner"
-              type="text"
-              required={formState.manualPartner}
-              defaultValue={actionData?.fields.manualPartner}
-              validationError={actionData?.errors?.fieldErrors.manualPartner?.join(
                 ", "
               )}
             />
@@ -373,7 +319,7 @@ export default function AddDateRoute() {
               size="small"
             >
               Speichern
-              {transition.state !== "idle" && <LoadingSpinner />}
+              {transition.state === "submitting" && <LoadingSpinner />}
             </Button>
           </div>
         </fieldset>

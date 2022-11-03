@@ -27,6 +27,8 @@ import { headlineClasses } from "~/components/shared/Headline"
 import { DateSlot } from "~/components/userpage"
 import { button } from "~/components/shared/Buttons"
 import LoadingSpinner from "~/components/shared/LoadingSpinner"
+import { format } from "date-fns"
+import { ClockIcon } from "@heroicons/react/24/outline"
 
 export const loader = async ({ params }: LoaderArgs) => {
   invariant(params.user, "Expected params.user")
@@ -52,7 +54,7 @@ type FieldErrors = inferSafeParseErrors<typeof validationSchema>
 interface AssignedDate {
   date: string
   start: string
-  end?: string
+  end?: string | null
 }
 
 interface ActionData {
@@ -133,7 +135,7 @@ function DateList({
 }: DateListProps) {
   return (
     <>
-      <h2 className="font-serif text-xl font-black text-slate-700">Termine</h2>
+      <h2 className="font-serif text-xl font-black">Termine</h2>
       <div className="space-y-4 divide-y">
         {dates.map(date => (
           <DateSlot
@@ -150,12 +152,35 @@ function DateList({
   )
 }
 
-function AssignedCard() {
+interface AssignedCardProps {
+  data: AssignedDate
+  user: string
+}
+
+function AssignedCard({ data, user }: AssignedCardProps) {
+  const date = new Date(data.date)
+
   return (
     <Card>
       <h1 className={headlineClasses}>Viel Spaß im Dienst!</h1>
-      {/* TODO: Show the date the user assigned for */}
       <div className="h-6"></div>
+      <div className="border-l-2 border-amber-800 pl-4">
+        <span className="mb-1.5 block text-xs font-medium text-slate-500">
+          Dienst mit {user}
+        </span>
+        <time
+          dateTime={format(date, "yyyy-MM-dd")}
+          className="font-medium text-amber-800"
+        >
+          {formatDate(date)}
+        </time>
+        <div className="flex items-center">
+          <ClockIcon className="mr-1 h-3.5 w-3.5" />
+          {data.start}
+          {data.end ? `-${data.end}` : null}
+        </div>
+      </div>
+      <div className="h-8"></div>
       <Link to="." className={button({ intent: "primary", size: "medium" })}>
         Zurück zu den Terminen
       </Link>
@@ -171,13 +196,15 @@ export default function UserPage() {
 
   const [expandedDate, setExpandedDate] = useState<number | null>(null)
 
-  const isLoading = transition.state === "loading" && !transition.submission
+  const showButtonLoadingSpinner =
+    transition.state === "loading" &&
+    transition.location.pathname.includes("/u/")
+
+  const showZoomFilter = dates.filter(date => date.isZoom).length > 0
   const onlyZoomParam = searchParams.get("onlyzoom")
   const onlyZoom = onlyZoomParam !== null
-  const hasDates = dates.length > 0
-  const showZoomFilter = dates.filter(date => date.isZoom).length > 0
 
-  const assignedDate = !!actionData && !!actionData.assignedDate
+  const hasDates = dates.length > 0
 
   function handleExpand(id: number) {
     if (id === expandedDate) {
@@ -187,8 +214,13 @@ export default function UserPage() {
     }
   }
 
-  if (assignedDate) {
-    return <AssignedCard />
+  if (!!actionData && !!actionData.assignedDate) {
+    const data: AssignedDate = {
+      date: actionData.assignedDate.date,
+      start: actionData.assignedDate.start,
+      end: actionData.assignedDate.end,
+    }
+    return <AssignedCard data={data} user={user} />
   }
 
   return (
@@ -214,7 +246,8 @@ export default function UserPage() {
                     variant: "icon",
                   })}
                 >
-                  Alle Termine anzeigen {isLoading && <LoadingSpinner />}
+                  Alle Termine anzeigen
+                  {showButtonLoadingSpinner && <LoadingSpinner />}
                 </Link>
               ) : (
                 <Link
@@ -226,7 +259,8 @@ export default function UserPage() {
                     variant: "icon",
                   })}
                 >
-                  Nur Zoom Termine anzeigen {isLoading && <LoadingSpinner />}
+                  Nur Zoom Termine anzeigen
+                  {showButtonLoadingSpinner && <LoadingSpinner />}
                 </Link>
               )}
             </>

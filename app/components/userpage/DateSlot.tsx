@@ -6,7 +6,7 @@ import {
   VideoCameraIcon,
 } from "@heroicons/react/24/outline"
 import { ChevronDownIcon } from "@heroicons/react/20/solid"
-import { Form } from "@remix-run/react"
+import { Form, useTransition } from "@remix-run/react"
 import { format } from "date-fns"
 import { de } from "date-fns/locale"
 import { motion } from "framer-motion"
@@ -14,6 +14,7 @@ import clsx from "clsx"
 
 import Input from "../shared/Input"
 import Button from "../shared/Buttons"
+import LoadingSpinner from "../shared/LoadingSpinner"
 
 interface Props {
   date: DateWithParticipants
@@ -30,6 +31,8 @@ export function DateSlot({
   username,
   formError,
 }: Props) {
+  const transition = useTransition()
+
   return (
     <div>
       <div className="flex items-start justify-between pt-4 sm:items-center">
@@ -105,9 +108,10 @@ export function DateSlot({
             <Button
               intent="submit"
               size="medium"
+              variant="icon"
               className="normal-case tracking-normal"
             >
-              Senden
+              Senden{transition.state === "submitting" && <LoadingSpinner />}
             </Button>
           </fieldset>
         </Form>

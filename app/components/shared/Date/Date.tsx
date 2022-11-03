@@ -132,7 +132,7 @@ export default function Date({ data, disableMenu = false }: DateProps) {
       {isVisible && (
         <motion.div
           key={data.id}
-          className="space-y-2 py-3 text-sm text-slate-600"
+          className="space-y-1 py-3 text-sm text-slate-600"
           initial={false}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}

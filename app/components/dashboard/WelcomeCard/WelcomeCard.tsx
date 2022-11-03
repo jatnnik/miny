@@ -60,6 +60,7 @@ export default function WelcomeCard({
             <input
               type="text"
               readOnly
+              // onClick={}
               className={clsx(
                 inputClasses,
                 "mt-0 cursor-pointer overflow-x-scroll text-ellipsis bg-slate-50 text-sm sm:max-w-sm"
@@ -77,13 +78,6 @@ export default function WelcomeCard({
               )}
             </button>
           </div>
-          <div className="h-1"></div>
-          <Link
-            to={`/u/${slug}`}
-            className="text-sm text-amber-800 underline underline-offset-1 transition-colors hover:text-amber-900"
-          >
-            Termine anschauen &rarr;
-          </Link>
         </div>
       )}
     </Card>

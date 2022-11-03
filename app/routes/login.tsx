@@ -85,7 +85,7 @@ export default function Login() {
   const emailRef = useRef<HTMLInputElement>(null)
   const passwordRef = useRef<HTMLInputElement>(null)
 
-  const isSubmitting = transition.state !== "idle"
+  const isSubmitting = transition.state === "submitting"
 
   useEffect(() => {
     if (actionData?.errors?.fieldErrors.email) {

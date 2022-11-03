@@ -6,10 +6,13 @@ import { z } from "zod"
 import { Switch } from "@headlessui/react"
 import { useState } from "react"
 import { motion } from "framer-motion"
+import { format } from "date-fns"
+import { TrashIcon } from "@heroicons/react/24/outline"
 
 import type { inferSafeParseErrors } from "~/utils"
 import { numeric } from "~/utils"
 import type { DateWithParticipants, UpdateFields } from "~/models/date.server"
+import { removeGroupParticipant } from "~/models/date.server"
 import { badRequest } from "~/utils"
 import { removePartnerFromDate } from "~/models/date.server"
 import { getDateById, updateDate } from "~/models/date.server"
@@ -23,8 +26,6 @@ import { Calendar } from "~/components/calendar"
 import Input from "~/components/shared/Input"
 import Button from "~/components/shared/Buttons"
 import LoadingSpinner from "~/components/shared/LoadingSpinner"
-import { format } from "date-fns"
-import { MinusCircleIcon } from "@heroicons/react/24/outline"
 
 interface LoaderData {
   date: DateWithParticipants
@@ -56,9 +57,11 @@ export const meta: MetaFunction = () => {
   }
 }
 
-const validationSchema = baseDateSchema
-  .omit({ days: true })
-  .extend({ day: z.string() })
+const validationSchema = baseDateSchema.omit({ days: true }).extend({
+  day: z.string(),
+  manualPartner: z.enum(["on"]).optional(),
+  partner: z.string().optional(),
+})
 type Fields = z.infer<typeof validationSchema>
 type FieldErrors = inferSafeParseErrors<typeof validationSchema>
 
@@ -97,7 +100,15 @@ export async function action({ request, params }: ActionArgs) {
   }
 
   if (action === "remove-participant") {
-    return redirect("/")
+    const participantId = formData.get("participantId")
+    const valid = numeric.safeParse(participantId)
+
+    if (!valid.success) {
+      return redirect("/")
+    }
+
+    await removeGroupParticipant(valid.data)
+    return redirect(`/edit/${dateId}`)
   }
 
   const fields = Object.fromEntries(formData.entries()) as any
@@ -146,9 +157,12 @@ export default function Edit() {
 
   const [formState, setFormState] = useState(initialFormState)
   const [selectedDay, setSelectedDay] = useState([date.date])
+  const [selectedParticipant, setSelectedParticipant] = useState<
+    number | undefined
+  >(undefined)
 
   const updatedAt = useUpdatedAt(date.updatedAt)
-  const isSubmitting = transition.state !== "idle"
+  const isSubmitting = transition.state === "submitting"
 
   function onCalendarSelect(day: Date) {
     setSelectedDay([day])
@@ -301,11 +315,11 @@ export default function Edit() {
           >
             <div className="h-6"></div>
             <Input
-              label="Maximale Teilnehmer (max. 50)"
+              label="Maximale Teilnehmer"
               name="maxParticipants"
               type="number"
               max="50"
-              min="2"
+              min="1"
               maxLength={2}
               pattern="[0-9]"
               required={formState.isGroup}
@@ -314,6 +328,12 @@ export default function Edit() {
             {date.participants.length > 0 ? (
               <>
                 <div className="h-2"></div>
+                <input
+                  type="hidden"
+                  name="participantId"
+                  defaultValue={selectedParticipant}
+                  readOnly
+                />
                 <button
                   className="underline underline-offset-1"
                   type="button"
@@ -346,16 +366,14 @@ export default function Edit() {
                       >
                         <span>{participant.name}</span>
                         <button
-                          type="button"
-                          className="text-rose-500 transition-colors hover:text-rose-600"
-                          onClick={() =>
-                            alert(
-                              `Möchtest du ${participant.name} wirklich entfernen?`
-                            )
-                          }
+                          type="submit"
+                          name="action"
+                          value="remove-participant"
+                          className="text-rose-700 transition-colors hover:text-rose-800"
+                          onClick={() => setSelectedParticipant(participant.id)}
                         >
                           <span className="sr-only">Entfernen</span>
-                          <MinusCircleIcon className="h-4 w-4" />
+                          <TrashIcon className="h-4 w-4" />
                         </button>
                       </li>
                     ))}
@@ -365,64 +383,70 @@ export default function Edit() {
             ) : null}
           </motion.div>
           {/* Partner */}
-          <div className="h-6"></div>
-          <Switch.Group>
-            <div className="flex items-center justify-between">
-              <Switch.Label>Partner eintragen</Switch.Label>
-              <Switch
-                checked={formState.manualPartner}
-                onChange={() =>
-                  setFormState({
-                    ...formState,
-                    manualPartner: !formState.manualPartner,
-                  })
-                }
-                disabled={formState.isGroup}
-                name="manualPartner"
-                className={`${
-                  formState.manualPartner ? "bg-slate-700" : "bg-slate-300"
-                } relative inline-flex h-6 w-11 items-center rounded-full disabled:opacity-60`}
+          {!date.isGroupDate && (
+            <>
+              <div className="h-6"></div>
+              <Switch.Group>
+                <div className="flex items-center justify-between">
+                  <Switch.Label>Partner eintragen</Switch.Label>
+                  <Switch
+                    checked={formState.manualPartner}
+                    onChange={() =>
+                      setFormState({
+                        ...formState,
+                        manualPartner: !formState.manualPartner,
+                      })
+                    }
+                    disabled={formState.isGroup}
+                    name="manualPartner"
+                    className={`${
+                      formState.manualPartner ? "bg-slate-700" : "bg-slate-300"
+                    } relative inline-flex h-6 w-11 items-center rounded-full disabled:opacity-60`}
+                  >
+                    <span
+                      className={`${
+                        formState.manualPartner
+                          ? "translate-x-6"
+                          : "translate-x-1"
+                      } inline-block h-4 w-4 transform rounded-full bg-white transition`}
+                    />
+                  </Switch>
+                </div>
+              </Switch.Group>
+              <motion.div
+                initial={false}
+                animate={{ height: formState.manualPartner ? "auto" : 0 }}
+                className="relative overflow-hidden"
+                transition={{
+                  type: "spring",
+                  duration: 0.3,
+                  bounce: 0.1,
+                }}
               >
-                <span
-                  className={`${
-                    formState.manualPartner ? "translate-x-6" : "translate-x-1"
-                  } inline-block h-4 w-4 transform rounded-full bg-white transition`}
+                <div className="h-6"></div>
+                <Input
+                  label="Partner"
+                  name="partner"
+                  type="text"
+                  required={formState.manualPartner}
+                  defaultValue={date.partnerName as string}
                 />
-              </Switch>
-            </div>
-          </Switch.Group>
-          <motion.div
-            initial={false}
-            animate={{ height: formState.manualPartner ? "auto" : 0 }}
-            className="relative overflow-hidden"
-            transition={{
-              type: "spring",
-              duration: 0.3,
-              bounce: 0.1,
-            }}
-          >
-            <div className="h-6"></div>
-            <Input
-              label="Partner"
-              name="partner"
-              type="text"
-              required={formState.manualPartner}
-              defaultValue={date.partnerName as string}
-            />
-            {!!date.partnerName && (
-              <Button
-                type="submit"
-                name="action"
-                value="remove-partner"
-                intent="warning"
-                size="small"
-                variant="icon"
-                className="mt-3"
-              >
-                Partner entfernen {isSubmitting && <LoadingSpinner />}
-              </Button>
-            )}
-          </motion.div>
+                {!!date.partnerName && (
+                  <Button
+                    type="submit"
+                    name="action"
+                    value="remove-partner"
+                    intent="warning"
+                    size="small"
+                    variant="icon"
+                    className="mt-3"
+                  >
+                    Partner entfernen {isSubmitting && <LoadingSpinner />}
+                  </Button>
+                )}
+              </motion.div>
+            </>
+          )}
           {/* Note */}
           <div className="h-6"></div>
           <Input
