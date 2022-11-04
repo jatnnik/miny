@@ -105,6 +105,7 @@ export async function getDatesByUserId(id: User["id"]) {
     include: {
       participants: {
         select: {
+          id: true,
           name: true,
         },
       },

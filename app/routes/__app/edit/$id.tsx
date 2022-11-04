@@ -172,6 +172,17 @@ export default function Edit() {
     setSelectedDay([date.date])
   }
 
+  function handleRemoveParticipant(
+    event: React.MouseEvent<HTMLButtonElement>,
+    id: number,
+    name: string
+  ) {
+    if (!window.confirm(`Soll ${name} wirklich entfernt werden?`)) {
+      event.preventDefault()
+    }
+    setSelectedParticipant(id)
+  }
+
   return (
     <Card>
       <h1 className={headlineClasses}>Termin bearbeiten</h1>
@@ -370,7 +381,13 @@ export default function Edit() {
                           name="action"
                           value="remove-participant"
                           className="text-rose-700 transition-colors hover:text-rose-800"
-                          onClick={() => setSelectedParticipant(participant.id)}
+                          onClick={e =>
+                            handleRemoveParticipant(
+                              e,
+                              participant.id,
+                              participant.name
+                            )
+                          }
                         >
                           <span className="sr-only">Entfernen</span>
                           <TrashIcon className="h-4 w-4" />

@@ -1,4 +1,4 @@
-import { Form, Link } from "@remix-run/react"
+import { Form, Link, useNavigate } from "@remix-run/react"
 import { useEffect, useState } from "react"
 import clsx from "clsx"
 import copy from "copy-to-clipboard"
@@ -6,7 +6,7 @@ import { DocumentDuplicateIcon } from "@heroicons/react/24/outline"
 import { CheckIcon } from "@heroicons/react/20/solid"
 
 import Card from "~/components/shared/Card"
-import Button from "~/components/shared/Buttons"
+import Button, { button } from "~/components/shared/Buttons"
 import { headlineClasses } from "~/components/shared/Headline"
 import { inputClasses, labelClasses } from "~/components/Input"
 
@@ -22,6 +22,7 @@ export default function WelcomeCard({
   slug,
 }: WelcomeCardProps) {
   const [copied, setCopied] = useState(false)
+  const navigate = useNavigate()
 
   const userLink = `dienst.vercel.app/u/${slug}`
 
@@ -57,16 +58,12 @@ export default function WelcomeCard({
             Dein Link zum Teilen:
           </label>
           <div className="flex items-center gap-2">
-            <input
-              type="text"
-              readOnly
-              // onClick={}
-              className={clsx(
-                inputClasses,
-                "mt-0 cursor-pointer overflow-x-scroll text-ellipsis bg-slate-50 text-sm sm:max-w-sm"
-              )}
-              value={userLink}
-            />
+            <Link
+              to={`u/${slug}`}
+              className="rounded-md border border-slate-300 bg-slate-100 py-2 px-4 text-sm shadow-sm"
+            >
+              {userLink}
+            </Link>
             <button
               className="rounded-md border border-slate-300 bg-slate-100 p-2 shadow-sm"
               onClick={copyUserLink}
@@ -96,13 +93,13 @@ function FirstLoginText() {
         per Link teilen. Wenn sich jemand für einen deiner Termine einträgt,
         bekommst du automatisch eine E-Mail.
       </p>
-      <p>
+      {/* <p>
         Tipp: In den{" "}
         <Link to="/settings" className="text-amber-800">
           Einstellungen
         </Link>{" "}
         kannst du miny auch mit deinem Kalender verbinden.
-      </p>
+      </p> */}
       <p className="flex items-center">
         Viel Spaß!
         <img src="https://emojicdn.elk.sh/🎉" alt="" className="ml-1 h-5 w-5" />

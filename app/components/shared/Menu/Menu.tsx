@@ -45,7 +45,7 @@ export default function Example() {
                   </Link>
                 )}
               </Menu.Item>
-              <Menu.Item>
+              {/* <Menu.Item>
                 {({ active }) => (
                   <Link
                     to="/settings"
@@ -55,7 +55,7 @@ export default function Example() {
                     Einstellungen
                   </Link>
                 )}
-              </Menu.Item>
+              </Menu.Item> */}
             </div>
             <div className="px-1 py-1 ">
               <Menu.Item>

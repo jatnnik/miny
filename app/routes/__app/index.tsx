@@ -7,6 +7,7 @@ import { increaseLoginCount } from "~/models/user.server"
 import WelcomeCard from "~/components/dashboard/WelcomeCard"
 import Dates from "~/components/dashboard/Dates"
 import { getDatesByUserId, safeDeleteDate } from "~/models/date.server"
+import News from "~/components/news"
 
 export async function loader({ request }: LoaderArgs) {
   const user = await requireUser(request)
@@ -46,6 +47,7 @@ export default function IndexRoute() {
 
   return (
     <div className="space-y-6">
+      <News />
       <WelcomeCard
         username={username}
         isFirstLogin={isFirstLogin}

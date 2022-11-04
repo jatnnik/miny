@@ -9,7 +9,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 
 export const labelClasses = "mb-0.5 block text-sm"
 export const inputClasses =
-  "mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-slate-400 focus:ring focus:ring-slate-200 focus:ring-opacity-50 text-left"
+  "mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-slate-400 focus:ring focus:ring-slate-200 focus:ring-opacity-50 text-left font-sans"
 export const errorClasses = "mt-1.5 text-sm font-medium text-rose-500"
 
 export default function Input({
