@@ -7,15 +7,22 @@ import {
   Scripts,
   ScrollRestoration,
   useCatch,
+  useLoaderData,
 } from "@remix-run/react"
 import { json } from "@remix-run/node"
 
 import tailwind from "./styles/tailwind-build.css"
 import React from "react"
+import clsx from "clsx"
 
 export const loader = ({ request }: LoaderArgs) => {
+  const userAgent = request.headers.get("user-agent")
+  const isSafari =
+    userAgent?.includes("Safari") && !userAgent.includes("Chrome")
+
   return json({
     url: request.url,
+    isSafari,
   })
 }
 
@@ -52,14 +59,23 @@ export const links = () => {
   ]
 }
 
-function Document({ children }: { children: React.ReactNode }) {
+interface DocumentProps {
+  isSafari?: boolean
+  children: React.ReactNode
+}
+
+function Document({ isSafari = false, children }: DocumentProps) {
   return (
     <html lang="de">
       <head>
         <Meta />
         <Links />
       </head>
-      <body className="bg-slate-100 font-sans text-slate-700 antialiased">
+      <body
+        className={clsx("bg-slate-100 font-sans text-slate-700 antialiased", {
+          "is-safari": isSafari,
+        })}
+      >
         {children}
         <LiveReload />
       </body>
@@ -68,8 +84,10 @@ function Document({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  const { isSafari } = useLoaderData<typeof loader>()
+
   return (
-    <Document>
+    <Document isSafari={Boolean(isSafari)}>
       <Outlet />
       <ScrollRestoration />
       <Scripts />
