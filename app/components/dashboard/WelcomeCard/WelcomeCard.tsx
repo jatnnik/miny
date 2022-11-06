@@ -1,14 +1,13 @@
-import { Form, Link, useNavigate } from "@remix-run/react"
+import { Form, Link } from "@remix-run/react"
 import { useEffect, useState } from "react"
-import clsx from "clsx"
 import copy from "copy-to-clipboard"
 import { DocumentDuplicateIcon } from "@heroicons/react/24/outline"
 import { CheckIcon } from "@heroicons/react/20/solid"
 
 import Card from "~/components/shared/Card"
-import Button, { button } from "~/components/shared/Buttons"
+import Button from "~/components/shared/Buttons"
 import { headlineClasses } from "~/components/shared/Headline"
-import { inputClasses, labelClasses } from "~/components/Input"
+import { labelClasses } from "~/components/shared/Input"
 
 interface WelcomeCardProps {
   username: string
@@ -22,7 +21,6 @@ export default function WelcomeCard({
   slug,
 }: WelcomeCardProps) {
   const [copied, setCopied] = useState(false)
-  const navigate = useNavigate()
 
   const userLink = `dienst.vercel.app/u/${slug}`
 

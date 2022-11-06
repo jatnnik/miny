@@ -93,7 +93,10 @@ export function DateSlot({
           </span>
         ) : null}
         <Form method="post" autoComplete="off">
-          <fieldset className="space-y-4">
+          <fieldset
+            className="space-y-4"
+            disabled={transition.state === "submitting"}
+          >
             <input type="hidden" name="id" value={date.id} />
             <div>
               <Input type="text" label="Dein Name*" name="name" required />
