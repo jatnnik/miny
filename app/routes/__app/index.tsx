@@ -2,7 +2,7 @@ import type { ActionArgs, LoaderArgs } from "@remix-run/node"
 import { typedjson, useTypedLoaderData } from "remix-typedjson"
 
 import { requireUser } from "~/session.server"
-import { increaseLoginCount } from "~/models/user.server"
+import { hideNewsForUser, increaseLoginCount } from "~/models/user.server"
 
 import WelcomeCard from "~/components/dashboard/WelcomeCard"
 import Dates from "~/components/dashboard/Dates"
@@ -18,6 +18,7 @@ export async function loader({ request }: LoaderArgs) {
   return typedjson({
     username: user.name,
     isFirstLogin,
+    showNews: !user.hasSeenNews,
     slug: user.slug,
     dates,
   })
@@ -36,18 +37,21 @@ export async function action({ request }: ActionArgs) {
       const id = formData.get("id")
       await safeDeleteDate(Number(id), user.id)
       return null
+    case "hideNews":
+      await hideNewsForUser(user.id)
+      return null
   }
 
   return new Response(`Unsupported intent: ${action}`, { status: 400 })
 }
 
 export default function IndexRoute() {
-  const { username, isFirstLogin, slug, dates } =
+  const { username, isFirstLogin, showNews, slug, dates } =
     useTypedLoaderData<typeof loader>()
 
   return (
     <div className="space-y-6">
-      <News />
+      {showNews && !isFirstLogin ? <News /> : null}
       <WelcomeCard
         username={username}
         isFirstLogin={isFirstLogin}

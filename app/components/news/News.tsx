@@ -1,6 +1,10 @@
+import { Form, useTransition } from "@remix-run/react"
 import Button from "../shared/Buttons"
 import Card from "../shared/Card"
 import { headlineClasses } from "../shared/Headline"
+import LoadingSpinner from "../shared/LoadingSpinner"
+
+const SHOW = true
 
 interface NewsItemProps {
   emoji: string
@@ -23,6 +27,10 @@ function NewsItem({ emoji, title, text }: NewsItemProps) {
 }
 
 export default function NewsCard() {
+  const transition = useTransition()
+
+  if (!SHOW) return null
+
   return (
     <Card>
       <h1 className={headlineClasses}>News</h1>
@@ -34,7 +42,7 @@ export default function NewsCard() {
 
       <div className="space-y-6 text-sm">
         <NewsItem
-          emoji="✨"
+          emoji="💅🏼"
           title="Verbessertes Design"
           text="Alles ist jetzt ein bisschen aufgeräumter und übersichtlicher."
         />
@@ -53,8 +61,22 @@ export default function NewsCard() {
           title="Nachrichten"
           text="Wenn man sich für einen Termin anmeldet, kann man dem/der Dienstpartnerin jetzt eine kurze Nachricht mitschicken."
         />
-
-        <Button>Ausblenden</Button>
+        <p>
+          Alle anderen Änderungen findest du im{" "}
+          <a
+            href="https://minyapp.notion.site/Changelog-a1bee6e67715408a8db774bfa4ef1293"
+            target="_blank"
+            rel="noreferrer"
+            className="text-amber-800 underline underline-offset-1 hover:text-amber-700"
+          >
+            Changelog.
+          </a>
+        </p>
+        <Form method="post">
+          <Button type="submit" name="action" value="hideNews" variant="icon">
+            Ausblenden{transition.state === "submitting" && <LoadingSpinner />}
+          </Button>
+        </Form>
       </div>
     </Card>
   )

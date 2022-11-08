@@ -6,7 +6,7 @@ export default function Footer() {
     <footer className="text-center text-xs text-slate-500">
       <span>v{version}</span> &middot;{" "}
       <a
-        href="https://github.com/wh1zk1d/miny/blob/main/CHANGELOG.md"
+        href="https://minyapp.notion.site/Changelog-a1bee6e67715408a8db774bfa4ef1293"
         target="_blank"
         rel="noreferrer"
         title="Changelog"

@@ -6,6 +6,19 @@ import { prisma } from "~/db.server"
 
 export type { User } from "@prisma/client"
 
+async function slugify(username: string) {
+  let preferredSlug = username.trim().replace(" ", "-").toLowerCase()
+
+  const slugAlreadyExists = await getUserBySlug(preferredSlug)
+
+  if (slugAlreadyExists) {
+    const random = crypto.randomBytes(5).toString("hex")
+    return `${preferredSlug}-${random}`
+  }
+
+  return preferredSlug
+}
+
 export async function getUserById(id: User["id"]) {
   return prisma.user.findUnique({ where: { id } })
 }
@@ -21,7 +34,7 @@ export async function getUserBySlug(slug: string) {
 export async function createUser(
   email: User["email"],
   password: User["password"],
-  name: User["name"],
+  name: User["name"]
 ) {
   const hashedPassword = await bcrypt.hash(password, 10)
   const slug = await slugify(name)
@@ -38,7 +51,7 @@ export async function createUser(
 
 export async function verifyLogin(
   email: User["email"],
-  password: User["password"],
+  password: User["password"]
 ) {
   const user = await getUserByEmail(email)
   if (!user || !user.password) {
@@ -68,15 +81,13 @@ export async function increaseLoginCount(user: User) {
   })
 }
 
-async function slugify(username: string) {
-  let preferredSlug = username.trim().replace(" ", "-").toLowerCase()
-
-  const slugAlreadyExists = await getUserBySlug(preferredSlug)
-
-  if (slugAlreadyExists) {
-    const random = crypto.randomBytes(5).toString("hex")
-    return `${preferredSlug}-${random}`
-  }
-
-  return preferredSlug
+export async function hideNewsForUser(userId: User["id"]) {
+  return prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      hasSeenNews: true,
+    },
+  })
 }
