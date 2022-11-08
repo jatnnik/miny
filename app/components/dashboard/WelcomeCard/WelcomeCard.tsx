@@ -1,13 +1,17 @@
-import { Form, Link } from "@remix-run/react"
+import { Form, Link, useTransition } from "@remix-run/react"
 import { useEffect, useState } from "react"
 import copy from "copy-to-clipboard"
-import { DocumentDuplicateIcon } from "@heroicons/react/24/outline"
+import {
+  DocumentDuplicateIcon,
+  GlobeAltIcon,
+} from "@heroicons/react/24/outline"
 import { CheckIcon } from "@heroicons/react/20/solid"
 
 import Card from "~/components/shared/Card"
 import Button from "~/components/shared/Buttons"
 import { headlineClasses } from "~/components/shared/Headline"
 import { labelClasses } from "~/components/shared/Input"
+import LoadingSpinner from "~/components/shared/LoadingSpinner"
 
 interface WelcomeCardProps {
   username: string
@@ -58,12 +62,13 @@ export default function WelcomeCard({
           <div className="flex items-center gap-2">
             <Link
               to={`u/${slug}`}
-              className="rounded-md border border-slate-300 bg-slate-100 py-2 px-4 text-sm shadow-sm"
+              className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-slate-100 py-2 px-4 pl-3.5 text-sm shadow-sm"
             >
+              <GlobeAltIcon className="h-4 w-4" />
               {userLink}
             </Link>
             <button
-              className="rounded-md border border-slate-300 bg-slate-100 p-2 shadow-sm"
+              className="rounded-md border border-slate-300 bg-slate-100 p-2 text-slate-600 shadow-sm"
               onClick={copyUserLink}
             >
               {copied ? (
@@ -80,6 +85,8 @@ export default function WelcomeCard({
 }
 
 function FirstLoginText() {
+  const transition = useTransition()
+
   return (
     <div className="space-y-2">
       <p className="flex items-center font-semibold">
@@ -104,8 +111,13 @@ function FirstLoginText() {
       </p>
       <div className="h-2"></div>
       <Form action="." method="post">
-        <Button type="submit" name="action" value="hideWelcomeText">
-          Ausblenden
+        <Button
+          type="submit"
+          name="action"
+          value="hideWelcomeText"
+          variant="icon"
+        >
+          Ausblenden{transition.state === "submitting" && <LoadingSpinner />}
         </Button>
       </Form>
     </div>

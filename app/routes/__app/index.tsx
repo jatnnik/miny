@@ -3,10 +3,10 @@ import { typedjson, useTypedLoaderData } from "remix-typedjson"
 
 import { requireUser } from "~/session.server"
 import { hideNewsForUser, increaseLoginCount } from "~/models/user.server"
+import { getDatesByUserId, safeDeleteDate } from "~/models/date.server"
 
 import WelcomeCard from "~/components/dashboard/WelcomeCard"
 import Dates from "~/components/dashboard/Dates"
-import { getDatesByUserId, safeDeleteDate } from "~/models/date.server"
 import News from "~/components/news"
 
 export async function loader({ request }: LoaderArgs) {
@@ -19,7 +19,7 @@ export async function loader({ request }: LoaderArgs) {
     username: user.name,
     isFirstLogin,
     showNews: !user.hasSeenNews,
-    slug: user.slug,
+    slug: user.slug as string,
     dates,
   })
 }
@@ -42,7 +42,7 @@ export async function action({ request }: ActionArgs) {
       return null
   }
 
-  return new Response(`Unsupported intent: ${action}`, { status: 400 })
+  return new Response(`Invalid intent: ${action}`, { status: 400 })
 }
 
 export default function IndexRoute() {
@@ -55,7 +55,7 @@ export default function IndexRoute() {
       <WelcomeCard
         username={username}
         isFirstLogin={isFirstLogin}
-        slug={slug as string}
+        slug={slug}
       />
       <Dates dates={dates} />
     </div>

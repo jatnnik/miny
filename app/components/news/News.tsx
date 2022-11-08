@@ -36,7 +36,7 @@ export default function NewsCard() {
       <h1 className={headlineClasses}>News</h1>
       <div className="h-3"></div>
       <p className="text-sm">
-        miny v2.0 ist da und bringt einige neue Funktionen mit!
+        miny <i>v2.0</i> ist da und bringt einige neue Funktionen mit!
       </p>
       <div className="h-6"></div>
 
