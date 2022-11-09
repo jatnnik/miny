@@ -167,14 +167,13 @@ export default function Register() {
                 required
               />
               <label htmlFor="agreeGdpr" className="ml-2 block text-sm">
-                Ich stimme der{" "}
+                Ich akzeptiere die{" "}
                 <Link
                   to="/datenschutz"
                   className="underline underline-offset-1 hover:no-underline"
                 >
                   Datenschutzerklärung
-                </Link>{" "}
-                zu
+                </Link>
               </label>
             </div>
 

@@ -23,8 +23,8 @@ export default function Privacy() {
           </Link>
         </div>
         <Card>
-          <div className="prose prose-sm prose-slate prose-headings:font-medium">
-            <h1>Datenschutzerklärung</h1>
+          <div className="prose-sm prose prose-slate prose-headings:font-serif prose-headings:font-medium">
+            <h1 className="text-xl">Datenschutzerklärung</h1>
             <p>
               Im folgenden Text wird über die Art und Weise, wie
               personenbezogene Daten auf dieser Webseite verarbeitet werden und
