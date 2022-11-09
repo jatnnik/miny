@@ -248,17 +248,6 @@ export async function removeGroupParticipant(id: Participant["id"]) {
   })
 }
 
-export async function deleteDate(id: Appointment["id"]) {
-  const date = await getDateById(id)
-  if (!date) return null
-
-  return await prisma.appointment.delete({
-    where: {
-      id,
-    },
-  })
-}
-
 export async function safeDeleteDate(
   id: Appointment["id"],
   userId: User["id"]

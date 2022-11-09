@@ -15,7 +15,7 @@ import { getUserId, createUserSession } from "~/session.server"
 import { createUser, getUserByEmail } from "~/models/user.server"
 import { badRequest } from "~/utils"
 
-import Input from "~/components/Input"
+import Input from "~/components/shared/Input"
 import Button from "~/components/shared/Buttons"
 import { loginCardClasses, loginWrapperClasses } from "~/components/login"
 import LoadingSpinner from "~/components/shared/LoadingSpinner"

@@ -1,7 +1,7 @@
 import type { MetaFunction } from "@remix-run/node"
 import { Link } from "@remix-run/react"
-import Card from "~/components/Card"
-import Container from "~/components/Container"
+import Card from "~/components/shared/Card"
+import Container from "~/components/shared/Container"
 
 export const meta: MetaFunction = () => {
   return {
@@ -11,15 +11,16 @@ export const meta: MetaFunction = () => {
 
 export default function Privacy() {
   return (
-    <div className="py-10">
+    <>
+      <div className="h-6 sm:h-8"></div>
       <Container>
         <div className="mb-8 flex items-center">
           <Link
-            className="ml-2 flex items-center gap-2 text-sm font-medium"
+            className="flex items-center gap-2 text-sm font-semibold"
             to="/"
           >
             <img src="/backpack.png" className="w-6" alt="" />
-            miny
+            <h1>miny</h1>
           </Link>
         </div>
         <Card>
@@ -157,6 +158,7 @@ export default function Privacy() {
           </div>
         </Card>
       </Container>
-    </div>
+      <div className="h-6"></div>
+    </>
   )
 }

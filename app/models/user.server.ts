@@ -1,6 +1,6 @@
 import type { User } from "@prisma/client"
 import bcrypt from "bcryptjs"
-import crypto from "crypto"
+import { nanoid } from "nanoid"
 
 import { prisma } from "~/db.server"
 
@@ -12,7 +12,7 @@ async function slugify(username: string) {
   const slugAlreadyExists = await getUserBySlug(preferredSlug)
 
   if (slugAlreadyExists) {
-    const random = crypto.randomBytes(5).toString("hex")
+    const random = nanoid(10)
     return `${preferredSlug}-${random}`
   }
 

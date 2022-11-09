@@ -10,10 +10,10 @@ import {
   useLoaderData,
 } from "@remix-run/react"
 import { json } from "@remix-run/node"
-
-import tailwind from "./styles/tailwind-build.css"
 import React from "react"
 import clsx from "clsx"
+
+import tailwind from "./styles/tailwind-build.css"
 
 export const loader = ({ request }: LoaderArgs) => {
   const userAgent = request.headers.get("user-agent")
@@ -60,11 +60,12 @@ export const links = () => {
 }
 
 interface DocumentProps {
-  isSafari?: boolean
   children: React.ReactNode
 }
 
-function Document({ isSafari = false, children }: DocumentProps) {
+function Document({ children }: DocumentProps) {
+  const { isSafari } = useLoaderData<typeof loader>()
+
   return (
     <html lang="de">
       <head>
@@ -84,10 +85,8 @@ function Document({ isSafari = false, children }: DocumentProps) {
 }
 
 export default function App() {
-  const { isSafari } = useLoaderData<typeof loader>()
-
   return (
-    <Document isSafari={Boolean(isSafari)}>
+    <Document>
       <Outlet />
       <ScrollRestoration />
       <Scripts />
