@@ -7,23 +7,19 @@ import {
   useTransition,
   useSearchParams,
 } from "@remix-run/react"
-import type {
-  LoaderArgs,
-  ActionArgs,
-  MetaFunction,
-  HeadersFunction,
-} from "@remix-run/node"
+import type { LoaderArgs, ActionArgs } from "@remix-run/node"
 import { json, redirect } from "@remix-run/node"
 import { z } from "zod"
+import { safeRedirect } from "~/utils"
 
 import { createUserSession, getUserId } from "~/session.server"
 import { badRequest } from "~/utils"
 import { verifyLogin } from "~/models/user.server"
 
-import { ErrorBadge } from "~/components/Badges"
-import { labelStyles, inputStyles, errorStyles } from "~/components/Input"
-import { SubmitButton } from "~/components/Buttons"
-import Backpack from "~/components/Backpack"
+import Input from "~/components/shared/Input"
+import Button from "~/components/shared/Buttons"
+import { loginCardClasses, loginWrapperClasses } from "~/components/login"
+import LoadingSpinner from "~/components/shared/LoadingSpinner"
 
 export const loader = async ({ request }: LoaderArgs) => {
   const userId = await getUserId(request)
@@ -43,11 +39,11 @@ type LoginFieldErrors = inferSafeParseErrors<typeof validationSchema>
 interface ActionData {
   fields: LoginFields
   errors?: LoginFieldErrors
-  formError?: string
 }
 
 export const action = async ({ request }: ActionArgs) => {
-  const fields = Object.fromEntries(await request.formData()) as LoginFields
+  const formData = await request.formData()
+  const fields = Object.fromEntries(formData.entries()) as LoginFields
   const result = validationSchema.safeParse(fields)
 
   if (!result.success) {
@@ -57,13 +53,18 @@ export const action = async ({ request }: ActionArgs) => {
     })
   }
 
-  const { email, password, remember, redirectTo } = result.data
+  const { email, password, remember } = result.data
+  const redirectTo = safeRedirect(result.data.redirectTo, "/")
 
   const user = await verifyLogin(email, password)
   if (!user) {
     return badRequest<ActionData>({
       fields: result.data,
-      formError: "E-Mail oder Passwort ist falsch",
+      errors: {
+        fieldErrors: {
+          email: ["E-Mail oder Passwort ist falsch."],
+        },
+      },
     })
   }
 
@@ -71,30 +72,20 @@ export const action = async ({ request }: ActionArgs) => {
     request,
     userId: user.id,
     remember: remember === "on",
-    redirectTo: redirectTo,
+    redirectTo,
   })
-}
-
-export const headers: HeadersFunction = () => {
-  return {
-    "Cache-Control": `s-maxage=${60 * 60 * 24 * 30}`,
-  }
-}
-
-export const meta: MetaFunction = () => {
-  return { title: "Login" }
 }
 
 export default function Login() {
   const [searchParams] = useSearchParams()
-  const redirectTo = searchParams.get("redirectTo") || "/"
-  const actionData = useActionData<ActionData>()
+  const redirectTo = searchParams.get("redirectTo") ?? ""
+  const actionData = useActionData<typeof action>()
   const transition = useTransition()
 
   const emailRef = useRef<HTMLInputElement>(null)
   const passwordRef = useRef<HTMLInputElement>(null)
 
-  const isSubmitting = Boolean(transition.submission)
+  const isSubmitting = transition.state === "submitting"
 
   useEffect(() => {
     if (actionData?.errors?.fieldErrors.email) {
@@ -105,70 +96,43 @@ export default function Login() {
   }, [actionData])
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center">
-      <Backpack />
-      <div className="mt-6 w-full max-w-xs rounded-lg bg-white px-6 py-4 shadow-md sm:max-w-md">
+    <div className={loginWrapperClasses}>
+      <img src="/backpack.png" className="w-10 sm:w-12" alt="" />
+      <div className="h-6"></div>
+      <div className={loginCardClasses}>
         <Form method="post">
-          {actionData?.formError ? (
-            <ErrorBadge message={actionData.formError} />
-          ) : null}
-
-          <fieldset disabled={isSubmitting}>
+          <fieldset disabled={isSubmitting} className="space-y-4">
             <div>
-              <label htmlFor={"email"} className={labelStyles}>
-                E-Mail
-              </label>
-
-              <input
-                ref={emailRef}
+              <Input
                 type="email"
-                id="email"
                 name="email"
-                className={inputStyles}
+                label="E-Mail"
                 required
                 autoFocus={true}
-                autoComplete="email"
                 defaultValue={actionData?.fields?.email}
-                aria-invalid={
-                  actionData?.errors?.fieldErrors.email ? true : undefined
-                }
-                aria-describedby="email-error"
+                validationError={actionData?.errors?.fieldErrors.email?.join(
+                  ", "
+                )}
               />
-              {actionData?.errors?.fieldErrors.email && (
-                <p className={errorStyles} role="alert" id="email-error">
-                  {actionData.errors.fieldErrors.email}
-                </p>
-              )}
             </div>
 
-            <div className="mt-4">
-              <label htmlFor={"password"} className={labelStyles}>
-                Passwort
-              </label>
-              <input
-                ref={passwordRef}
+            <div>
+              <Input
                 type="password"
-                id="password"
                 name="password"
-                className={inputStyles}
+                label="Passwort"
                 required
-                autoComplete="current-password"
+                minLength={6}
                 defaultValue={actionData?.fields?.password}
-                aria-invalid={
-                  actionData?.errors?.fieldErrors.password ? true : undefined
-                }
-                aria-describedby="password-error"
+                validationError={actionData?.errors?.fieldErrors.password?.join(
+                  ", "
+                )}
               />
-              {actionData?.errors?.fieldErrors.password && (
-                <p className={errorStyles} role="alert" id="password-error">
-                  {actionData.errors.fieldErrors.password}
-                </p>
-              )}
             </div>
 
             <input type="hidden" name="redirectTo" value={redirectTo} />
 
-            <div className="mt-4 flex items-center">
+            <div className="flex items-center">
               <input
                 id="remember"
                 name="remember"
@@ -176,18 +140,15 @@ export default function Login() {
                 defaultChecked
                 className="h-4 w-4 rounded border-slate-300 text-slate-600 focus:ring-slate-200 focus:ring-opacity-50"
               />
-              <label
-                htmlFor="remember"
-                className="ml-2 block text-sm font-medium"
-              >
+              <label htmlFor="remember" className="ml-2 block text-sm">
                 Angemeldet bleiben
               </label>
             </div>
 
-            <div className="mt-4 flex items-center justify-between">
+            <div className="flex items-center justify-between">
               <div className="space-y-1">
                 <Link
-                  className="block text-sm underline hover:text-slate-900"
+                  className="block text-sm text-slate-600 underline hover:text-slate-900"
                   to={{
                     pathname: "/register",
                     search: searchParams.toString(),
@@ -197,17 +158,17 @@ export default function Login() {
                 </Link>
               </div>
 
-              <SubmitButton
-                type="submit"
-                label={isSubmitting ? "Lade..." : "Anmelden"}
-              />
+              <Button type="submit" intent="submit" size="small" variant="icon">
+                Anmelden {isSubmitting && <LoadingSpinner />}
+              </Button>
             </div>
           </fieldset>
         </Form>
       </div>
+      <div className="h-6"></div>
       <Link
-        to="/privacy"
-        className="mt-4 text-center text-xs text-slate-500 underline"
+        to="/datenschutz"
+        className="text-center text-xs text-slate-600 underline"
       >
         Datenschutzerklärung
       </Link>

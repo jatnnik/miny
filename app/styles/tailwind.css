@@ -28,6 +28,18 @@
         url("/fonts/public-sans/public-sans-v11-latin-500.woff") format("woff"); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
   }
 
+  /* public-sans-600 */
+  @font-face {
+    font-family: "Public Sans";
+    font-style: normal;
+    font-display: swap;
+    font-weight: 600;
+    src: local(""),
+      url("/fonts/public-sans/public-sans-v14-latin-600.woff2") format("woff2"),
+      /* Chrome 26+, Opera 23+, Firefox 39+ */
+        url("/fonts/public-sans/public-sans-v14-latin-600.woff") format("woff"); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+  }
+
   @font-face {
     font-family: "Public Sans";
     font-style: italic;
@@ -53,7 +65,19 @@
         url("/fonts/fraunces/fraunces-v10-latin-900.woff") format("woff"); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
   }
 
-  input::-webkit-date-and-time-value {
-    text-align: left;
+  .is-safari input:is([type="time"]) {
+    line-height: 1.2;
+    font-variant-numeric: normal;
+    font-feature-settings: normal;
+  }
+
+  .is-safari input::-webkit-datetime-edit {
+    padding-top: 5px;
+  }
+}
+
+@supports (-webkit-touch-callout: none) {
+  .min-h-screen {
+    min-height: -webkit-fill-available;
   }
 }

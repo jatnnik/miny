@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client"
-import type { User, Appointment } from "@prisma/client"
+import type { User, Appointment, Participant } from "@prisma/client"
 import { prisma } from "~/db.server"
 import nodemailer from "nodemailer"
 import { formatDate } from "~/utils"
@@ -9,6 +9,7 @@ const dateWithParticipants = Prisma.validator<Prisma.AppointmentArgs>()({
   include: {
     participants: {
       select: {
+        id: true,
         name: true,
       },
     },
@@ -29,6 +30,14 @@ export async function isOwner(
 export async function getDateById(id: Appointment["id"]) {
   return prisma.appointment.findUnique({
     where: { id },
+    include: {
+      participants: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
   })
 }
 
@@ -96,6 +105,7 @@ export async function getDatesByUserId(id: User["id"]) {
     include: {
       participants: {
         select: {
+          id: true,
           name: true,
         },
       },
@@ -122,6 +132,7 @@ export async function getFreeDates(userId: User["id"], onlyZoom = false) {
       include: {
         participants: {
           select: {
+            id: true,
             name: true,
           },
         },
@@ -144,6 +155,7 @@ export async function getFreeDates(userId: User["id"], onlyZoom = false) {
       include: {
         participants: {
           select: {
+            id: true,
             name: true,
           },
         },
@@ -152,38 +164,46 @@ export async function getFreeDates(userId: User["id"], onlyZoom = false) {
   }
 }
 
-interface CreateFields {
-  date: string
-  startTime: string
-  endTime?: string | null
-  isGroupDate?: boolean
-  maxParticipants?: number | null
-  note?: string | null
+export interface CreateFields {
+  days: string[]
   isFlexible: boolean
-  partner?: string | null
+  start?: string | null
+  end?: string | null
+  flexibleStart?: string | null
   isZoom: boolean
+  isGroup: boolean
+  maxParticipants?: number | null
+  partner?: string | null
+  note?: string | null
 }
 
-export async function createDate(fields: CreateFields, userId: string) {
-  return await prisma.appointment.create({
-    data: {
-      date: fields.date,
-      startTime: fields.startTime,
-      endTime: fields.endTime,
-      isGroupDate: fields.isGroupDate,
-      maxParticipants: fields.maxParticipants,
-      note: fields.note,
-      userId: Number(userId),
-      isFlexible: fields.isFlexible,
-      partnerName: fields.partner,
-      isAssigned: typeof fields.partner === "string",
-      isZoom: fields.isZoom,
-    },
+export async function createDates(fields: CreateFields, userId: User["id"]) {
+  const data = fields.days.map(day => ({
+    date: new Date(day),
+    startTime: fields.isFlexible
+      ? (fields.flexibleStart as string)
+      : (fields.start as string),
+    endTime: fields.isFlexible ? null : fields.end,
+    isAssigned: !!fields.partner,
+    isFlexible: fields.isFlexible,
+    partnerName: fields.partner,
+    isGroupDate: fields.isGroup,
+    maxParticipants: fields.maxParticipants,
+    note: fields.note,
+    isZoom: fields.isZoom,
+    userId,
+  }))
+
+  return await prisma.appointment.createMany({
+    data,
   })
 }
 
-interface UpdateFields extends CreateFields {
+type CreateFieldsWithoutDays = Omit<CreateFields, "days">
+export interface UpdateFields extends CreateFieldsWithoutDays {
   id: number
+  day: string
+  partner?: string | null
 }
 
 export async function updateDate(fields: UpdateFields) {
@@ -192,15 +212,17 @@ export async function updateDate(fields: UpdateFields) {
       id: fields.id,
     },
     data: {
-      date: fields.date,
-      startTime: fields.startTime,
-      endTime: fields.endTime,
-      isGroupDate: fields.isGroupDate,
+      date: new Date(fields.day),
+      startTime: fields.isFlexible
+        ? (fields.flexibleStart as string)
+        : (fields.start as string),
+      endTime: fields.end,
+      isGroupDate: fields.isGroup,
       maxParticipants: fields.maxParticipants,
       note: fields.note,
       isFlexible: fields.isFlexible,
       partnerName: fields.partner,
-      isAssigned: typeof fields.partner === "string",
+      isAssigned: !!fields.partner,
       isZoom: fields.isZoom,
     },
   })
@@ -218,9 +240,27 @@ export async function removePartnerFromDate(id: Appointment["id"]) {
   })
 }
 
-export async function deleteDate(id: Appointment["id"]) {
+export async function removeGroupParticipant(id: Participant["id"]) {
+  return await prisma.participant.delete({
+    where: {
+      id,
+    },
+  })
+}
+
+export async function safeDeleteDate(
+  id: Appointment["id"],
+  userId: User["id"]
+) {
   const date = await getDateById(id)
   if (!date) return null
+
+  const hasPermissionToDelete = await isOwner(date.userId, userId)
+  if (!hasPermissionToDelete) {
+    throw new Response("You are not allowed to delete this entity.", {
+      status: 401,
+    })
+  }
 
   return await prisma.appointment.delete({
     where: {
@@ -235,25 +275,22 @@ export async function dateExistsAndIsAvailable(id: Appointment["id"]) {
   return appointment
 }
 
-export async function assignDate(dateId: Appointment["id"], name: string) {
-  const appointment = await getDateById(dateId)
-  if (!appointment) return null
-
-  if (appointment.isGroupDate) {
+export async function assignDate(date: Appointment, name: string) {
+  if (date.isGroupDate) {
     await prisma.participant.create({
       data: {
         name: name.trim(),
-        dateId,
+        dateId: date.id,
       },
     })
 
-    const participants = await getParticipateCount(dateId)
+    const participants = await getParticipateCount(date.id)
 
-    const reachedMaxParticipants = participants === appointment.maxParticipants
+    const reachedMaxParticipants = participants === date.maxParticipants
     if (reachedMaxParticipants) {
       return await prisma.appointment.update({
         where: {
-          id: dateId,
+          id: date.id,
         },
         data: {
           isAssigned: true,
@@ -265,7 +302,7 @@ export async function assignDate(dateId: Appointment["id"], name: string) {
   } else {
     return await prisma.appointment.update({
       where: {
-        id: dateId,
+        id: date.id,
       },
       data: {
         isAssigned: true,
@@ -275,7 +312,7 @@ export async function assignDate(dateId: Appointment["id"], name: string) {
   }
 }
 
-interface Recipient {
+export interface Recipient {
   email: User["email"]
   name: User["name"]
 }
@@ -283,7 +320,8 @@ interface Recipient {
 export async function sendAssignmentEmail(
   recipient: Recipient,
   partnerName: string,
-  appointment: AppointmentWithUserAndParticipants
+  appointment: AppointmentWithUserAndParticipants,
+  message?: string
 ) {
   const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -306,12 +344,17 @@ export async function sendAssignmentEmail(
     text += `${partnerName} hat sich für einen Diensttermin mit dir eingetragen.`
   }
 
+  if (message) {
+    text += `\n\nNachricht:\n`
+    text += `${message}`
+  }
+
   text += `\n\nEuer Termin:\n`
-  text += `${formatDate(appointment.date.toString())}, ${appointment.startTime}`
+  text += `${formatDate(appointment.date)}, ${appointment.startTime}`
   if (appointment.endTime && !appointment.isFlexible) {
     text += `–${appointment.endTime}`
   }
-  text += "\n\nViel Spaß im Dienst!\nminy\n\n"
+  text += "\n\nViel Spaß im Dienst!\n\n"
   text += "Hier kommst du zu deinen Terminen: https://dienst.vercel.app/"
 
   await transporter.sendMail({

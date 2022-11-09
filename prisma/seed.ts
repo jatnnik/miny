@@ -6,10 +6,7 @@ const prisma = new PrismaClient()
 async function seed() {
   const email = "jannik@miny.app"
 
-  // cleanup the existing database
-  await prisma.user.delete({ where: { email } }).catch(() => {
-    // no worries if it doesn't exist yet
-  })
+  await prisma.user.delete({ where: { email } }).catch(() => {})
 
   const dateFromSeedUser = await prisma.appointment.findFirst({
     where: {
@@ -22,9 +19,7 @@ async function seed() {
   if (dateFromSeedUser) {
     await prisma.appointment
       .delete({ where: { id: dateFromSeedUser.id } })
-      .catch(() => {
-        // no worries if it doesn't exist yet
-      })
+      .catch(() => {})
   }
 
   const hashedPassword = await bcrypt.hash("minyiscool", 10)

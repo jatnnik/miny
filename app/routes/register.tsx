@@ -6,23 +6,19 @@ import {
   useTransition,
   useSearchParams,
 } from "@remix-run/react"
-import type {
-  LoaderArgs,
-  ActionArgs,
-  MetaFunction,
-  HeadersFunction,
-} from "@remix-run/node"
+import type { LoaderArgs, ActionArgs } from "@remix-run/node"
 import { redirect, json } from "@remix-run/node"
 import { z } from "zod"
+import { safeRedirect } from "~/utils"
 
 import { getUserId, createUserSession } from "~/session.server"
 import { createUser, getUserByEmail } from "~/models/user.server"
 import { badRequest } from "~/utils"
 
-import Input from "~/components/Input"
-import Backpack from "~/components/Backpack"
-import { SubmitButton } from "~/components/Buttons"
-import { ErrorBadge } from "~/components/Badges"
+import Input from "~/components/shared/Input"
+import Button from "~/components/shared/Buttons"
+import { loginCardClasses, loginWrapperClasses } from "~/components/login"
+import LoadingSpinner from "~/components/shared/LoadingSpinner"
 
 export const loader = async ({ request }: LoaderArgs) => {
   const userId = await getUserId(request)
@@ -46,13 +42,13 @@ type RegisterFields = z.infer<typeof validationSchema>
 type RegisterFieldsErrors = inferSafeParseErrors<typeof validationSchema>
 
 interface ActionData {
-  formError?: string
   errors?: RegisterFieldsErrors
   fields?: RegisterFields
 }
 
 export const action = async ({ request }: ActionArgs) => {
-  const fields = Object.fromEntries(await request.formData()) as RegisterFields
+  const formData = await request.formData()
+  const fields = Object.fromEntries(formData.entries()) as RegisterFields
   const result = validationSchema.safeParse(fields)
 
   if (!result.success) {
@@ -62,7 +58,8 @@ export const action = async ({ request }: ActionArgs) => {
     })
   }
 
-  const { email, password, firstName, redirectTo } = result.data
+  const { email, password, firstName } = result.data
+  const redirectTo = safeRedirect(result.data.redirectTo, "/")
 
   const existingUser = await getUserByEmail(email)
   if (existingUser) {
@@ -81,54 +78,42 @@ export const action = async ({ request }: ActionArgs) => {
     request,
     userId: user.id,
     remember: false,
-    redirectTo: redirectTo,
+    redirectTo,
   })
-}
-
-export const headers: HeadersFunction = () => {
-  return {
-    "Cache-Control": `s-maxage=${60 * 60 * 24 * 30}`,
-  }
-}
-
-export const meta: MetaFunction = () => {
-  return {
-    title: "Registrieren",
-    "og:title": "Registrieren | miny",
-  }
 }
 
 export default function Register() {
   const [searchParams] = useSearchParams()
-  const redirectTo = searchParams.get("redirectTo") || "/"
+  const redirectTo = searchParams.get("redirectTo") ?? ""
   const actionData = useActionData<typeof action>()
+
   const transition = useTransition()
+  const isBusy = transition.state === "submitting"
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center">
-      <Backpack />
-      <div className="mt-6 w-full max-w-xs rounded-lg bg-white px-6 py-4 shadow-md sm:max-w-md">
+    <div className={loginWrapperClasses}>
+      <img src="/backpack.png" className="w-10 sm:w-12" alt="" />
+      <div className="h-6"></div>
+      <div className={loginCardClasses}>
         <Form method="post">
-          {actionData?.formError ? (
-            <ErrorBadge message={actionData.formError} />
-          ) : null}
+          <fieldset disabled={isBusy} className="space-y-4">
+            <div>
+              <Input
+                type="text"
+                name="firstName"
+                label="Vorname"
+                required
+                autoFocus
+                minLength={2}
+                defaultValue={actionData?.fields?.firstName}
+                validationError={actionData?.errors?.fieldErrors.firstName?.join(
+                  ", "
+                )}
+                autoComplete="given-name"
+              />
+            </div>
 
-          <fieldset disabled={transition.state === "submitting"}>
-            <Input
-              type="text"
-              name="firstName"
-              label="Vorname"
-              required
-              autoFocus
-              minLength={2}
-              defaultValue={actionData?.fields?.firstName}
-              validationError={actionData?.errors?.fieldErrors.firstName?.join(
-                ", "
-              )}
-              autoComplete="given-name"
-            />
-
-            <div className="mt-4">
+            <div>
               <Input
                 type="email"
                 name="email"
@@ -140,13 +125,9 @@ export default function Register() {
                 )}
                 autoComplete="email"
               />
-              <span className="mt-2 block text-sm italic leading-normal">
-                Diese E-Mail Adresse wird verwendet, um dir Bescheid zu sagen,
-                wenn sich jemand für einen deiner Termine einträgt.
-              </span>
             </div>
 
-            <div className="mt-4">
+            <div>
               <Input
                 type="password"
                 name="password"
@@ -161,7 +142,7 @@ export default function Register() {
               />
             </div>
 
-            <div className="mt-4">
+            <div>
               <Input
                 type="password"
                 name="confirmPassword"
@@ -176,7 +157,7 @@ export default function Register() {
               />
             </div>
 
-            <div className="mt-4 flex items-center">
+            <div className="flex items-center">
               <input
                 id="agreeGdpr"
                 name="agreeGdpr"
@@ -185,27 +166,23 @@ export default function Register() {
                 className="h-4 w-4 rounded border-slate-300 text-slate-600 focus:ring-slate-200 focus:ring-opacity-50"
                 required
               />
-              <label
-                htmlFor="agreeGdpr"
-                className="ml-2 block text-sm font-medium"
-              >
-                Ich stimme der{" "}
+              <label htmlFor="agreeGdpr" className="ml-2 block text-sm">
+                Ich akzeptiere die{" "}
                 <Link
-                  to="/privacy"
-                  className="font-medium underline underline-offset-1 hover:no-underline"
+                  to="/datenschutz"
+                  className="underline underline-offset-1 hover:no-underline"
                 >
                   Datenschutzerklärung
-                </Link>{" "}
-                zu
+                </Link>
               </label>
             </div>
 
             <input type="hidden" name="redirectTo" value={redirectTo} />
 
-            <div className="mt-4 flex items-center justify-between">
+            <div className="flex items-center justify-between">
               <div className="space-y-1">
                 <Link
-                  className="block text-sm underline hover:text-slate-900"
+                  className="block text-sm text-slate-600 underline hover:text-slate-900"
                   to={{
                     pathname: "/login",
                     search: searchParams.toString(),
@@ -215,19 +192,17 @@ export default function Register() {
                 </Link>
               </div>
 
-              <SubmitButton
-                type="submit"
-                label={
-                  transition.state === "submitting" ? "Lade..." : "Registrieren"
-                }
-              />
+              <Button type="submit" intent="submit" size="small" variant="icon">
+                Registrieren {isBusy && <LoadingSpinner />}
+              </Button>
             </div>
           </fieldset>
         </Form>
       </div>
+      <div className="h-6"></div>
       <Link
-        to="/privacy"
-        className="mt-4 text-center text-xs text-slate-500 underline"
+        to="/datenschutz"
+        className="text-center text-xs text-slate-600 underline"
       >
         Datenschutzerklärung
       </Link>
