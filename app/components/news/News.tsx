@@ -4,7 +4,7 @@ import Card from "../shared/Card"
 import { headlineClasses } from "../shared/Headline"
 import LoadingSpinner from "../shared/LoadingSpinner"
 
-const SHOW = true
+const SHOW = false
 
 interface NewsItemProps {
   emoji: string
