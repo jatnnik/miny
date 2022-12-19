@@ -150,7 +150,7 @@ export default function Login() {
                 <Link
                   className="block text-sm text-slate-600 underline hover:text-slate-900"
                   to={{
-                    pathname: "/register",
+                    pathname: "/join",
                     search: searchParams.toString(),
                   }}
                 >
