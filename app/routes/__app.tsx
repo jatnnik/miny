@@ -25,7 +25,7 @@ export default function AppRoute() {
           <Menu />
         ) : (
           <Link
-            to="register"
+            to="join"
             className="rounded-md bg-slate-300 px-4 py-2 text-sm font-medium transition-colors hover:bg-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-700 focus-visible:ring-opacity-75"
           >
             Registrieren
