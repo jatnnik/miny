@@ -17,7 +17,7 @@ import { removeGroupParticipant } from "~/models/date.server"
 import { badRequest } from "~/utils"
 import { removePartnerFromDate } from "~/models/date.server"
 import { getDateById, updateDate } from "~/models/date.server"
-import { requireUser, requireUserId } from "~/session.server"
+import { requireUserId } from "~/session.server"
 import { baseDateSchema } from "../add"
 
 import Card from "~/components/shared/Card"
@@ -27,25 +27,26 @@ import { Calendar } from "~/components/calendar"
 import Input from "~/components/shared/Input"
 import Button from "~/components/shared/Buttons"
 import LoadingSpinner from "~/components/shared/LoadingSpinner"
+import invariant from "tiny-invariant"
 
 interface LoaderData {
   date: DateWithParticipants
 }
 
 export const loader = async ({ request, params }: LoaderArgs) => {
-  const user = await requireUser(request)
-  const dateId = params.id
+  const userId = await requireUserId(request)
+  invariant(params.id, "dateId not found")
 
-  const dateIdIsValid = numeric.safeParse(dateId)
-  if (!dateIdIsValid.success) {
-    return redirect("/")
+  const id = Number(params.id)
+  if (isNaN(id)) {
+    throw redirect("/")
   }
 
-  const date = await getDateById(dateIdIsValid.data)
+  const date = await getDateById(id)
   if (!date) {
     throw new Response("Not found", { status: 404 })
   }
-  if (date.userId !== user.id) {
+  if (date.userId !== Number(userId)) {
     throw new Response("No permission", { status: 403 })
   }
 
