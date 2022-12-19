@@ -7,7 +7,6 @@ import { getDatesByUserId, safeDeleteDate } from "~/models/date.server"
 
 import WelcomeCard from "~/components/dashboard/WelcomeCard"
 import Dates from "~/components/dashboard/Dates"
-import News from "~/components/news"
 
 export async function loader({ request }: LoaderArgs) {
   const user = await requireUser(request)
@@ -46,12 +45,11 @@ export async function action({ request }: ActionArgs) {
 }
 
 export default function IndexRoute() {
-  const { username, isFirstLogin, showNews, slug, dates } =
+  const { username, isFirstLogin, slug, dates } =
     useTypedLoaderData<typeof loader>()
 
   return (
     <div className="space-y-6">
-      {showNews && !isFirstLogin ? <News /> : null}
       <WelcomeCard
         username={username}
         isFirstLogin={isFirstLogin}
