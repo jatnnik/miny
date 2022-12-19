@@ -14,18 +14,11 @@ import React from "react"
 import clsx from "clsx"
 
 import { prodUrl } from "./config"
+import { getUser } from "./session.server"
 
 import tailwind from "./styles/tailwind-build.css"
 
-export const loader = ({ request }: LoaderArgs) => {
-  const userAgent = request.headers.get("user-agent")
-  const isSafari =
-    userAgent?.includes("Safari") && !userAgent.includes("Chrome")
-
-  return json({ isSafari })
-}
-
-export const meta: MetaFunction<typeof loader> = ({ location }) => {
+export const meta: MetaFunction = ({ location }) => {
   return {
     charset: "utf-8",
     viewport: "width=device-width,initial-scale=1",
@@ -46,14 +39,21 @@ export const meta: MetaFunction<typeof loader> = ({ location }) => {
 }
 
 export const links = () => {
-  return [
-    { rel: "stylesheet", href: tailwind },
-    {
-      rel: "prefetch",
-      as: "image",
-      href: "/backpack.png",
-    },
-  ]
+  return [{ rel: "stylesheet", href: tailwind }]
+}
+
+export async function loader({ request }: LoaderArgs) {
+  const userAgent = request.headers.get("user-agent")
+  const isSafari =
+    userAgent?.includes("Safari") && !userAgent.includes("Chrome")
+
+  const user = await getUser(request)
+  if (user) {
+    const { password, updatedAt, createdAt, id, ...prunedUser } = user
+    return json({ isSafari, user: prunedUser })
+  }
+
+  return json({ isSafari })
 }
 
 function Document({ children }: React.PropsWithChildren) {
@@ -66,9 +66,12 @@ function Document({ children }: React.PropsWithChildren) {
         <Links />
       </head>
       <body
-        className={clsx("bg-slate-100 font-sans text-slate-700 antialiased", {
-          "is-safari": isSafari,
-        })}
+        className={clsx(
+          "h-full bg-slate-100 font-sans text-slate-700 antialiased",
+          {
+            "is-safari": isSafari,
+          }
+        )}
       >
         {children}
         <LiveReload />
@@ -95,7 +98,7 @@ export const CatchBoundary = () => {
     <Document>
       <div className="p-4">
         <h1 className="font-medium">
-          {caught.status} – {caught.data}
+          Error {caught.status}: {caught.data}
         </h1>
       </div>
     </Document>

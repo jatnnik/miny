@@ -63,20 +63,22 @@ export async function verifyLogin(
     return null
   }
 
-  await increaseLoginCount(user)
+  await increaseLoginCount(user.id)
 
   const { password: _password, ...userWithoutPassword } = user
 
   return userWithoutPassword
 }
 
-export async function increaseLoginCount(user: User) {
+export async function increaseLoginCount(userId: User["id"]) {
   return prisma.user.update({
     where: {
-      id: user.id,
+      id: userId,
     },
     data: {
-      loginCount: user.loginCount + 1,
+      loginCount: {
+        increment: 1,
+      },
     },
   })
 }

@@ -13,6 +13,7 @@ import { z } from "zod"
 
 import type { DateWithParticipants, Recipient } from "~/models/date.server"
 import type { inferSafeParseErrors } from "~/utils"
+import { useUser } from "~/utils"
 import {
   dateExistsAndIsAvailable,
   getFreeDates,
@@ -36,7 +37,7 @@ export const loader = async ({ params }: LoaderArgs) => {
 
   const user = await getUserBySlug(username)
   if (user === null) {
-    throw json("User not found", 404)
+    throw new Response("User not found", { status: 404 })
   }
 
   const dates = await getFreeDates(user.id)
@@ -189,10 +190,12 @@ function AssignedCard({ data, user }: AssignedCardProps) {
 }
 
 export default function UserPage() {
-  const { user, dates } = useTypedLoaderData<typeof loader>()
+  const { dates } = useTypedLoaderData<typeof loader>()
   const actionData = useActionData<ActionData>()
   const [searchParams] = useSearchParams()
   const transition = useTransition()
+
+  const user = useUser()
 
   const [expandedDate, setExpandedDate] = useState<number | null>(null)
 
@@ -220,18 +223,18 @@ export default function UserPage() {
       start: actionData.assignedDate.start,
       end: actionData.assignedDate.end,
     }
-    return <AssignedCard data={data} user={user} />
+    return <AssignedCard data={data} user={user.name} />
   }
 
   return (
     <Card>
-      <h1 className={headlineClasses}>{getUserPageTitle(user)}</h1>
+      <h1 className={headlineClasses}>{getUserPageTitle(user.name)}</h1>
       <div className="h-3"></div>
       {hasDates ? (
         <>
           <p className="italic">
             Tippe einfach auf den Pfeil, um dich für einen Termin einzutragen.{" "}
-            {user} bekommt dann automatisch eine Nachricht.
+            {user.name} bekommt dann automatisch eine Nachricht.
           </p>
           {showZoomFilter ? (
             <>
@@ -270,7 +273,7 @@ export default function UserPage() {
             dates={onlyZoom ? dates.filter(date => date.isZoom) : dates}
             handleExpand={handleExpand}
             expandedDate={expandedDate}
-            username={user}
+            username={user.name}
             formError={
               actionData?.errors?.fieldErrors.name
                 ? actionData?.errors?.fieldErrors.name[0]

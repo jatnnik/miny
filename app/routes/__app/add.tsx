@@ -9,7 +9,7 @@ import { z } from "zod"
 
 import type { inferSafeParseErrors } from "~/utils"
 import type { CreateFields } from "~/models/date.server"
-import { requireUser, requireUserId } from "~/session.server"
+import { requireUserId } from "~/session.server"
 import { badRequest } from "~/utils"
 import { createDates } from "~/models/date.server"
 
@@ -34,7 +34,7 @@ export const meta: MetaFunction = () => {
 }
 
 export async function loader({ request }: LoaderArgs) {
-  await requireUser(request)
+  await requireUserId(request)
   return null
 }
 

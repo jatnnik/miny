@@ -1,30 +1,12 @@
-import type { LoaderArgs } from "@remix-run/node"
-import { json } from "@remix-run/node"
-import { Link, Outlet, useLoaderData } from "@remix-run/react"
+import { Link, Outlet } from "@remix-run/react"
 
 import Container from "~/components/shared/Container"
 import Footer from "~/components/shared/Footer"
 import Menu from "~/components/shared/Menu"
-import { getUser } from "~/session.server"
-
-export const loader = async ({ request }: LoaderArgs) => {
-  const user = await getUser(request)
-  return json({ isLoggedIn: !!user })
-}
-
-function LoginButton() {
-  return (
-    <Link
-      to="login"
-      className="rounded-md bg-slate-300 px-4 py-2 text-sm font-medium transition-colors hover:bg-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-700 focus-visible:ring-opacity-75"
-    >
-      Anmelden
-    </Link>
-  )
-}
+import { useOptionalUser } from "~/utils"
 
 export default function AppRoute() {
-  const { isLoggedIn } = useLoaderData<typeof loader>()
+  const user = useOptionalUser()
 
   return (
     <Container>
@@ -39,7 +21,16 @@ export default function AppRoute() {
             <h1>miny</h1>
           </Link>
         </div>
-        {isLoggedIn ? <Menu /> : <LoginButton />}
+        {user ? (
+          <Menu />
+        ) : (
+          <Link
+            to="register"
+            className="rounded-md bg-slate-300 px-4 py-2 text-sm font-medium transition-colors hover:bg-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-700 focus-visible:ring-opacity-75"
+          >
+            Registrieren
+          </Link>
+        )}
       </div>
       <div className="h-6"></div>
       <Outlet />
