@@ -13,6 +13,8 @@ import { json } from "@remix-run/node"
 import React from "react"
 import clsx from "clsx"
 
+import { prodUrl } from "./config"
+
 import tailwind from "./styles/tailwind-build.css"
 
 export const loader = ({ request }: LoaderArgs) => {
@@ -20,23 +22,19 @@ export const loader = ({ request }: LoaderArgs) => {
   const isSafari =
     userAgent?.includes("Safari") && !userAgent.includes("Chrome")
 
-  return json({
-    url: request.url,
-    isSafari,
-  })
+  return json({ isSafari })
 }
 
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
+export const meta: MetaFunction<typeof loader> = ({ location }) => {
   return {
     charset: "utf-8",
-    viewport:
-      "width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover, user-scalable=no",
+    viewport: "width=device-width,initial-scale=1",
     title: "miny",
     description: "Ganz einfach Diensttermine ausmachen.",
     "og:title": "miny",
     "og:description": "Ganz einfach Diensttermine ausmachen.",
     "og:image": `https://dienst.vercel.app/og_image.png`,
-    "og:url": data.url,
+    "og:url": prodUrl + location.pathname,
     "og:type": "website",
     "theme-color": "#1e293b",
     "mobile-web-app-capable": "yes",
@@ -50,7 +48,6 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 export const links = () => {
   return [
     { rel: "stylesheet", href: tailwind },
-    { rel: "shortcut icon", href: "/favicon.ico" },
     {
       rel: "prefetch",
       as: "image",
@@ -59,11 +56,7 @@ export const links = () => {
   ]
 }
 
-interface DocumentProps {
-  children: React.ReactNode
-}
-
-function Document({ children }: DocumentProps) {
+function Document({ children }: React.PropsWithChildren) {
   const { isSafari } = useLoaderData<typeof loader>()
 
   return (
