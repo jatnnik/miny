@@ -11,9 +11,7 @@ import { useUser } from "~/utils"
 
 export async function loader({ request }: LoaderArgs) {
   const userId = await requireUserId(request)
-
   const dates = await getDatesByUserId(Number(userId))
-
   return typedjson({ dates })
 }
 
