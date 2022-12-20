@@ -76,6 +76,10 @@
   }
 }
 
+input::-webkit-date-and-time-value {
+  text-align: left;
+}
+
 @supports (-webkit-touch-callout: none) {
   .min-h-screen {
     min-height: -webkit-fill-available;
