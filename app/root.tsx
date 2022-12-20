@@ -7,11 +7,9 @@ import {
   Scripts,
   ScrollRestoration,
   useCatch,
-  useLoaderData,
 } from "@remix-run/react"
 import { json } from "@remix-run/node"
 import React from "react"
-import clsx from "clsx"
 
 import { prodUrl } from "./config"
 import { getUser } from "./session.server"
@@ -43,36 +41,23 @@ export const links = () => {
 }
 
 export async function loader({ request }: LoaderArgs) {
-  const userAgent = request.headers.get("user-agent")
-  const isSafari =
-    userAgent?.includes("Safari") && !userAgent.includes("Chrome")
-
   const user = await getUser(request)
   if (user) {
     const { password, updatedAt, createdAt, id, ...prunedUser } = user
-    return json({ isSafari, user: prunedUser })
+    return json({ user: prunedUser })
   }
 
-  return json({ isSafari })
+  return null
 }
 
 function Document({ children }: React.PropsWithChildren) {
-  const { isSafari } = useLoaderData<typeof loader>()
-
   return (
     <html lang="de">
       <head>
         <Meta />
         <Links />
       </head>
-      <body
-        className={clsx(
-          "h-full bg-slate-100 font-sans text-slate-700 antialiased",
-          {
-            "is-safari": isSafari,
-          }
-        )}
-      >
+      <body className="h-full bg-slate-100 font-sans text-slate-700 antialiased">
         {children}
         <LiveReload />
       </body>
@@ -98,7 +83,7 @@ export const CatchBoundary = () => {
     <Document>
       <div className="p-4">
         <h1 className="font-medium">
-          Error {caught.status}: {caught.data}
+          Error {caught.status}: {caught.data ? caught.data : caught.statusText}
         </h1>
       </div>
     </Document>

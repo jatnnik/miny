@@ -11,7 +11,7 @@ import { TrashIcon } from "@heroicons/react/24/outline"
 import { Dialog } from "@headlessui/react"
 
 import type { inferSafeParseErrors } from "~/utils"
-import { numeric } from "~/utils"
+import { numericSchema } from "~/utils"
 import type { DateWithParticipants, UpdateFields } from "~/models/date.server"
 import { removeGroupParticipant } from "~/models/date.server"
 import { badRequest } from "~/utils"
@@ -27,7 +27,6 @@ import { Calendar } from "~/components/calendar"
 import Input from "~/components/shared/Input"
 import Button from "~/components/shared/Buttons"
 import LoadingSpinner from "~/components/shared/LoadingSpinner"
-import invariant from "tiny-invariant"
 
 interface LoaderData {
   date: DateWithParticipants
@@ -35,12 +34,15 @@ interface LoaderData {
 
 export const loader = async ({ request, params }: LoaderArgs) => {
   const userId = await requireUserId(request)
-  invariant(params.id, "dateId not found")
 
-  const id = Number(params.id)
-  if (isNaN(id)) {
+  const schema = z.coerce.number()
+  const validId = schema.safeParse(params.id)
+
+  if (!validId.success) {
     throw redirect("/")
   }
+
+  const id = validId.data
 
   const date = await getDateById(id)
   if (!date) {
@@ -78,7 +80,7 @@ export async function action({ request, params }: ActionArgs) {
   const userId = await requireUserId(request)
   const dateId = params.id
 
-  const dateIdIsValid = numeric.safeParse(dateId)
+  const dateIdIsValid = numericSchema.safeParse(dateId)
   if (!dateIdIsValid.success) {
     return redirect("/")
   }
@@ -103,7 +105,7 @@ export async function action({ request, params }: ActionArgs) {
 
   if (action === "remove-participant") {
     const participantId = formData.get("id")
-    const valid = numeric.safeParse(participantId)
+    const valid = numericSchema.safeParse(participantId)
 
     if (!valid.success) {
       return redirect("/")

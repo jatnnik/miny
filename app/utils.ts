@@ -52,7 +52,7 @@ export function getUserPageTitle(username: string) {
   return `${username}${username.slice(-1) === "s" ? "" : "s"} Diensttermine`
 }
 
-export const numeric = z.string().regex(/^\d+$/).transform(Number)
+export const numericSchema = z.coerce.number()
 
 /**
  * Custom hook to quickly search for specific data across all loader data
