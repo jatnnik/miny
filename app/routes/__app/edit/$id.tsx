@@ -22,7 +22,6 @@ import { baseDateSchema } from "../add"
 
 import Card from "~/components/shared/Card"
 import { headlineClasses } from "~/components/shared/Headline"
-import { useUpdatedAt } from "~/hooks"
 import { Calendar } from "~/components/calendar"
 import Input from "~/components/shared/Input"
 import Button from "~/components/shared/Buttons"
@@ -43,7 +42,6 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   }
 
   const id = validId.data
-
   const date = await getDateById(id)
   if (!date) {
     throw new Response("Not found", { status: 404 })
@@ -230,7 +228,6 @@ export default function Edit() {
   const [selectedParticipant, setSelectedParticipant] =
     useState<Participant | null>(null)
 
-  const updatedAt = useUpdatedAt(date.updatedAt)
   const isSubmitting = transition.state === "submitting"
 
   function onCalendarSelect(day: Date) {
@@ -254,10 +251,6 @@ export default function Edit() {
 
       <Card>
         <h1 className={headlineClasses}>Termin bearbeiten</h1>
-        <div className="h-2"></div>
-        <p className="text-sm italic text-slate-500">
-          Letzte Änderung: {updatedAt}
-        </p>
 
         <div className="h-6"></div>
         <Form method="post" autoComplete="off">

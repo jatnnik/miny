@@ -2,7 +2,6 @@ import { Menu, Transition } from "@headlessui/react"
 import { Fragment } from "react"
 import {
   Bars3Icon,
-  CogIcon,
   PlusIcon,
   ArrowRightOnRectangleIcon,
 } from "@heroicons/react/20/solid"
@@ -18,7 +17,7 @@ export default function Example() {
     <div className="w-56 text-right">
       <Menu as="div" className="relative inline-block text-left">
         <div>
-          <Menu.Button className="inline-flex w-full items-center justify-center rounded-md bg-slate-300 px-4 py-2 text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-700 focus-visible:ring-opacity-75">
+          <Menu.Button className="inline-flex w-full items-center justify-center rounded-md bg-slate-300 px-4 py-2 text-sm font-medium hover:bg-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-700 focus-visible:ring-opacity-75">
             Menü
             <Bars3Icon className="ml-2.5 -mr-1 h-4 w-4" aria-hidden="true" />
           </Menu.Button>
