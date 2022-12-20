@@ -15,6 +15,7 @@ import { prodUrl } from "./config"
 import { getUser } from "./session.server"
 
 import tailwind from "./styles/tailwind-build.css"
+import type { PrunedUser } from "./utils"
 
 export const meta: MetaFunction = ({ location }) => {
   return {
@@ -43,7 +44,15 @@ export const links = () => {
 export async function loader({ request }: LoaderArgs) {
   const user = await getUser(request)
   if (user) {
-    const { password, updatedAt, createdAt, id, ...prunedUser } = user
+    const prunedUser: PrunedUser = {
+      name: user.name,
+      email: user.email,
+      loginCount: user.loginCount,
+      slug: user.slug,
+      calendarId: user.calendarId,
+      calendarEnabled: user.calendarEnabled,
+    }
+
     return json({ user: prunedUser })
   }
 
