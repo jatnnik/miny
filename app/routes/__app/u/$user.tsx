@@ -112,6 +112,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
       title,
       "og:title": `${title} | miny`,
       "og:description": `${data.user} möchte einen Diensttermin mit dir ausmachen`,
+      "og:image": `https://miny-og.vercel.app/api/og?name=${data.user}`,
     }
   } else {
     return {}

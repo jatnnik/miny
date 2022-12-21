@@ -49,7 +49,9 @@ export function formatDate(date: string | Date) {
 }
 
 export function getUserPageTitle(username: string) {
-  return `${username}${username.slice(-1) === "s" ? "" : "s"} Diensttermine`
+  return `${username}${
+    ["s", "ß", "x", "z"].includes(username.slice(-1)) ? "'" : "s"
+  } Diensttermine`
 }
 
 export const numericSchema = z.coerce.number()

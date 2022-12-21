@@ -25,7 +25,7 @@ export const meta: MetaFunction = ({ location }) => {
     description: "Ganz einfach Diensttermine ausmachen.",
     "og:title": "miny",
     "og:description": "Ganz einfach Diensttermine ausmachen.",
-    "og:image": `https://dienst.vercel.app/og_image.png`,
+    "og:image": `https://miny-og.vercel.app/api/og`,
     "og:url": prodUrl + location.pathname,
     "og:type": "website",
     "theme-color": "#1e293b",
