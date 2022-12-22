@@ -3,15 +3,22 @@ import bcrypt from "bcryptjs"
 
 const prisma = new PrismaClient()
 
-async function seed() {
-  const email = "jannik@miny.app"
+const userData = {
+  email: "jannik@miny.app",
+  name: "Jannik",
+  slug: "jannik",
+  password: "minyiscool",
+}
 
-  await prisma.user.delete({ where: { email } }).catch(() => {})
+async function seed() {
+  console.log("👤 Creating a user...")
+  console.time()
+  await prisma.user.delete({ where: { email: userData.email } }).catch(() => {})
 
   const dateFromSeedUser = await prisma.appointment.findFirst({
     where: {
       user: {
-        email,
+        email: userData.email,
       },
     },
   })
@@ -22,17 +29,21 @@ async function seed() {
       .catch(() => {})
   }
 
-  const hashedPassword = await bcrypt.hash("minyiscool", 10)
+  const hashedPassword = await bcrypt.hash(userData.password, 10)
 
   const user = await prisma.user.create({
     data: {
-      email,
+      email: userData.email,
       password: hashedPassword,
-      name: "Jannik",
-      slug: "jannik",
+      name: userData.name,
+      slug: userData.slug,
     },
   })
 
+  console.timeEnd()
+
+  console.log("\n🗓️ Creating appointments...")
+  console.time()
   await prisma.appointment.create({
     data: {
       userId: user.id,
@@ -40,8 +51,9 @@ async function seed() {
       startTime: "10:00",
     },
   })
+  console.timeEnd()
 
-  console.log(`Database has been seeded. 🌱`)
+  console.log(`\nDatabase has been seeded. 🌱`)
 }
 
 seed()
