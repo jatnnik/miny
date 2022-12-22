@@ -82,14 +82,3 @@ export async function increaseLoginCount(userId: User["id"]) {
     },
   })
 }
-
-export async function hideNewsForUser(userId: User["id"]) {
-  return prisma.user.update({
-    where: {
-      id: userId,
-    },
-    data: {
-      hasSeenNews: true,
-    },
-  })
-}

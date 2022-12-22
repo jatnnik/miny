@@ -2,29 +2,28 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["referentialIntegrity"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider             = "mysql"
-  url                  = env("DATABASE_URL")
-  referentialIntegrity = "prisma"
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
 model User {
-  id              Int           @id @default(autoincrement())
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  name            String        @db.VarChar(255)
-  email           String        @unique
-  password        String
-  loginCount      Int           @default(0)
-  slug            String?       @unique
-  calendarId      String?       @unique
-  calendarEnabled Boolean       @default(false)
-  hasSeenNews     Boolean       @default(false)
-  dates           Appointment[]
+  id                 Int           @id @default(autoincrement())
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  name               String        @db.VarChar(255)
+  email              String        @unique
+  password           String
+  loginCount         Int           @default(0)
+  slug               String        @unique
+  calendarId         String?       @unique
+  calendarEnabled    Boolean       @default(false)
+  passwordResetToken String?       @unique
+  dates              Appointment[]
 }
 
 model Appointment {
@@ -43,8 +42,10 @@ model Appointment {
   participants    Participant[]
   isZoom          Boolean?
 
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int
+
+  @@index([userId])
 }
 
 model Participant {
@@ -52,6 +53,8 @@ model Participant {
   name      String   @db.VarChar(255)
   createdAt DateTime @default(now())
 
-  date   Appointment @relation(fields: [dateId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  date   Appointment @relation(fields: [dateId], references: [id], onDelete: Cascade)
   dateId Int
+
+  @@index([dateId])
 }

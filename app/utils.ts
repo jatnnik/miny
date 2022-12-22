@@ -78,7 +78,7 @@ function isUser(user: any): user is User {
 
 export type PrunedUser = Omit<
   User,
-  "password" | "updatedAt" | "createdAt" | "id" | "hasSeenNews"
+  "password" | "updatedAt" | "createdAt" | "id" | "passwordResetToken"
 >
 
 export function useOptionalUser(): PrunedUser | undefined {
