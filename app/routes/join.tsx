@@ -17,7 +17,7 @@ import { badRequest } from "~/utils"
 
 import Input from "~/components/shared/Input"
 import Button from "~/components/shared/Buttons"
-import { loginCardClasses, loginWrapperClasses } from "~/components/login"
+import { LoginCard, LoginWrapper } from "~/components/login"
 import LoadingSpinner from "~/components/shared/LoadingSpinner"
 
 export const loader = async ({ request }: LoaderArgs) => {
@@ -91,10 +91,10 @@ export default function Register() {
   const isBusy = transition.state === "submitting"
 
   return (
-    <div className={loginWrapperClasses}>
+    <LoginWrapper>
       <img src="/backpack.png" className="w-10 sm:w-12" alt="" />
       <div className="h-6"></div>
-      <div className={loginCardClasses}>
+      <LoginCard>
         <Form method="post">
           <fieldset disabled={isBusy} className="space-y-4">
             <div>
@@ -198,7 +198,7 @@ export default function Register() {
             </div>
           </fieldset>
         </Form>
-      </div>
+      </LoginCard>
       <div className="h-6"></div>
       <Link
         to="/datenschutz"
@@ -206,6 +206,6 @@ export default function Register() {
       >
         Datenschutzerklärung
       </Link>
-    </div>
+    </LoginWrapper>
   )
 }

@@ -11,13 +11,12 @@ import {
 import { json } from "@remix-run/node"
 import React from "react"
 
-import { prodUrl } from "./config"
 import { getUser } from "./session.server"
 
 import tailwind from "./styles/tailwind-build.css"
 import type { PrunedUser } from "./utils"
 
-export const meta: MetaFunction = ({ location }) => {
+export const meta: MetaFunction = () => {
   return {
     charset: "utf-8",
     viewport: "width=device-width,initial-scale=1",
@@ -26,7 +25,6 @@ export const meta: MetaFunction = ({ location }) => {
     "og:title": "miny",
     "og:description": "Ganz einfach Diensttermine ausmachen.",
     "og:image": `https://miny-og.vercel.app/api/og`,
-    "og:url": prodUrl + location.pathname,
     "og:type": "website",
     "theme-color": "#1e293b",
     "mobile-web-app-capable": "yes",
@@ -43,6 +41,7 @@ export const links = () => {
 
 export async function loader({ request }: LoaderArgs) {
   const user = await getUser(request)
+  // TODO: Refactor this into a custom Prisma query that only queries the needed data
   if (user) {
     const prunedUser: PrunedUser = {
       name: user.name,
