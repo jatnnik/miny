@@ -11,8 +11,7 @@
     "dev:css": "npm run generate:css -- --watch",
     "dev:remix": "node -r dotenv/config node_modules/.bin/remix dev",
     "format": "prettier --write .",
-    "generate:css": "tailwindcss -i app/styles/tailwind.css -o app/styles/tailwind-build.css",
-    "typecheck": "npx tsc -b ."
+    "generate:css": "tailwindcss -i app/styles/tailwind.css -o app/styles/tailwind-build.css"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.3",
@@ -31,7 +30,6 @@
     "dotenv": "^16.0.2",
     "framer-motion": "^7.5.2",
     "ics": "^2.40.0",
-    "isbot": "^3.5.2",
     "nanoid": "^4.0.0",
     "nodemailer": "^6.7.8",
     "react": "^18.2.0",

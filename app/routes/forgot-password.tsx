@@ -131,7 +131,7 @@ export default function ForgotPasswordRoute() {
       <img src="/backpack.png" className="w-10 sm:w-12" alt="" />
       <div className="h-6"></div>
       <LoginCard>
-        <h1 className="font-semibold text-slate-800">Passwort vergessen</h1>
+        <h1 className="font-semibold">Passwort vergessen</h1>
         <p className="mt-1 mb-4 text-slate-600">
           Gib deine E-Mail ein. Du bekommst dann eine Mail mit einem Link, über
           den du dein Passwort zurücksetzen kannst.

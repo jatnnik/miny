@@ -132,7 +132,7 @@ export default function ResetPasswordRoute() {
       <img src="/backpack.png" className="w-10 sm:w-12" alt="" />
       <div className="h-6"></div>
       <LoginCard>
-        <h1 className="font-semibold text-slate-800">Passwort zurücksetzen</h1>
+        <h1 className="font-semibold">Passwort zurücksetzen</h1>
         {data.user ? (
           <p className="mt-1 text-slate-600">Deine E-Mail: {data.user}</p>
         ) : null}
