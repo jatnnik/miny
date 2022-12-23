@@ -18,8 +18,9 @@ import { verifyLogin } from "~/models/user.server"
 
 import Input from "~/components/shared/Input"
 import Button from "~/components/shared/Buttons"
-import { loginCardClasses, loginWrapperClasses } from "~/components/login"
+import { LoginCard, LoginWrapper } from "~/components/login"
 import LoadingSpinner from "~/components/shared/LoadingSpinner"
+import Toast from "~/components/shared/Toast"
 
 export const loader = async ({ request }: LoaderArgs) => {
   const userId = await getUserId(request)
@@ -54,7 +55,7 @@ export const action = async ({ request }: ActionArgs) => {
   }
 
   const { email, password, remember } = result.data
-  const redirectTo = safeRedirect(result.data.redirectTo, "/")
+  const redirectTo = safeRedirect(result.data.redirectTo)
 
   const user = await verifyLogin(email, password)
   if (!user) {
@@ -82,10 +83,12 @@ export default function Login() {
   const actionData = useActionData<typeof action>()
   const transition = useTransition()
 
+  const hasEvent = searchParams.get("event")
+
   const emailRef = useRef<HTMLInputElement>(null)
   const passwordRef = useRef<HTMLInputElement>(null)
 
-  const isSubmitting = transition.state === "submitting"
+  const isSubmitting = transition.state !== "idle"
 
   useEffect(() => {
     if (actionData?.errors?.fieldErrors.email) {
@@ -96,10 +99,15 @@ export default function Login() {
   }, [actionData])
 
   return (
-    <div className={loginWrapperClasses}>
+    <LoginWrapper>
       <img src="/backpack.png" className="w-10 sm:w-12" alt="" />
       <div className="h-6"></div>
-      <div className={loginCardClasses}>
+      <LoginCard>
+        {hasEvent === "password-resetted" ? (
+          <Toast className="mb-4">
+            Du kannst dich jetzt mit deinem neuen Passwort anmelden.
+          </Toast>
+        ) : null}
         <Form method="post">
           <fieldset disabled={isSubmitting} className="space-y-4">
             <div>
@@ -149,12 +157,15 @@ export default function Login() {
               <div className="space-y-1">
                 <Link
                   className="block text-sm text-slate-600 underline hover:text-slate-900"
-                  to={{
-                    pathname: "/join",
-                    search: searchParams.toString(),
-                  }}
+                  to="/join"
                 >
                   Registrieren
+                </Link>
+                <Link
+                  className="block text-sm text-slate-600 underline hover:text-slate-900"
+                  to="/forgot-password"
+                >
+                  Passwort vergessen?
                 </Link>
               </div>
 
@@ -164,7 +175,7 @@ export default function Login() {
             </div>
           </fieldset>
         </Form>
-      </div>
+      </LoginCard>
       <div className="h-6"></div>
       <Link
         to="/datenschutz"
@@ -172,6 +183,6 @@ export default function Login() {
       >
         Datenschutzerklärung
       </Link>
-    </div>
+    </LoginWrapper>
   )
 }

@@ -3,7 +3,7 @@ import { type InputHTMLAttributes } from "react"
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string
-  validationError?: string
+  validationError?: string | null
   name: string
 }
 

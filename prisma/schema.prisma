@@ -12,18 +12,18 @@ datasource db {
 }
 
 model User {
-  id                 Int           @id @default(autoincrement())
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
-  name               String        @db.VarChar(255)
-  email              String        @unique
+  id                 Int                  @id @default(autoincrement())
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  name               String               @db.VarChar(255)
+  email              String               @unique
   password           String
-  loginCount         Int           @default(0)
-  slug               String        @unique
-  calendarId         String?       @unique
-  calendarEnabled    Boolean       @default(false)
-  passwordResetToken String?       @unique
+  loginCount         Int                  @default(0)
+  slug               String               @unique
+  calendarId         String?              @unique
+  calendarEnabled    Boolean              @default(false)
   dates              Appointment[]
+  passwordResetTokens PasswordResetToken[]
 }
 
 model Appointment {
@@ -57,4 +57,14 @@ model Participant {
   dateId Int
 
   @@index([dateId])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  token     String   @unique
+  createdAt DateTime @default(now())
+
+  @@index([userId])
 }
