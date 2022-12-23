@@ -20,6 +20,7 @@ import Input from "~/components/shared/Input"
 import Button from "~/components/shared/Buttons"
 import { LoginCard, LoginWrapper } from "~/components/login"
 import LoadingSpinner from "~/components/shared/LoadingSpinner"
+import Toast from "~/components/shared/Toast"
 
 export const loader = async ({ request }: LoaderArgs) => {
   const userId = await getUserId(request)
@@ -82,6 +83,8 @@ export default function Login() {
   const actionData = useActionData<typeof action>()
   const transition = useTransition()
 
+  const hasEvent = searchParams.get("event")
+
   const emailRef = useRef<HTMLInputElement>(null)
   const passwordRef = useRef<HTMLInputElement>(null)
 
@@ -100,6 +103,11 @@ export default function Login() {
       <img src="/backpack.png" className="w-10 sm:w-12" alt="" />
       <div className="h-6"></div>
       <LoginCard>
+        {hasEvent === "password-resetted" ? (
+          <Toast className="mb-4">
+            Du kannst dich jetzt mit deinem neuen Passwort anmelden.
+          </Toast>
+        ) : null}
         <Form method="post">
           <fieldset disabled={isSubmitting} className="space-y-4">
             <div>

@@ -82,3 +82,30 @@ export async function increaseLoginCount(userId: User["id"]) {
     },
   })
 }
+
+export async function resetUserPassword({
+  userId,
+  password,
+}: {
+  userId: User["id"]
+  password: User["password"]
+}) {
+  const hashedPassword = await bcrypt.hash(password, 10)
+
+  // Update the password
+  await prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      password: hashedPassword,
+    },
+  })
+
+  // Delete any existing reset tokens for the user
+  return prisma.passwordResetToken.deleteMany({
+    where: {
+      userId,
+    },
+  })
+}

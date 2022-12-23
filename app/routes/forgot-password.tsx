@@ -2,25 +2,32 @@ import type { DataFunctionArgs } from "@remix-run/node"
 import { json, redirect } from "@remix-run/node"
 import { Link, useFetcher } from "@remix-run/react"
 import invariant from "tiny-invariant"
+import bcrypt from "bcryptjs"
+
 import { getUserId } from "~/session.server"
 import { prisma } from "~/db.server"
-import { encrypt } from "~/utils/encryption.server"
 
 import Input from "~/components/shared/Input"
 import Button from "~/components/shared/Buttons"
 import { LoginCard, LoginWrapper } from "~/components/login"
 import LoadingSpinner from "~/components/shared/LoadingSpinner"
-import { getDomainUrl } from "~/utils/misc.server"
+import { getDomainUrl, generateRandomToken } from "~/utils/misc.server"
+import { sendEmail } from "~/utils/email.server"
+import Toast from "~/components/shared/Toast"
 
 const resetPasswordTokenQueryParam = "token"
-const tokenType = "forgot-password"
 
 export async function loader({ request }: DataFunctionArgs) {
   const userId = await getUserId(request)
   if (userId) return redirect("/")
 
-  // TODO: Detect token in URL, then validate and redirect
-  // https://github.com/epicweb-dev/rocket-rental/blob/main/app/routes/forgot-password.tsx
+  // Detect token in URL
+  const { searchParams } = new URL(request.url)
+  const token = searchParams.get("token")
+  const id = searchParams.get("id")
+  if (token) {
+    return redirect(`/reset-password?token=${token}&id=${id}`)
+  }
 
   return json({})
 }
@@ -32,6 +39,7 @@ export async function action({ request }: DataFunctionArgs) {
   invariant(typeof email === "string", "invalid type")
   invariant(email.length < 256, "email too long")
 
+  // Check if a user with this email exists
   const user = await prisma.user.findFirst({
     where: {
       email,
@@ -39,6 +47,8 @@ export async function action({ request }: DataFunctionArgs) {
     select: {
       email: true,
       slug: true,
+      id: true,
+      passwordResetTokens: true,
     },
   })
   if (!user) {
@@ -54,23 +64,62 @@ export async function action({ request }: DataFunctionArgs) {
     )
   }
 
-  const resetPasswordToken = encrypt(
-    JSON.stringify({
-      type: tokenType,
-      payload: {
-        username: user.slug,
-      },
-    })
-  )
+  // Generate the token
+  const resetPasswordToken = generateRandomToken()
   const resetPasswordUrl = new URL(`${getDomainUrl(request)}/forgot-password`)
   resetPasswordUrl.searchParams.set(
     resetPasswordTokenQueryParam,
     resetPasswordToken
   )
+  resetPasswordUrl.searchParams.append("id", user.id.toString())
 
-  // TODO: Send email with the link
+  // Prevent spam by allowing max. 3 tries
+  if (user.passwordResetTokens.length >= 3) {
+    return json({
+      status: "error",
+      errors: {
+        email: null,
+        form: "Max. Versuche überschritten. Bitte schicke eine Mail an my.miny.app@gmail.com, um dein Passwort zurückzusetzen.",
+      },
+    })
+  }
 
-  return json({ status: "success", errors: null })
+  // Hash the token and store it in the DB
+  const hashedToken = await bcrypt.hash(resetPasswordToken, 10)
+  await prisma.passwordResetToken.create({
+    data: {
+      userId: user.id,
+      token: hashedToken,
+    },
+  })
+
+  // Send the email
+  try {
+    await sendEmail({
+      to: user.email,
+      subject: "miny Passwort zurücksetzen",
+      text: `Öffne diesen Link, um dein Passwort zurückzusetzen: ${resetPasswordUrl}`,
+      html: `
+        <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+		    <html>
+			    <head>
+				    <meta http-equiv="Content-Type" content="text/html charset=UTF-8" />
+			    </head>
+			    <body>
+				    <p>Klicke auf den Link, um dein Passwort zurückzusetzen. Wenn du das "Passwort vergessen" Formular nicht ausgefüllt hast, kannst du diese E-Mail ignorieren.</p>
+				    <a href="${resetPasswordUrl}">${resetPasswordUrl}</a>
+			    </body>
+        </html>
+      `,
+    })
+
+    return json({ status: "success", errors: null })
+  } catch (error) {
+    return json({
+      status: "error",
+      errors: { email: null, form: "Mail konnte nicht versendet werden." },
+    })
+  }
 }
 
 export default function ForgotPasswordRoute() {
@@ -109,10 +158,15 @@ export default function ForgotPasswordRoute() {
             Senden {forgotPassword.state !== "idle" ? <LoadingSpinner /> : null}
           </Button>
         </forgotPassword.Form>
+        {forgotPassword.data?.errors?.form ? (
+          <Toast variant="error" className="mt-4">
+            {forgotPassword.data?.errors?.form}
+          </Toast>
+        ) : null}
         {forgotPassword.data?.status === "success" ? (
-          <div className="mt-4">
+          <Toast className="mt-4">
             Super, du solltest jetzt eine Mail bekommen.
-          </div>
+          </Toast>
         ) : null}
         <div className="h-4"></div>
         <Link
@@ -123,5 +177,13 @@ export default function ForgotPasswordRoute() {
         </Link>
       </LoginCard>
     </LoginWrapper>
+  )
+}
+
+export function ErrorBoundary({ error }: { error: Error }) {
+  console.error(error)
+
+  return (
+    <div className="p-6">An unexpected error occurred: {error.message}</div>
   )
 }
