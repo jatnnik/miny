@@ -99,6 +99,8 @@ export const CatchBoundary = () => {
 }
 
 export const ErrorBoundary = ({ error }: { error: Error }) => {
+  console.error(error)
+
   return (
     <Document>
       <div className="p-4">
