@@ -1,9 +1,6 @@
 import { createCookieSessionStorage, redirect } from "@remix-run/node"
-import invariant from "tiny-invariant"
 
 import { getUserById } from "./models/user.server"
-
-invariant(process.env.SESSION_SECRET, "SESSION_SECRET must be set")
 
 export const sessionStorage = createCookieSessionStorage({
   cookie: {
@@ -38,13 +35,13 @@ export async function getUser(request: Request) {
 
 export async function requireUserId(
   request: Request,
-  redirectTo: string = new URL(request.url).pathname,
+  redirectTo: string = new URL(request.url).pathname
 ): Promise<string> {
   const userId = await getUserId(request)
   if (!userId) {
     const searchParams = new URLSearchParams([["redirectTo", redirectTo]])
     throw redirect(
-      redirectTo && redirectTo !== "/" ? `/login?${searchParams}` : "/login",
+      redirectTo && redirectTo !== "/" ? `/login?${searchParams}` : "/login"
     )
   }
   return userId
@@ -85,7 +82,7 @@ export async function createUserSession({
 
 export async function logout(
   request: Request,
-  redirectTo: string = request.url,
+  redirectTo: string = request.url
 ) {
   const session = await getSession(request)
   const searchParams = new URLSearchParams([["redirectTo", redirectTo]])
@@ -95,6 +92,6 @@ export async function logout(
       headers: {
         "Set-Cookie": await sessionStorage.destroySession(session),
       },
-    },
+    }
   )
 }

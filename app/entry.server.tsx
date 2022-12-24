@@ -1,6 +1,9 @@
 import type { EntryContext } from "@remix-run/node"
 import { RemixServer } from "@remix-run/react"
 import { renderToString } from "react-dom/server"
+import { init } from "./utils/env.server"
+
+init()
 
 export default function handleRequest(
   request: Request,
