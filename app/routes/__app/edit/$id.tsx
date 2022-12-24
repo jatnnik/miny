@@ -10,14 +10,13 @@ import { format } from "date-fns"
 import { TrashIcon } from "@heroicons/react/24/outline"
 import { Dialog } from "@headlessui/react"
 
-import type { inferSafeParseErrors } from "~/utils"
-import { numericSchema } from "~/utils"
+import type { inferSafeParseErrors } from "~/utils/validation.server"
 import type { DateWithParticipants, UpdateFields } from "~/models/date.server"
 import { removeGroupParticipant } from "~/models/date.server"
-import { badRequest } from "~/utils"
+import { badRequest } from "~/utils/misc.server"
 import { removePartnerFromDate } from "~/models/date.server"
 import { getDateById, updateDate } from "~/models/date.server"
-import { requireUserId } from "~/session.server"
+import { requireUserId } from "~/utils/session.server"
 import { baseDateSchema } from "../add"
 
 import Card from "~/components/shared/Card"
@@ -78,7 +77,7 @@ export async function action({ request, params }: ActionArgs) {
   const userId = await requireUserId(request)
   const dateId = params.id
 
-  const dateIdIsValid = numericSchema.safeParse(dateId)
+  const dateIdIsValid = z.coerce.number().safeParse(dateId)
   if (!dateIdIsValid.success) {
     return redirect("/")
   }
@@ -103,7 +102,7 @@ export async function action({ request, params }: ActionArgs) {
 
   if (action === "remove-participant") {
     const participantId = formData.get("id")
-    const valid = numericSchema.safeParse(participantId)
+    const valid = z.coerce.number().safeParse(participantId)
 
     if (!valid.success) {
       return redirect("/")

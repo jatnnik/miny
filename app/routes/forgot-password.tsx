@@ -4,8 +4,8 @@ import { Link, useFetcher } from "@remix-run/react"
 import invariant from "tiny-invariant"
 import bcrypt from "bcryptjs"
 
-import { getUserId } from "~/session.server"
-import { prisma } from "~/db.server"
+import { getUserId } from "~/utils/session.server"
+import { prisma } from "~/utils/db.server"
 
 import Input from "~/components/shared/Input"
 import Button from "~/components/shared/Buttons"

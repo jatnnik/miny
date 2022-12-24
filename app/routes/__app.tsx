@@ -3,7 +3,7 @@ import { Link, Outlet } from "@remix-run/react"
 import Container from "~/components/shared/Container"
 import Footer from "~/components/shared/Footer"
 import Menu from "~/components/shared/Menu"
-import { useOptionalUser } from "~/utils"
+import { useOptionalUser } from "~/utils/hooks"
 
 export default function AppRoute() {
   const user = useOptionalUser()

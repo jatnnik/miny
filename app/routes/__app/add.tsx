@@ -7,10 +7,10 @@ import { Switch } from "@headlessui/react"
 import { motion } from "framer-motion"
 import { z } from "zod"
 
-import type { inferSafeParseErrors } from "~/utils"
+import type { inferSafeParseErrors } from "~/utils/validation.server"
 import type { CreateFields } from "~/models/date.server"
-import { requireUserId } from "~/session.server"
-import { badRequest } from "~/utils"
+import { requireUserId } from "~/utils/session.server"
+import { badRequest } from "~/utils/misc.server"
 import { createDates } from "~/models/date.server"
 
 import Card from "~/components/shared/Card"

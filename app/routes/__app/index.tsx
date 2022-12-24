@@ -1,13 +1,13 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node"
 import { typedjson, useTypedLoaderData } from "remix-typedjson"
 
-import { requireUserId } from "~/session.server"
+import { requireUserId } from "~/utils/session.server"
 import { increaseLoginCount } from "~/models/user.server"
 import { getDatesByUserId, safeDeleteDate } from "~/models/date.server"
 
 import WelcomeCard from "~/components/dashboard/WelcomeCard"
 import Dates from "~/components/dashboard/Dates"
-import { useUser } from "~/utils"
+import { useUser } from "~/utils/hooks"
 
 export async function loader({ request }: LoaderArgs) {
   const userId = await requireUserId(request)

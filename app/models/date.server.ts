@@ -1,9 +1,9 @@
 import { Prisma } from "@prisma/client"
 import type { User, Appointment, Participant } from "@prisma/client"
-import { prisma } from "~/db.server"
+import { prisma } from "~/utils/db.server"
 import nodemailer from "nodemailer"
-import { formatDate } from "~/utils"
 import { formatInTimeZone } from "date-fns-tz"
+import { formatDate } from "~/utils/misc"
 
 const dateWithParticipants = Prisma.validator<Prisma.AppointmentArgs>()({
   include: {

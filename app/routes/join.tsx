@@ -1,4 +1,4 @@
-import type { inferSafeParseErrors } from "~/utils"
+import type { inferSafeParseErrors } from "~/utils/validation.server"
 import {
   Form,
   Link,
@@ -9,11 +9,11 @@ import {
 import type { LoaderArgs, ActionArgs } from "@remix-run/node"
 import { redirect, json } from "@remix-run/node"
 import { z } from "zod"
-import { safeRedirect } from "~/utils"
+import { safeRedirect } from "~/utils/auth.server"
 
-import { getUserId, createUserSession } from "~/session.server"
+import { getUserId, createUserSession } from "~/utils/session.server"
 import { createUser, getUserByEmail } from "~/models/user.server"
-import { badRequest } from "~/utils"
+import { badRequest } from "~/utils/misc.server"
 
 import Input from "~/components/shared/Input"
 import Button from "~/components/shared/Buttons"

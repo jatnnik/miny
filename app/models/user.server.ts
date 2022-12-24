@@ -2,7 +2,7 @@ import type { User } from "@prisma/client"
 import bcrypt from "bcryptjs"
 import { nanoid } from "nanoid"
 
-import { prisma } from "~/db.server"
+import { prisma } from "~/utils/db.server"
 
 export type { User } from "@prisma/client"
 

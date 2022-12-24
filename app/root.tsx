@@ -11,7 +11,7 @@ import {
 import { json } from "@remix-run/node"
 import React from "react"
 
-import { getUser } from "./session.server"
+import { getUser } from "./utils/session.server"
 
 import tailwind from "./styles/tailwind-build.css"
 import type { PrunedUser } from "./utils"

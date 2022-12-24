@@ -1,8 +1,8 @@
 import type { ActionArgs } from "@remix-run/node"
 import { redirect } from "@remix-run/node"
 
-import { logout } from "~/session.server"
-import { safeRedirect } from "~/utils"
+import { logout } from "~/utils/session.server"
+import { safeRedirect } from "~/utils/auth.server"
 
 export async function action({ request }: ActionArgs) {
   const formData = await request.formData()

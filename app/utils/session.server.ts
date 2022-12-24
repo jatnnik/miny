@@ -1,6 +1,6 @@
 import { createCookieSessionStorage, redirect } from "@remix-run/node"
 
-import { getUserById } from "./models/user.server"
+import { getUserById } from "../models/user.server"
 
 export const sessionStorage = createCookieSessionStorage({
   cookie: {

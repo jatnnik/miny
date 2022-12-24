@@ -10,9 +10,11 @@ import {
 } from "@remix-run/react"
 import { useState } from "react"
 import { z } from "zod"
+import { format } from "date-fns"
+import { ClockIcon } from "@heroicons/react/24/outline"
 
 import type { DateWithParticipants, Recipient } from "~/models/date.server"
-import type { inferSafeParseErrors } from "~/utils"
+import type { inferSafeParseErrors } from "~/utils/validation.server"
 import {
   dateExistsAndIsAvailable,
   getFreeDates,
@@ -20,15 +22,14 @@ import {
   sendAssignmentEmail,
 } from "~/models/date.server"
 import { getUserBySlug } from "~/models/user.server"
-import { formatDate, badRequest, getUserPageTitle } from "~/utils"
 
 import Card from "~/components/shared/Card"
 import { headlineClasses } from "~/components/shared/Headline"
 import { DateSlot } from "~/components/userpage"
 import { button } from "~/components/shared/Buttons"
 import LoadingSpinner from "~/components/shared/LoadingSpinner"
-import { format } from "date-fns"
-import { ClockIcon } from "@heroicons/react/24/outline"
+import { badRequest } from "~/utils/misc.server"
+import { getUserPageTitle, formatDate } from "~/utils/misc"
 
 export const loader = async ({ params }: LoaderArgs) => {
   invariant(params.user, "Expected params.user")

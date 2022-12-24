@@ -10,7 +10,7 @@ import {
 } from "@heroicons/react/24/outline"
 import { Form, Link, useTransition } from "@remix-run/react"
 import clsx from "clsx"
-import { formatDate } from "~/utils"
+import { formatDate } from "~/utils/misc"
 import { Menu, Transition, Dialog } from "@headlessui/react"
 import { AnimatePresence, motion } from "framer-motion"
 

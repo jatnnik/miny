@@ -1,3 +1,4 @@
+import { json } from "@remix-run/node"
 import { nanoid } from "nanoid"
 
 export const generateRandomToken = () => nanoid(48)
@@ -10,4 +11,8 @@ export function getDomainUrl(request: Request) {
   }
   const protocol = host.includes("localhost") ? "http" : "https"
   return `${protocol}://${host}`
+}
+
+export function badRequest<T>(data: T) {
+  return json(data, { status: 400 })
 }

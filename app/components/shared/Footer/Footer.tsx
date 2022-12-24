@@ -1,5 +1,5 @@
 import { Link } from "@remix-run/react"
-import { version } from "~/config"
+import { version } from "~/utils/config"
 
 export default function Footer() {
   return (
