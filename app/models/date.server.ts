@@ -99,9 +99,14 @@ export async function getDatesByUserId(id: User["id"]) {
           "T00:00:00.000Z",
       },
     },
-    orderBy: {
-      date: "asc",
-    },
+    orderBy: [
+      {
+        date: "asc",
+      },
+      {
+        startTime: "asc",
+      },
+    ],
     include: {
       participants: {
         select: {
