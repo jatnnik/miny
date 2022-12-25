@@ -31,22 +31,6 @@ export async function getUserBySlug(slug: string) {
   return prisma.user.findFirst({ where: { slug } })
 }
 
-export async function getSafeUserById(id: User["id"]) {
-  return prisma.user.findUnique({
-    where: {
-      id,
-    },
-    select: {
-      name: true,
-      email: true,
-      slug: true,
-      loginCount: true,
-      calendarEnabled: true,
-      calendarId: true,
-    },
-  })
-}
-
 export async function createUser(
   email: User["email"],
   password: User["password"],

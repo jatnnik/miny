@@ -7,7 +7,6 @@ import { getDatesByUserId, safeDeleteDate } from "~/models/date.server"
 
 import WelcomeCard from "~/components/dashboard/WelcomeCard"
 import Dates from "~/components/dashboard/Dates"
-import { useUser } from "~/utils/hooks"
 
 export async function loader({ request }: LoaderArgs) {
   const userId = await requireUserId(request)
@@ -35,15 +34,10 @@ export async function action({ request }: ActionArgs) {
 
 export default function IndexRoute() {
   const { dates } = useTypedLoaderData<typeof loader>()
-  const user = useUser()
 
   return (
     <div className="space-y-6">
-      <WelcomeCard
-        username={user.name}
-        isFirstLogin={user.loginCount === 0}
-        slug={user.slug as string}
-      />
+      <WelcomeCard />
       <Dates dates={dates} />
     </div>
   )
