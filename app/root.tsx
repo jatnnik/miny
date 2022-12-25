@@ -14,7 +14,7 @@ import React from "react"
 import { getUser } from "./utils/session.server"
 
 import tailwind from "./styles/tailwind-build.css"
-import type { PrunedUser } from "./utils"
+import type { PrunedUser } from "./utils/hooks"
 
 export const meta: MetaFunction = () => {
   return {
