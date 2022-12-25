@@ -31,6 +31,22 @@ export async function getUserBySlug(slug: string) {
   return prisma.user.findFirst({ where: { slug } })
 }
 
+export async function getSafeUserById(id: User["id"]) {
+  return prisma.user.findUnique({
+    where: {
+      id,
+    },
+    select: {
+      name: true,
+      email: true,
+      slug: true,
+      loginCount: true,
+      calendarEnabled: true,
+      calendarId: true,
+    },
+  })
+}
+
 export async function createUser(
   email: User["email"],
   password: User["password"],
@@ -92,20 +108,20 @@ export async function resetUserPassword({
 }) {
   const hashedPassword = await bcrypt.hash(password, 10)
 
+  // Delete any existing reset tokens for the user
+  prisma.passwordResetToken.deleteMany({
+    where: {
+      userId,
+    },
+  })
+
   // Update the password
-  await prisma.user.update({
+  return await prisma.user.update({
     where: {
       id: userId,
     },
     data: {
       password: hashedPassword,
-    },
-  })
-
-  // Delete any existing reset tokens for the user
-  return prisma.passwordResetToken.deleteMany({
-    where: {
-      userId,
     },
   })
 }

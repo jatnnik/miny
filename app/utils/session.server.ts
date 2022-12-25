@@ -1,7 +1,5 @@
 import { createCookieSessionStorage, redirect } from "@remix-run/node"
 
-import { getUserById } from "../models/user.server"
-
 export const sessionStorage = createCookieSessionStorage({
   cookie: {
     name: "__session",
@@ -23,14 +21,7 @@ export async function getSession(request: Request) {
 
 export async function getUserId(request: Request): Promise<string | undefined> {
   const session = await getSession(request)
-  const userId = session.get(USER_SESSION_KEY)
-  return userId
-}
-
-export async function getUser(request: Request) {
-  const userId = await getUserId(request)
-  if (userId === undefined) return null
-  return getUserById(Number(userId))
+  return session.get(USER_SESSION_KEY)
 }
 
 export async function requireUserId(
@@ -45,15 +36,6 @@ export async function requireUserId(
     )
   }
   return userId
-}
-
-export async function requireUser(request: Request) {
-  const userId = await requireUserId(request)
-
-  const user = await getUserById(Number(userId))
-  if (user) return user
-
-  throw await logout(request)
 }
 
 export async function createUserSession({

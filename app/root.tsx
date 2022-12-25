@@ -11,10 +11,10 @@ import {
 import { json } from "@remix-run/node"
 import React from "react"
 
-import { getUser } from "./utils/session.server"
+import { getUserId, logout } from "./utils/session.server"
+import { getSafeUserById } from "./models/user.server"
 
-import tailwind from "./styles/tailwind-build.css"
-import type { PrunedUser } from "./utils/hooks"
+import tailwindStylesheetUrl from "./styles/tailwind-build.css"
 
 export const meta: MetaFunction = () => {
   return {
@@ -36,26 +36,21 @@ export const meta: MetaFunction = () => {
 }
 
 export const links = () => {
-  return [{ rel: "stylesheet", href: tailwind }]
+  return [{ rel: "stylesheet", href: tailwindStylesheetUrl }]
 }
 
 export async function loader({ request }: LoaderArgs) {
-  const user = await getUser(request)
-  // TODO: Refactor this into a custom Prisma query that only queries the needed data
-  if (user) {
-    const prunedUser: PrunedUser = {
-      name: user.name,
-      email: user.email,
-      loginCount: user.loginCount,
-      slug: user.slug,
-      calendarId: user.calendarId,
-      calendarEnabled: user.calendarEnabled,
-    }
+  const userId = await getUserId(request)
+  let user: Awaited<ReturnType<typeof getSafeUserById>> | null = null
 
-    return json({ user: prunedUser })
+  if (userId) {
+    user = await getSafeUserById(Number(userId))
+    if (!user) {
+      throw logout(request)
+    }
   }
 
-  return null
+  return json({ user })
 }
 
 function Document({ children }: React.PropsWithChildren) {
