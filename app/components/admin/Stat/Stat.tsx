@@ -6,7 +6,9 @@ interface Props {
 export default function Stat({ value, label }: Props) {
   return (
     <div className="flex flex-col gap-1 sm:gap-2">
-      <span className="text-2xl font-semibold leading-none">{value}</span>
+      <span className="text-xl font-semibold leading-none text-sky-700">
+        {value}
+      </span>
       <span className="text-sm font-medium text-slate-600">{label}</span>
     </div>
   )

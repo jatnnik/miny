@@ -1,15 +1,20 @@
 import type { DataFunctionArgs, MetaFunction } from "@remix-run/node"
+import { json } from "@remix-run/node"
+import { redirect } from "@remix-run/node"
 import { useLoaderData } from "@remix-run/react"
-import { json } from "react-router"
+import React from "react"
+
 import { requireAdmin } from "~/utils/session.server"
 import { prisma } from "~/utils/db.server"
 
 import Card from "~/components/shared/Card"
 import Stat from "~/components/admin/Stat"
-import React from "react"
 import UserTable from "~/components/admin/UserTable"
+import Button from "~/components/shared/Buttons"
 
-function getAllUsers() {
+const USERS_PER_PAGE = 50
+
+function getUsers(page: number, orderBy: string, sort: string) {
   return prisma.user.findMany({
     select: {
       id: true,
@@ -18,21 +23,39 @@ function getAllUsers() {
       createdAt: true,
       loginCount: true,
     },
+    skip: page > 1 ? (page - 1) * USERS_PER_PAGE : 0,
+    take: USERS_PER_PAGE,
+    orderBy: {
+      [orderBy]: sort,
+    },
   })
 }
 
-export type Users = Awaited<ReturnType<typeof getAllUsers>>
+export type Users = Awaited<ReturnType<typeof getUsers>>
 
 interface LoaderData {
   totalUsers: number
   totalAppointments: number
   totalLogins: string
   users: Users
+  page: number
+  totalPages: number
 }
 
 export async function loader({ request }: DataFunctionArgs) {
   await requireAdmin(request)
 
+  // Get search params
+  const searchParams = new URL(request.url).searchParams
+  let page = searchParams.get("page") ?? 1
+  if (typeof page === "string") {
+    page = Number(page)
+  }
+  const orderBy = searchParams.get("orderBy") ?? "id"
+  const sort = searchParams.get("sort") ?? "asc"
+  if (page < 1 || isNaN(page)) throw redirect("?page=1")
+
+  const totalUsers = await prisma.user.count()
   const totalAppointments = await prisma.appointment.count()
 
   const logins = await prisma.user.aggregate({
@@ -44,13 +67,17 @@ export async function loader({ request }: DataFunctionArgs) {
     Number(logins._sum.loginCount)
   )
 
-  const users = await getAllUsers()
+  const totalPages = Math.ceil(totalUsers / USERS_PER_PAGE)
+
+  const users = await getUsers(page, orderBy, sort)
 
   return json<LoaderData>({
-    totalUsers: users.length,
+    totalUsers,
     totalAppointments,
     totalLogins,
     users,
+    page,
+    totalPages,
   })
 }
 
@@ -76,9 +103,9 @@ export default function AdminDashboard() {
   const data = useLoaderData() as unknown as LoaderData
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-mono">
       <Card>
-        <div className="font-mono">
+        <div>
           <h1 className="text-lg font-bold text-sky-800">Admin Dashboard</h1>
           <div className="h-6"></div>
           <Label>Statistik</Label>
@@ -89,9 +116,22 @@ export default function AdminDashboard() {
           </div>
         </div>
       </Card>
-      <Card>
+      <Card className="overflow-scroll">
         <Label>Benutzer</Label>
-        <UserTable users={data.users} />
+        <UserTable
+          users={data.users}
+          activePage={data.page}
+          pages={data.totalPages}
+        />
+      </Card>
+      <Card>
+        <Label>Scripts</Label>
+        <Button
+          intent="submit"
+          onClick={() => alert("Funktioniert noch nicht")}
+        >
+          DB aufräumen
+        </Button>
       </Card>
     </div>
   )

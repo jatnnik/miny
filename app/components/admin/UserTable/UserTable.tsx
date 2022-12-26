@@ -1,8 +1,12 @@
 import type { Users } from "~/routes/__app/admin"
 import React from "react"
-import { Link } from "@remix-run/react"
+import { Form, useSearchParams, useSubmit } from "@remix-run/react"
 import { format } from "date-fns"
-import { PencilSquareIcon, TrashIcon } from "@heroicons/react/20/solid"
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  TrashIcon,
+} from "@heroicons/react/20/solid"
 
 function TableHeading({ children }: React.PropsWithChildren) {
   return <th className="border p-3 text-left">{children}</th>
@@ -12,47 +16,116 @@ function TableItem({ children }: React.PropsWithChildren) {
   return <td className="border border-slate-200 p-3">{children}</td>
 }
 
-export default function UserTable({ users }: { users: Users }) {
+interface Props {
+  users: Users
+  activePage: number
+  pages: number
+}
+
+export default function UserTable({ users, activePage, pages }: Props) {
+  const [searchParams] = useSearchParams()
+  const orderBy = searchParams.get("orderBy") ?? "id"
+  const sort = searchParams.get("sort") ?? "asc"
+
+  const submit = useSubmit()
+
   function handleDelete() {
-    alert("Möchtest du diesen Benutzer wirklich löschen?")
+    alert(
+      "Möchtest du diesen Benutzer wirklich löschen? (Funktioniert noch nicht)"
+    )
   }
 
   return (
-    <table className="w-full table-auto border-collapse border border-slate-400 text-sm">
-      <thead className="bg-slate-100">
-        <tr>
-          <TableHeading>Name</TableHeading>
-          <TableHeading>E-Mail</TableHeading>
-          <TableHeading>Logins</TableHeading>
-          <TableHeading>Registriert</TableHeading>
-          <TableHeading>Aktionen</TableHeading>
-        </tr>
-      </thead>
-      <tbody>
-        {users.map(user => (
-          <tr key={user.id}>
-            <TableItem>{user.name}</TableItem>
-            <TableItem>{user.email}</TableItem>
-            <TableItem>{user.loginCount}</TableItem>
-            <TableItem>
-              {format(new Date(user.createdAt), "dd.MM.yy")}
-            </TableItem>
-            <TableItem>
-              <div className="flex items-center justify-center gap-3">
-                <Link to={`edit/${user.id}`}>
-                  <PencilSquareIcon className="h-4 w-4 text-slate-500 hover:text-slate-700" />
-                </Link>
-                <button
-                  className="text-slate-500 hover:text-slate-700"
-                  onClick={handleDelete}
-                >
-                  <TrashIcon className="h-4 w-4" />
-                </button>
-              </div>
-            </TableItem>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <>
+      {/* Filters */}
+      <Form method="get" onChange={e => submit(e.currentTarget)}>
+        <select
+          name="orderBy"
+          defaultValue={orderBy}
+          className="mr-2 border-slate-500 text-xs text-slate-500"
+        >
+          <option value="id">ID</option>
+          <option value="loginCount">Logins</option>
+          <option value="createdAt">Registriert</option>
+        </select>
+        <select
+          name="sort"
+          defaultValue={sort}
+          className="border-slate-500 text-xs text-slate-500"
+        >
+          <option value="asc">Aufsteigend</option>
+          <option value="desc">Absteigend</option>
+        </select>
+        <input type="hidden" name="page" value={1} />
+      </Form>
+      <div className="h-3"></div>
+      {/* Table */}
+      <div className="overflow-scroll">
+        <table className="w-full table-auto border-collapse border border-slate-400 text-xs sm:text-sm">
+          <thead className="bg-slate-100">
+            <tr>
+              <TableHeading>Name</TableHeading>
+              <TableHeading>E-Mail</TableHeading>
+              <TableHeading>Logins</TableHeading>
+              <TableHeading>Registriert</TableHeading>
+              <TableHeading>Aktionen</TableHeading>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map(user => (
+              <tr key={user.id}>
+                <TableItem>{user.name}</TableItem>
+                <TableItem>{user.email}</TableItem>
+                <TableItem>{user.loginCount}</TableItem>
+                <TableItem>
+                  {format(new Date(user.createdAt), "dd.MM.yy")}
+                </TableItem>
+                <TableItem>
+                  <div className="flex items-center justify-center">
+                    <button
+                      className="text-slate-500 hover:text-slate-700"
+                      onClick={handleDelete}
+                    >
+                      <TrashIcon className="h-4 w-4" />
+                    </button>
+                  </div>
+                </TableItem>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {/* Pagination */}
+      <div className="h-3"></div>
+      <div className="flex items-center justify-between text-xs">
+        <Form>
+          <input type="hidden" name="orderBy" value={orderBy} />
+          <input type="hidden" name="sort" value={sort} />
+          <input type="hidden" name="page" value={activePage - 1} />
+          <button
+            type="submit"
+            disabled={activePage === 1}
+            className="disabled:opacity-50"
+          >
+            <ArrowLeftIcon className="h-4 w-4" />
+          </button>
+        </Form>
+        <div>
+          {activePage}/{pages}
+        </div>
+        <Form>
+          <input type="hidden" name="orderBy" value={orderBy} />
+          <input type="hidden" name="sort" value={sort} />
+          <input type="hidden" name="page" value={activePage + 1} />
+          <button
+            type="submit"
+            disabled={activePage === pages}
+            className="disabled:opacity-50"
+          >
+            <ArrowRightIcon className="h-4 w-4" />
+          </button>
+        </Form>
+      </div>
+    </>
   )
 }
