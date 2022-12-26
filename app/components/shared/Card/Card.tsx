@@ -1,4 +1,6 @@
-export default function Card({ children }: { children: React.ReactNode }) {
+import React from "react"
+
+export default function Card({ children }: React.PropsWithChildren) {
   return (
     <div className="rounded-md bg-white p-5 shadow-md ring-1 ring-black ring-opacity-5 sm:p-7">
       {children}

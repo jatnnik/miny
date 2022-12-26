@@ -1,5 +1,6 @@
 import { createCookieSessionStorage, redirect } from "@remix-run/node"
 import { getUserById } from "~/models/user.server"
+import { prisma } from "./db.server"
 
 export const sessionStorage = createCookieSessionStorage({
   cookie: {
@@ -43,10 +44,31 @@ export async function requireUserId(
   if (!userId) {
     const searchParams = new URLSearchParams([["redirectTo", redirectTo]])
     throw redirect(
-      redirectTo && redirectTo !== "/" ? `/login?${searchParams}` : "/login"
+      redirectTo && !["/", "/admin"].includes(redirectTo)
+        ? `/login?${searchParams}`
+        : "/login"
     )
   }
   return userId
+}
+
+export async function requireAdmin(request: Request) {
+  const userId = await requireUserId(request)
+  const user = await prisma.user.findUnique({
+    where: {
+      id: Number(userId),
+    },
+    select: {
+      id: true,
+      isAdmin: true,
+    },
+  })
+
+  if (!user || !user.isAdmin) {
+    throw redirect("/")
+  }
+
+  return user
 }
 
 export async function createUserSession({
