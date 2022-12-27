@@ -97,7 +97,7 @@ export default function UserTable({ users, activePage, pages }: Props) {
                 </TableItem>
                 <TableItem>
                   <div className="flex items-center justify-center">
-                    <fetcher.Form method="post" onSubmit={handleSubmit}>
+                    <fetcher.Form method="post" onSubmit={handleSubmit} replace>
                       <button
                         type="submit"
                         name="userId"
