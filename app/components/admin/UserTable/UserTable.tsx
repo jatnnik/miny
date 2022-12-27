@@ -1,12 +1,20 @@
 import type { Users } from "~/routes/__app/admin"
 import React from "react"
-import { Form, useSearchParams, useSubmit } from "@remix-run/react"
+import {
+  Form,
+  useFetcher,
+  useSearchParams,
+  useSubmit,
+  useTransition,
+} from "@remix-run/react"
 import { format } from "date-fns"
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
   TrashIcon,
 } from "@heroicons/react/20/solid"
+
+import LoadingSpinner from "~/components/shared/LoadingSpinner"
 
 function TableHeading({ children }: React.PropsWithChildren) {
   return <th className="border p-3 text-left">{children}</th>
@@ -27,22 +35,28 @@ export default function UserTable({ users, activePage, pages }: Props) {
   const orderBy = searchParams.get("orderBy") ?? "id"
   const sort = searchParams.get("sort") ?? "asc"
 
+  const transition = useTransition()
   const submit = useSubmit()
+  const fetcher = useFetcher()
 
-  function handleDelete() {
-    alert(
-      "Möchtest du diesen Benutzer wirklich löschen? (Funktioniert noch nicht)"
-    )
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    if (!window.confirm("Möchtest du diesen Nutzer wirklich löschen?")) {
+      event.preventDefault()
+    }
   }
 
   return (
     <>
       {/* Filters */}
-      <Form method="get" onChange={e => submit(e.currentTarget)}>
+      <Form
+        method="get"
+        onChange={e => submit(e.currentTarget)}
+        className="flex items-center gap-2"
+      >
         <select
           name="orderBy"
           defaultValue={orderBy}
-          className="mr-2 border-slate-500 text-xs text-slate-500"
+          className="border-slate-500 text-xs text-slate-500"
         >
           <option value="id">ID</option>
           <option value="loginCount">Logins</option>
@@ -57,10 +71,11 @@ export default function UserTable({ users, activePage, pages }: Props) {
           <option value="desc">Absteigend</option>
         </select>
         <input type="hidden" name="page" value={1} />
+        {transition.state === "submitting" ? <LoadingSpinner /> : null}
       </Form>
       <div className="h-3"></div>
       {/* Table */}
-      <div className="overflow-scroll">
+      <div className="overflow-x-scroll">
         <table className="w-full table-auto border-collapse border border-slate-400 text-xs sm:text-sm">
           <thead className="bg-slate-100">
             <tr>
@@ -82,12 +97,17 @@ export default function UserTable({ users, activePage, pages }: Props) {
                 </TableItem>
                 <TableItem>
                   <div className="flex items-center justify-center">
-                    <button
-                      className="text-slate-500 hover:text-slate-700"
-                      onClick={handleDelete}
-                    >
-                      <TrashIcon className="h-4 w-4" />
-                    </button>
+                    <fetcher.Form method="post" onSubmit={handleSubmit}>
+                      <button
+                        type="submit"
+                        name="userId"
+                        value={user.id}
+                        disabled={fetcher.state !== "idle"}
+                        className="text-slate-500 hover:text-slate-700 disabled:opacity-50"
+                      >
+                        <TrashIcon className="h-4 w-4" />
+                      </button>
+                    </fetcher.Form>
                   </div>
                 </TableItem>
               </tr>

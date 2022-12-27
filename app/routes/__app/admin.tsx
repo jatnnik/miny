@@ -3,14 +3,15 @@ import { json } from "@remix-run/node"
 import { redirect } from "@remix-run/node"
 import { useLoaderData } from "@remix-run/react"
 import React from "react"
+import { z } from "zod"
 
-import { requireAdmin } from "~/utils/session.server"
+import { getUserId, requireAdmin } from "~/utils/session.server"
+import { deleteUser } from "~/models/user.server"
 import { prisma } from "~/utils/db.server"
 
 import Card from "~/components/shared/Card"
 import Stat from "~/components/admin/Stat"
 import UserTable from "~/components/admin/UserTable"
-import Button from "~/components/shared/Buttons"
 
 const USERS_PER_PAGE = 50
 
@@ -81,6 +82,30 @@ export async function loader({ request }: DataFunctionArgs) {
   })
 }
 
+export async function action({ request }: DataFunctionArgs) {
+  // Check if user is an admin
+  await requireAdmin(request)
+  const myId = await getUserId(request)
+
+  // Validate userId
+  const formData = Object.fromEntries(await request.formData())
+  const schema = z.object({
+    userId: z.coerce.number(),
+  })
+
+  const { userId } = schema.parse(formData)
+
+  // Users can't delete themselves
+  if (userId === Number(myId)) {
+    throw new Error("You can't delete your own user.")
+  }
+
+  // Delete the user
+  await deleteUser(userId)
+
+  return json({})
+}
+
 export const meta: MetaFunction = () => {
   return {
     title: "Admin",
@@ -124,6 +149,17 @@ export default function AdminDashboard() {
           pages={data.totalPages}
         />
       </Card>
+    </div>
+  )
+}
+
+export function ErrorBoundary({ error }: { error: Error }) {
+  console.error(error)
+
+  return (
+    <div className="p-6">
+      <p className="mb-2 font-semibold underline">Error</p>
+      <pre>{error.message}</pre>
     </div>
   )
 }

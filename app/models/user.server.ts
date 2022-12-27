@@ -100,12 +100,20 @@ export async function resetUserPassword({
   })
 
   // Update the password
-  return await prisma.user.update({
+  return prisma.user.update({
     where: {
       id: userId,
     },
     data: {
       password: hashedPassword,
+    },
+  })
+}
+
+export async function deleteUser(userId: User["id"]) {
+  return prisma.user.delete({
+    where: {
+      id: userId,
     },
   })
 }
