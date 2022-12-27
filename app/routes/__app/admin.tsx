@@ -116,22 +116,13 @@ export default function AdminDashboard() {
           </div>
         </div>
       </Card>
-      <Card className="overflow-scroll">
+      <Card className="overflow-x-auto">
         <Label>Benutzer</Label>
         <UserTable
           users={data.users}
           activePage={data.page}
           pages={data.totalPages}
         />
-      </Card>
-      <Card>
-        <Label>Scripts</Label>
-        <Button
-          intent="submit"
-          onClick={() => alert("Funktioniert noch nicht")}
-        >
-          DB aufräumen
-        </Button>
       </Card>
     </div>
   )
