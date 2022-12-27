@@ -102,7 +102,11 @@ export default function UserTable({ users, activePage, pages }: Props) {
                         type="submit"
                         name="userId"
                         value={user.id}
-                        disabled={fetcher.state === "submitting"}
+                        disabled={
+                          fetcher.state === "submitting" &&
+                          Number(fetcher.submission.formData.get("userId")) ===
+                            user.id
+                        }
                         className="text-slate-500 hover:text-slate-700 disabled:opacity-50"
                       >
                         <TrashIcon className="h-4 w-4" />
