@@ -99,7 +99,13 @@ export function DateSlot({
           >
             <input type="hidden" name="id" value={date.id} />
             <div>
-              <Input type="text" label="Dein Name*" name="name" required />
+              <Input
+                type="text"
+                label="Dein Name*"
+                name="name"
+                autoComplete="given-name"
+                required
+              />
             </div>
             <div>
               <Input
