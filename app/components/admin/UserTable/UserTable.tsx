@@ -102,7 +102,7 @@ export default function UserTable({ users, activePage, pages }: Props) {
                         type="submit"
                         name="userId"
                         value={user.id}
-                        disabled={fetcher.state !== "idle"}
+                        disabled={fetcher.state === "submitting"}
                         className="text-slate-500 hover:text-slate-700 disabled:opacity-50"
                       >
                         <TrashIcon className="h-4 w-4" />
