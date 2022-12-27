@@ -11,8 +11,7 @@ import {
 import { json } from "@remix-run/node"
 import React from "react"
 
-import { getUserId, logout } from "./utils/session.server"
-import { getSafeUserById } from "./models/user.server"
+import { getUser } from "./utils/session.server"
 
 import tailwindStylesheetUrl from "./styles/tailwind-build.css"
 
@@ -40,17 +39,7 @@ export const links = () => {
 }
 
 export async function loader({ request }: LoaderArgs) {
-  const userId = await getUserId(request)
-  let user: Awaited<ReturnType<typeof getSafeUserById>> | null = null
-
-  if (userId) {
-    user = await getSafeUserById(Number(userId))
-    if (!user) {
-      throw logout(request)
-    }
-  }
-
-  return json({ user })
+  return json({ user: await getUser(request) })
 }
 
 function Document({ children }: React.PropsWithChildren) {

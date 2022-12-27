@@ -12,21 +12,15 @@ import Button from "~/components/shared/Buttons"
 import { headlineClasses } from "~/components/shared/Headline"
 import { labelClasses } from "~/components/shared/Input"
 import LoadingSpinner from "~/components/shared/LoadingSpinner"
+import { useUser } from "~/utils/hooks"
 
-interface WelcomeCardProps {
-  username: string
-  slug: string
-  isFirstLogin: boolean
-}
+export default function WelcomeCard() {
+  const user = useUser()
+  const isFirstLogin = user.loginCount === 0
 
-export default function WelcomeCard({
-  username,
-  isFirstLogin,
-  slug,
-}: WelcomeCardProps) {
   const [copied, setCopied] = useState(false)
 
-  const userLink = `dienst.vercel.app/u/${slug}`
+  const userLink = `dienst.vercel.app/u/${user.slug}`
 
   useEffect(() => {
     let timeout: any
@@ -49,7 +43,9 @@ export default function WelcomeCard({
 
   return (
     <Card>
-      <h2 className={headlineClasses}>Hey {username}!</h2>
+      <h2 className={`${headlineClasses} flex items-center gap-1`}>
+        Hey {user.name}!
+      </h2>
       <div className="h-4"></div>
 
       {isFirstLogin ? (
@@ -61,7 +57,7 @@ export default function WelcomeCard({
           </label>
           <div className="flex items-center gap-2">
             <Link
-              to={`u/${slug}`}
+              to={`u/${user.slug}`}
               className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-slate-100 py-2 px-4 pl-3.5 text-sm shadow-sm"
             >
               <GlobeAltIcon className="h-4 w-4" />
@@ -98,13 +94,6 @@ function FirstLoginText() {
         per Link teilen. Wenn sich jemand für einen deiner Termine einträgt,
         bekommst du automatisch eine E-Mail.
       </p>
-      {/* <p>
-        Tipp: In den{" "}
-        <Link to="/settings" className="text-amber-800">
-          Einstellungen
-        </Link>{" "}
-        kannst du miny auch mit deinem Kalender verbinden.
-      </p> */}
       <p className="flex items-center">
         Viel Spaß!
         <img src="https://emojicdn.elk.sh/🎉" alt="" className="ml-1 h-5 w-5" />

@@ -1,3 +1,4 @@
+import { CheckBadgeIcon } from "@heroicons/react/20/solid"
 import { Link, Outlet } from "@remix-run/react"
 
 import Container from "~/components/shared/Container"
@@ -12,7 +13,7 @@ export default function AppRoute() {
     <Container>
       <div className="h-6 sm:h-8"></div>
       <div className="flex items-center justify-between">
-        <div>
+        <div className="flex items-center gap-1">
           <Link
             className="flex items-center gap-2 text-sm font-semibold"
             to="/"
@@ -20,6 +21,11 @@ export default function AppRoute() {
             <img src="/backpack.png" className="w-6" alt="" />
             <h1>miny</h1>
           </Link>
+          {user && user.isAdmin ? (
+            <Link to="/admin" title="Admin">
+              <CheckBadgeIcon className="h-4 w-4 text-sky-500" />
+            </Link>
+          ) : null}
         </div>
         {user ? (
           <Menu />

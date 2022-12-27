@@ -1,4 +1,3 @@
-import type { getSafeUserById } from "~/models/user.server"
 import type { User } from "@prisma/client"
 import { useMatches } from "@remix-run/react"
 import { useMemo } from "react"
@@ -23,9 +22,7 @@ function isUser(user: any): user is User {
   return user && typeof user === "object" && typeof user.email === "string"
 }
 
-type SafeUser = Awaited<ReturnType<typeof getSafeUserById>>
-
-export function useOptionalUser(): SafeUser | undefined {
+export function useOptionalUser(): User | undefined {
   const data = useMatchesData("root")
   if (!data || !isUser(data.user)) {
     return undefined
@@ -33,7 +30,7 @@ export function useOptionalUser(): SafeUser | undefined {
   return data.user
 }
 
-export function useUser(): SafeUser {
+export function useUser(): User {
   const maybeUser = useOptionalUser()
   if (!maybeUser) {
     throw new Error(
