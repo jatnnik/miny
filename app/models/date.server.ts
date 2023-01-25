@@ -360,7 +360,9 @@ export async function sendAssignmentEmail(
     text += `–${appointment.endTime}`
   }
   text += "\n\nViel Spaß im Dienst!\n\n"
-  text += "Hier kommst du zu deinen Terminen: https://dienst.vercel.app/"
+  text += "Hier kommst du zu deinen Terminen: https://dienst.vercel.app/\n\n"
+  text +=
+    "Bitte antworte nicht auf diese E-Mail, da sie automatisch generiert wurde."
 
   await transporter.sendMail({
     from: '"miny" <my.miny.app@gmail.com>',
