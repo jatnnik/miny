@@ -23,6 +23,7 @@ model User {
   calendarId          String?              @unique
   calendarEnabled     Boolean              @default(false)
   isAdmin             Boolean              @default(false)
+  isPrivate           Boolean              @default(false)
   dates               Appointment[]
   passwordResetTokens PasswordResetToken[]
 }

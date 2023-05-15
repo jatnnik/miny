@@ -15,12 +15,13 @@ import LoadingSpinner from "~/components/shared/LoadingSpinner"
 import { useUser } from "~/utils/hooks"
 
 export default function WelcomeCard() {
-  const user = useUser()
-  const isFirstLogin = user.loginCount === 0
-
   const [copied, setCopied] = useState(false)
+  const user = useUser()
+  const transition = useTransition()
 
   const userLink = `dienst.vercel.app/u/${user.slug}`
+  const isAdmin = user.isAdmin
+  const isFirstLogin = user.loginCount === 0
 
   useEffect(() => {
     let timeout: any
@@ -76,6 +77,19 @@ export default function WelcomeCard() {
           </div>
         </div>
       )}
+      {isAdmin ? (
+        <Form action="." method="post">
+          <Button
+            className="mt-4"
+            variant="icon"
+            name="action"
+            value="triggerPrivate"
+          >
+            Privaten Modus {user.isPrivate ? "deaktivieren" : "aktivieren"}
+            {transition.state === "submitting" && <LoadingSpinner />}
+          </Button>
+        </Form>
+      ) : null}
     </Card>
   )
 }

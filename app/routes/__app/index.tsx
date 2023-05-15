@@ -2,7 +2,7 @@ import type { ActionArgs, LoaderArgs } from "@remix-run/node"
 import { typedjson, useTypedLoaderData } from "remix-typedjson"
 
 import { requireUserId } from "~/utils/session.server"
-import { increaseLoginCount } from "~/models/user.server"
+import { increaseLoginCount, triggerPrivate } from "~/models/user.server"
 import { getDatesByUserId, safeDeleteDate } from "~/models/date.server"
 
 import WelcomeCard from "~/components/dashboard/WelcomeCard"
@@ -26,6 +26,9 @@ export async function action({ request }: ActionArgs) {
     case "deleteDate":
       const id = formData.get("id")
       await safeDeleteDate(Number(id), Number(userId))
+      return null
+    case "triggerPrivate":
+      await triggerPrivate(Number(userId))
       return null
   }
 

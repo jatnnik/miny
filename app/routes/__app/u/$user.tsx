@@ -42,7 +42,7 @@ export const loader = async ({ params }: LoaderArgs) => {
 
   const dates = await getFreeDates(user.id)
 
-  return typedjson({ user: user.name, dates })
+  return typedjson({ user: user.name, dates, isPrivate: user.isPrivate })
 }
 
 const validationSchema = z.object({
@@ -191,7 +191,7 @@ function AssignedCard({ data, user }: AssignedCardProps) {
 }
 
 export default function UserPage() {
-  const { user, dates } = useTypedLoaderData<typeof loader>()
+  const { user, dates, isPrivate } = useTypedLoaderData<typeof loader>()
   const actionData = useActionData<ActionData>()
   const [searchParams] = useSearchParams()
   const transition = useTransition()
@@ -229,7 +229,7 @@ export default function UserPage() {
     <Card>
       <h1 className={headlineClasses}>{getUserPageTitle(user)}</h1>
       <div className="h-3"></div>
-      {hasDates ? (
+      {hasDates && !isPrivate ? (
         <>
           <p className="italic">
             Tippe einfach auf den Pfeil, um dich für einen Termin einzutragen.{" "}

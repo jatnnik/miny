@@ -117,3 +117,20 @@ export async function deleteUser(userId: User["id"]) {
     },
   })
 }
+
+export async function triggerPrivate(userId: User["id"]) {
+  const user = await getUserById(userId)
+
+  if (!user || !user.isAdmin) {
+    throw new Error("invalid user")
+  }
+
+  return prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      isPrivate: !user.isPrivate,
+    },
+  })
+}
