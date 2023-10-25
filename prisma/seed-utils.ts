@@ -64,6 +64,7 @@ export function createAppointment(
     isGroupDate: false,
     isZoom: false,
     note: null,
+    privateNote: null,
     partnerName: null,
     maxParticipants: null,
   }
