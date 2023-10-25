@@ -139,7 +139,7 @@ export default function Date({ data, disableMenu = false }: DateProps) {
           exit={{ opacity: 0 }}
         >
           <div
-            className={clsx("flex items-center justify-between", {
+            className={clsx("flex items-start justify-between", {
               "text-rose-700": data.isAssigned,
               "text-green-700": !data.isAssigned,
             })}
