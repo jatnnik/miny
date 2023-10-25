@@ -26,6 +26,7 @@ export function createUser(): FakeUser {
     calendarEnabled: false,
     calendarId: null,
     isAdmin: false,
+    isPrivate: false,
   }
 }
 
@@ -46,6 +47,7 @@ export function createAdmin(): FakeUser {
     calendarEnabled: false,
     calendarId: null,
     isAdmin: true,
+    isPrivate: false,
   }
 }
 
