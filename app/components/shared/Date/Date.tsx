@@ -150,9 +150,7 @@ export default function Date({ data, disableMenu = false }: DateProps) {
                 {data.isZoom && <VideoCameraIcon className="ml-1.5 h-4 w-4" />}
               </div>
               {data.privateNote && (
-                <div className="mb-2 italic text-slate-500">
-                  {data.privateNote}
-                </div>
+                <div className="italic text-slate-500">{data.privateNote}</div>
               )}
             </div>
             {!disableMenu && (
