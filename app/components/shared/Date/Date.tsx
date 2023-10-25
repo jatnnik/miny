@@ -7,6 +7,7 @@ import {
   UsersIcon,
   ChatBubbleOvalLeftEllipsisIcon,
   VideoCameraIcon,
+  PencilSquareIcon,
 } from "@heroicons/react/24/outline"
 import { Form, Link, useTransition } from "@remix-run/react"
 import clsx from "clsx"
@@ -148,6 +149,11 @@ export default function Date({ data, disableMenu = false }: DateProps) {
                 {formattedDate}
                 {data.isZoom && <VideoCameraIcon className="ml-1.5 h-4 w-4" />}
               </div>
+              {data.privateNote && (
+                <div className="mb-2 italic text-slate-500">
+                  {data.privateNote}
+                </div>
+              )}
             </div>
             {!disableMenu && (
               <DateMenu

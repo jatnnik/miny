@@ -48,6 +48,7 @@ export const baseDateSchema = z.object({
   isGroup: z.enum(["on"]).optional(),
   maxParticipants: z.string().transform(Number).optional(),
   note: z.string().optional(),
+  privateNote: z.string().optional(),
 })
 
 const validationSchema = baseDateSchema
@@ -101,6 +102,7 @@ export async function action({ request }: ActionArgs) {
       validData.isGroup === "on" ? Number(validData.maxParticipants) : null,
     partner: null,
     note: validData.note,
+    privateNote: validData.privateNote,
   }
 
   await createDates(data, Number(userId))
@@ -187,7 +189,7 @@ export default function AddDateRoute() {
               <div>
                 <Input
                   name="flexibleStart"
-                  label='Zeit (z.B. "Vormittags")'
+                  label='Zeitfenster (z.B. "Vormittags")'
                   type="text"
                   required
                   defaultValue={actionData?.fields?.flexibleStart}
@@ -304,6 +306,17 @@ export default function AddDateRoute() {
             type="text"
             defaultValue={actionData?.fields.note}
             validationError={actionData?.errors?.fieldErrors.note?.join(", ")}
+          />
+          {/* Private Note */}
+          <div className="h-6"></div>
+          <Input
+            label="Private Notiz (nur für dich sichtbar)"
+            name="privateNote"
+            type="text"
+            defaultValue={actionData?.fields.privateNote}
+            validationError={actionData?.errors?.fieldErrors.privateNote?.join(
+              ", "
+            )}
           />
           {/* Submit */}
           <div className="h-10"></div>

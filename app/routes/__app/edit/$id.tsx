@@ -137,6 +137,7 @@ export async function action({ request, params }: ActionArgs) {
       validData.isGroup === "on" ? Number(validData.maxParticipants) : null,
     partner: validData.manualPartner === "on" ? validData.partner : null,
     note: validData.note,
+    privateNote: validData.privateNote,
   }
 
   await updateDate(data)
@@ -525,6 +526,14 @@ export default function Edit() {
               name="note"
               type="text"
               defaultValue={date.note || undefined}
+            />
+            {/* Private Note */}
+            <div className="h-6"></div>
+            <Input
+              label="Private Notiz (nur für dich sichtbar)"
+              name="privateNote"
+              type="text"
+              defaultValue={date.privateNote || undefined}
             />
             {/* Submit */}
             <div className="h-10"></div>

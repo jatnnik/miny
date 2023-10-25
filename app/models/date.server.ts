@@ -180,6 +180,7 @@ export interface CreateFields {
   maxParticipants?: number | null
   partner?: string | null
   note?: string | null
+  privateNote?: string | null
 }
 
 export async function createDates(fields: CreateFields, userId: User["id"]) {
@@ -195,6 +196,7 @@ export async function createDates(fields: CreateFields, userId: User["id"]) {
     isGroupDate: fields.isGroup,
     maxParticipants: fields.maxParticipants,
     note: fields.note,
+    privateNote: fields.privateNote,
     isZoom: fields.isZoom,
     userId,
   }))
@@ -225,6 +227,7 @@ export async function updateDate(fields: UpdateFields) {
       isGroupDate: fields.isGroup,
       maxParticipants: fields.maxParticipants,
       note: fields.note,
+      privateNote: fields.privateNote,
       isFlexible: fields.isFlexible,
       partnerName: fields.partner,
       isAssigned: !!fields.partner,

@@ -41,6 +41,7 @@ model Appointment {
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   note            String?       @db.VarChar(255)
+  privateNote     String?       @db.VarChar(255)
   participants    Participant[]
   isZoom          Boolean?
 
