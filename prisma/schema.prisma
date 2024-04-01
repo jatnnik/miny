@@ -1,16 +1,65 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider     = "mysql"
-  url          = env("DATABASE_URL")
-  relationMode = "prisma"
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
+// model User {
+//   id              Int      @id(map: "idx_28667_PRIMARY") @default(autoincrement())
+//   createdAt       DateTime @default(now()) @db.Timestamptz(6)
+//   updatedAt       DateTime @updatedAt @db.Timestamptz(6)
+//   name            String   @db.VarChar(255)
+//   email           String   @unique(map: "idx_28667_User_email_key") @db.VarChar(191)
+//   password        String   @db.VarChar(191)
+//   slug            String   @unique(map: "idx_28667_User_slug_key") @db.VarChar(191)
+//   loginCount      Int      @default(0)
+//   calendarEnabled Boolean  @default(false)
+//   calendarId      String?  @unique(map: "idx_28667_User_calendarId_key") @db.VarChar(191)
+//   isAdmin         Boolean  @default(false)
+//   isPrivate       Boolean  @default(false)
+// }
+
+// model Appointment {
+//   id              Int      @id(map: "idx_28646_PRIMARY") @default(autoincrement())
+//   date            DateTime @db.Timestamptz(6)
+//   startTime       String   @db.VarChar(191)
+//   endTime         String?  @db.VarChar(191)
+//   isAssigned      Boolean  @default(false)
+//   partnerName     String?  @db.VarChar(191)
+//   isGroupDate     Boolean  @default(false)
+//   maxParticipants Int?
+//   createdAt       DateTime @default(now()) @db.Timestamptz(6)
+//   updatedAt       DateTime @updatedAt @db.Timestamptz(6)
+//   note            String?  @db.VarChar(255)
+//   userId          Int
+//   isFlexible      Boolean  @default(false)
+//   isZoom          Boolean?
+//   privateNote     String?  @db.VarChar(255)
+
+//   @@index([userId], map: "idx_28646_Appointment_userId_idx")
+// }
+
+// model Participant {
+//   id        Int      @id(map: "idx_28657_PRIMARY") @default(autoincrement())
+//   name      String   @db.VarChar(255)
+//   createdAt DateTime @default(now()) @db.Timestamptz(6)
+//   dateId    Int
+
+//   @@index([dateId], map: "idx_28657_Participant_dateId_idx")
+// }
+
+// model PasswordResetToken {
+//   id        String   @id(map: "idx_28662_PRIMARY") @default(uuid()) @db.VarChar(191)
+//   userId    Int
+//   token     String   @unique(map: "idx_28662_PasswordResetToken_token_key") @db.VarChar(191)
+//   createdAt DateTime @default(now()) @db.Timestamptz(6)
+
+//   @@index([userId], map: "idx_28662_PasswordResetToken_userId_idx")
+// }
 model User {
   id                  Int                  @id @default(autoincrement())
   createdAt           DateTime             @default(now())

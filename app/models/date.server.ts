@@ -5,7 +5,7 @@ import nodemailer from "nodemailer"
 import { formatInTimeZone } from "date-fns-tz"
 import { formatDate } from "~/utils/misc"
 
-const dateWithParticipants = Prisma.validator<Prisma.AppointmentArgs>()({
+const dateWithParticipants = Prisma.validator<Prisma.AppointmentDefaultArgs>()({
   include: {
     participants: {
       select: {
@@ -107,14 +107,14 @@ export async function getDatesByUserId(id: User["id"]) {
         startTime: "asc",
       },
     ],
-    include: {
-      participants: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
-    },
+    // include: {
+    //   participants: {
+    //     select: {
+    //       id: true,
+    //       name: true,
+    //     },
+    //   },
+    // },
   })
 }
 
