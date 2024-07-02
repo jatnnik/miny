@@ -107,14 +107,14 @@ export async function getDatesByUserId(id: User["id"]) {
         startTime: "asc",
       },
     ],
-    // include: {
-    //   participants: {
-    //     select: {
-    //       id: true,
-    //       name: true,
-    //     },
-    //   },
-    // },
+    include: {
+      participants: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
   })
 }
 

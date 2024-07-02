@@ -7,7 +7,6 @@ import {
   UsersIcon,
   ChatBubbleOvalLeftEllipsisIcon,
   VideoCameraIcon,
-  PencilSquareIcon,
 } from "@heroicons/react/24/outline"
 import { Form, Link, useTransition } from "@remix-run/react"
 import clsx from "clsx"
